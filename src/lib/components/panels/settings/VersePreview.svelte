@@ -18,6 +18,16 @@
 	const arabicText = $derived(previewByFont[readerState.quranFont] ?? previewByFont['text_uthmani']);
 	const fontFamily = $derived(fontFamilyMap[readerState.quranFont] ?? fontFamilyMap['text_uthmani']);
 	const fontSize = $derived(0.9 + (readerState.fontScale - 1) * 0.2);
+
+	// Inject p1-v4 font-face for Tajweed preview
+	$effect(() => {
+		if (readerState.quranFont !== 'tajweed_v4' || typeof document === 'undefined') return;
+		if (document.getElementById('qcf-p1-v4')) return;
+		const s = document.createElement('style');
+		s.id = 'qcf-p1-v4';
+		s.textContent = `@font-face{font-family:p1-v4;src:url('/fonts/quran/hafs/v4/colrv1/woff2/p1.woff2') format('woff2');}`;
+		document.head.appendChild(s);
+	});
 </script>
 
 <div class="text-[0.65rem] font-medium text-base-content/40 mb-2 uppercase tracking-wide">Preview:</div>

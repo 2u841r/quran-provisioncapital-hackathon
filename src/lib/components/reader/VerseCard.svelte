@@ -17,9 +17,17 @@
 	const isPlaying = $derived(isCurrentVerse && audioState.isPlaying);
 	const isLoading = $derived(isCurrentVerse && audioState.status === 'loading');
 
-	// Per-font arabic text
+	// Map font key to camelized verse field (camelizeKeys transforms text_uthmani → textUthmani etc.)
+	const fontVerseField: Record<string, keyof typeof verse> = {
+		text_indopak: 'textIndopak',
+		text_uthmani: 'textUthmani',
+		text_uthmani_simple: 'textUthmaniSimple',
+		code_v1: 'textImlaeiSimple',
+		code_v2: 'textImlaeiSimple',
+		tajweed_v4: 'textImlaeiSimple'
+	};
 	const arabicText = $derived(
-		(verse as Record<string, unknown>)[readerState.quranFont] as string ??
+		(verse[fontVerseField[readerState.quranFont] ?? 'textImlaeiSimple'] as string) ??
 		verse.textImlaeiSimple ?? ''
 	);
 
