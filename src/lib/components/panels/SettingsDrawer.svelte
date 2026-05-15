@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { fly, fade } from 'svelte/transition';
 	import { readerState, type QuranFont } from '$lib/state/reader.svelte';
 	import { audioState } from '$lib/state/audio.svelte';
 	import type { AvailableTranslation, Reciter, TafsirInfo } from '$lib/types/quran';
@@ -78,12 +79,15 @@
 </script>
 
 {#if open}
-	<button class="fixed inset-0 bg-black/30 z-30" onclick={onClose} aria-label="Close settings"></button>
-{/if}
-
+<button
+	class="fixed inset-0 bg-black/30 z-30"
+	onclick={onClose}
+	aria-label="Close settings"
+	transition:fade={{ duration: 150 }}
+></button>
 <div
-	class="fixed inset-y-0 right-0 w-full max-w-sm bg-base-100 border-l border-base-200 shadow-2xl z-40 flex flex-col transition-transform duration-200"
-	class:translate-x-full={!open}
+	class="fixed inset-y-0 right-0 w-full max-w-sm bg-base-100 border-l border-base-200 shadow-2xl z-40 flex flex-col"
+	transition:fly={{ x: 384, duration: 200, opacity: 1 }}
 >
 	<!-- Header -->
 	<div class="flex items-center justify-between px-4 py-3 border-b border-base-200 shrink-0">
@@ -97,14 +101,14 @@
 
 	<!-- Tabs -->
 	<div role="tablist" class="flex border-b border-base-200 shrink-0">
-		{#each ([['arabic','Arabic'],['translation','Translation'],['wbw','Word By Word']] as const) as [tab, label] (tab)}
+		{#each ([{id: 'arabic', label: 'Arabic'}, {id: 'translation', label: 'Translation'}, {id: 'wbw', label: 'Word By Word'}]) as t (t.id)}
 			<button
 				role="tab"
-				aria-selected={activeTab === tab}
-				class="flex-1 py-2.5 text-xs font-medium transition-colors border-b-2 {activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-base-content/50 hover:text-base-content'}"
-				onclick={() => { activeTab = tab; reciterExpanded = false; }}
+				aria-selected={activeTab === t.id}
+				class="flex-1 py-2.5 text-xs font-medium transition-colors border-b-2 {activeTab === t.id ? 'border-primary text-primary' : 'border-transparent text-base-content/50 hover:text-base-content'}"
+				onclick={() => { activeTab = t.id as Tab; reciterExpanded = false; }}
 			>
-				{label}
+				{t.label}
 			</button>
 		{/each}
 	</div>
@@ -326,3 +330,4 @@
 		<button class="btn btn-primary btn-sm flex-1" onclick={onClose}>Done</button>
 	</div>
 </div>
+{/if}
