@@ -2,6 +2,7 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
+	import AudioPlayer from '$lib/components/audio/AudioPlayer.svelte';
 
 	let { children } = $props();
 </script>
@@ -22,5 +23,9 @@
 		</div>
 	</nav>
 
-	{@render children()}
+	<div class="pb-14">
+		{@render children()}
+	</div>
+
+	<AudioPlayer />
 </div>

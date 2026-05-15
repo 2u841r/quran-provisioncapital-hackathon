@@ -28,8 +28,8 @@
 		{#each surahs as surah (surah.id)}
 			<a href="/{surah.id}" class="card card-border bg-base-100 hover:bg-base-200 transition-colors p-3 gap-0.5 no-underline">
 				<span class="text-xs font-bold text-base-content/40">{surah.id}</span>
-				<span class="text-sm font-semibold text-base-content leading-tight">{surah.transliteratedName}</span>
-				<span class="text-xs text-base-content/60">{surah.translatedName}</span>
+				<span class="text-sm font-semibold text-base-content leading-tight">{surah.nameSimple}</span>
+				<span class="text-xs text-base-content/60">{surah.translatedName.name}</span>
 				<span class="text-xs text-base-content/40 mt-0.5">{surah.versesCount}v</span>
 			</a>
 		{/each}

@@ -7,9 +7,8 @@ export interface Chapter {
 	pages: number[];
 	nameComplex: string;
 	nameSimple: string;
-	transliteratedName: string;
 	nameArabic: string;
-	translatedName: string;
+	translatedName: { name: string; languageName: string };
 	slug?: string;
 }
 
@@ -30,6 +29,7 @@ export interface Word {
 	qpcUthmaniHafs?: string;
 	text?: string;
 	translation?: Translation;
+	transliteration?: { text: string };
 }
 
 export interface Verse {
@@ -37,7 +37,11 @@ export interface Verse {
 	verseNumber: number;
 	chapterId?: number | string;
 	verseKey: string;
+	pageNumber?: number;
+	juzNumber?: number;
+	hizbNumber?: number;
 	textUthmani?: string;
+	textUthmaniSimple?: string;
 	textIndopak?: string;
 	textImlaeiSimple?: string;
 	words: Word[];
@@ -62,3 +66,61 @@ export interface ChapterResponse {
 }
 
 export type ChaptersData = Record<string, Chapter>;
+
+export interface AvailableTranslation {
+	id: number;
+	name: string;
+	authorName: string;
+	languageName: string;
+	translatedName?: { name: string };
+}
+
+export interface Reciter {
+	id: number;
+	name: string;
+	recitationStyle?: string;
+	translatedName?: { name: string; languageName: string };
+	relativePath?: string;
+}
+
+export interface TafsirInfo {
+	id: number;
+	name: string;
+	authorName: string;
+	languageName: string;
+	translatedName?: { name: string };
+}
+
+export interface TafsirContent {
+	verseKey: string;
+	text: string;
+	resourceName: string;
+	languageName: string;
+}
+
+export interface ChapterInfo {
+	id: number;
+	chapterId: number;
+	languageName: string;
+	shortText: string;
+	text: string;
+	source: string;
+}
+
+export interface SearchResult {
+	verseKey: string;
+	verseId: number;
+	text: string;
+	words: Word[];
+	translations?: Translation[];
+}
+
+export interface SearchResponse {
+	search: {
+		query: string;
+		totalResults: number;
+		currentPage: number;
+		totalPages: number;
+		results: SearchResult[];
+	};
+}
