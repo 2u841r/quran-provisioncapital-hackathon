@@ -9,8 +9,8 @@
 
 	const fontFamilyMap: Record<string, string> = {
 		text_indopak: "'IndoPak', serif",
-		text_uthmani: "'Scheherazade New', 'Amiri', serif",
-		text_uthmani_simple: "'Scheherazade New', 'Amiri', serif"
+		text_uthmani: "'UthmanicHafs', 'NotoNaskhArabic', serif",
+		text_uthmani_simple: "'UthmanicHafs', 'NotoNaskhArabic', serif"
 	};
 
 	const arabicText = $derived(previewByFont[readerState.quranFont] ?? previewByFont['text_uthmani']);

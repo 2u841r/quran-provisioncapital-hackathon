@@ -86,8 +86,8 @@ export function fontField(font: QuranFont): string {
 // CSS font-family for each font
 export const fontFamilyMap: Record<QuranFont, string> = {
 	text_indopak: "'IndoPak', serif",
-	text_uthmani: "'Uthmanic', 'Scheherazade New', serif",
-	text_uthmani_simple: "'Uthmanic', 'Scheherazade New', serif",
+	text_uthmani: "'UthmanicHafs', 'NotoNaskhArabic', serif",
+	text_uthmani_simple: "'UthmanicHafs', 'NotoNaskhArabic', serif",
 	code_v1: "'QCFv1', serif",
 	code_v2: "'QCFv2', serif"
 };
