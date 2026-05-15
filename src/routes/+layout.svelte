@@ -12,7 +12,7 @@
 </svelte:head>
 
 <div class="min-h-screen bg-base-100 text-base-content">
-	<nav class="navbar bg-base-200 border-b border-base-300 px-4">
+	<nav class="navbar bg-base-200 border-b border-base-300 px-4 sticky top-0 z-30">
 		<div class="flex-1">
 			<a href="/" class="font-semibold text-base-content hover:opacity-75 transition-opacity">
 				Quran
