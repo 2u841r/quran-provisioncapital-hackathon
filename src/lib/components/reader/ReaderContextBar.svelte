@@ -28,7 +28,7 @@
 </script>
 
 <div class="sticky top-[64px] z-20 bg-base-100 border-b border-base-200 shadow-sm">
-	<div class="max-w-2xl mx-auto px-4">
+	<div class="px-6">
 
 		<!-- ── Desktop: 3 columns ────────────────────────────────────── -->
 		<div class="hidden md:grid grid-cols-3 items-center h-11 gap-2">
