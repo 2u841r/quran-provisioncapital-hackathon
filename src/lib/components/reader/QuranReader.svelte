@@ -100,9 +100,10 @@
 			{#each verses as verse (verse.verseKey)}
 				<VerseCard
 					{verse}
-					highlight={highlightVerseKey === verse.verseKey}
+					chapterId={Number(chapter.id)}
 					chapterName={chapter.nameSimple}
-					onTafsir={readerState.tafsirId ? openTafsir : undefined}
+					highlight={highlightVerseKey === verse.verseKey}
+					onTafsir={openTafsir}
 				/>
 			{/each}
 		</div>
