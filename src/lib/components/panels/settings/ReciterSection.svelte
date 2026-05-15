@@ -11,7 +11,7 @@
 
 	const selectedReciterName = $derived(
 		reciters.find((r) => r.id === audioState.reciterId)?.translatedName?.name ??
-		reciters.find((r) => r.id === audioState.reciterId)?.name ??
+		reciters.find((r) => r.id === audioState.reciterId)?.reciterName ??
 		'Select Reciter'
 	);
 </script>

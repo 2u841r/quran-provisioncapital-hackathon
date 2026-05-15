@@ -81,10 +81,9 @@ export interface AvailableTranslation {
 
 export interface Reciter {
 	id: number;
-	name: string;
-	recitationStyle?: string;
+	reciterName: string;
+	style?: string;
 	translatedName?: { name: string; languageName: string };
-	relativePath?: string;
 }
 
 export interface TafsirInfo {

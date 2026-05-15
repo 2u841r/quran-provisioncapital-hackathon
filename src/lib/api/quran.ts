@@ -18,8 +18,6 @@ import chaptersJson from '$lib/data/chapters.json';
 
 const PUBLIC_API = 'https://api.quran.com/api/v4';
 const PROXY_API = '/api/proxy/content';
-const PUBLIC_AUDIO_API = 'https://api.qurancdn.com/api/qdc';
-const PROXY_AUDIO_API = '/api/proxy/audio';
 
 function buildUrl(
 	base: string,
@@ -40,12 +38,9 @@ function buildUrl(
 async function apiFetch<T>(
 	fetchFn: typeof fetch,
 	path: string,
-	params: Record<string, string | number | boolean | number[]> = {},
-	audio = false
+	params: Record<string, string | number | boolean | number[]> = {}
 ): Promise<T> {
-	const base = typeof window === 'undefined'
-		? (audio ? PROXY_AUDIO_API : PROXY_API)
-		: (audio ? PUBLIC_AUDIO_API : PUBLIC_API);
+	const base = typeof window === 'undefined' ? PROXY_API : PUBLIC_API;
 	const url = buildUrl(base, path, params);
 	const res = await fetchFn(url);
 	if (!res.ok) throw new Error(`API error ${res.status} — ${url}`);
@@ -220,8 +215,8 @@ export async function fetchAvailableTranslations(fetchFn: typeof fetch): Promise
 }
 
 export async function fetchReciters(fetchFn: typeof fetch): Promise<Reciter[]> {
-	const data = await apiFetch<{ reciters: Reciter[] }>(fetchFn, '/audio/reciters', { language: 'en' }, true);
-	return data.reciters;
+	const data = await apiFetch<{ recitations: Reciter[] }>(fetchFn, '/resources/recitations', { language: 'en' });
+	return data.recitations;
 }
 
 export async function fetchAvailableTafsirs(fetchFn: typeof fetch): Promise<TafsirInfo[]> {
