@@ -34,7 +34,7 @@
 		if (!document.getElementById(id)) {
 			const s = document.createElement('style');
 			s.id = id;
-			s.textContent = `@font-face{font-family:p${p}-v2;src:url('https://quran.com/fonts/quran/hafs/v2/woff2/p${p}.woff2') format('woff2');}`;
+			s.textContent = `@font-face{font-family:p${p}-v2;src:url('/fonts-v2/p${p}.woff2') format('woff2');}`;
 			document.head.appendChild(s);
 		}
 	});
