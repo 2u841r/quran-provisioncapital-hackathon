@@ -184,7 +184,7 @@
 		<div class="text-right mb-4" dir="rtl" lang="ar">
 			{#if useWordGlyphs && verse.words?.length}
 				<div
-					class="flex flex-wrap justify-end gap-x-1"
+					class="flex flex-wrap justify-start gap-x-1"
 					style="font-size: {fontSize}rem; line-height: {2.5 + readerState.fontScale * 0.2}"
 				>
 					{#each verse.words.filter(w => w.charTypeName === 'word') as word (word.position)}
