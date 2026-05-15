@@ -96,23 +96,6 @@
 			/>
 		</section>
 
-		<!-- Reading mode -->
-		<section>
-			<h3 class="text-xs font-semibold text-base-content/40 uppercase tracking-wide mb-2">Reading Mode</h3>
-			<div class="join w-full">
-				<button
-					class="btn join-item flex-1 btn-sm"
-					class:btn-primary={readerState.readingMode === 'translation'}
-					onclick={() => readerState.setReadingMode('translation')}
-				>Translation</button>
-				<button
-					class="btn join-item flex-1 btn-sm"
-					class:btn-primary={readerState.readingMode === 'reading'}
-					onclick={() => readerState.setReadingMode('reading')}
-				>Reading</button>
-			</div>
-		</section>
-
 		<!-- Word by word -->
 		<section>
 			<div class="flex items-center justify-between">

@@ -108,7 +108,7 @@ export function isValidVerseRange(verseId: string): boolean {
 // ─── Verse params ─────────────────────────────────────────────────────────────
 
 function verseParams(font: QuranFont, translations: number[], wordByWord = false) {
-	const fields = [font, 'text_imlaei_simple', 'chapter_id'].join(',');
+	const fields = [font, 'text_imlaei_simple', 'chapter_id', 'page_number', 'juz_number', 'hizb_number'].join(',');
 	const wordFields = [font, wordByWord ? 'translation,transliteration' : ''].filter(Boolean).join(',');
 	return {
 		translations: translations,
@@ -180,6 +180,18 @@ export async function fetchJuzVerses(
 		...verseParams(font, translations),
 		page,
 		per_page: perPage
+	});
+}
+
+export async function fetchMushafPage(
+	fetchFn: typeof fetch,
+	pageId: number | string
+): Promise<VersesResponse> {
+	return apiFetch<VersesResponse>(fetchFn, `/verses/by_page/${pageId}`, {
+		words: true,
+		word_fields: 'code_v2,line_number,page_number,position',
+		fields: 'code_v2,verse_key,chapter_id,page_number',
+		per_page: 50
 	});
 }
 

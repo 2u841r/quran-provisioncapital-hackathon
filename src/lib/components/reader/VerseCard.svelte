@@ -91,7 +91,7 @@
 		</div>
 	{/if}
 
-	{#if verse.translations?.length}
+	{#if readerState.showTranslations && verse.translations?.length}
 		{#each verse.translations as tr (tr.resourceId)}
 			<div class="translation-block mt-2">
 				{#if verse.translations.length > 1}

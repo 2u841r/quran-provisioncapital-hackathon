@@ -27,7 +27,11 @@ export interface Word {
 	textUthmani?: string;
 	textIndopak?: string;
 	qpcUthmaniHafs?: string;
+	codeV2?: string;
+	codeV1?: string;
 	text?: string;
+	lineNumber?: number;
+	pageNumber?: number;
 	translation?: Translation;
 	transliteration?: { text: string };
 }

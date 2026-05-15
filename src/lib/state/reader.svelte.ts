@@ -6,6 +6,7 @@ export type QuranFont =
 	| 'code_v2';
 
 export type ReadingMode = 'translation' | 'reading';
+export type ReadingSubMode = 'arabic' | 'translation';
 export type MushafLines = 15 | 16;
 
 const STORAGE_KEY = 'quran_reader_prefs';
@@ -14,6 +15,7 @@ const DEFAULTS = {
 	quranFont: 'text_indopak' as QuranFont,
 	mushafLines: 15 as MushafLines,
 	readingMode: 'translation' as ReadingMode,
+	readingSubMode: 'arabic' as ReadingSubMode,
 	selectedTranslations: [131] as number[], // Saheeh International
 	selectedReciter: 7, // Mishary Rashid Alafasy
 	wordByWord: false,
@@ -50,6 +52,11 @@ function createReaderState() {
 		get quranFont() { return prefs.quranFont; },
 		get mushafLines() { return prefs.mushafLines; },
 		get readingMode() { return prefs.readingMode; },
+		get readingSubMode() { return prefs.readingSubMode; },
+		// show translations when in verse-by-verse mode OR reading+translation sub-mode
+		get showTranslations() {
+			return prefs.readingMode === 'translation' || prefs.readingSubMode === 'translation';
+		},
 		get selectedTranslations() { return prefs.selectedTranslations; },
 		get selectedReciter() { return prefs.selectedReciter; },
 		get wordByWord() { return prefs.wordByWord; },
@@ -60,6 +67,7 @@ function createReaderState() {
 		setFont: (f: QuranFont) => update('quranFont', f),
 		setLines: (l: MushafLines) => update('mushafLines', l),
 		setReadingMode: (m: ReadingMode) => update('readingMode', m),
+		setReadingSubMode: (s: ReadingSubMode) => update('readingSubMode', s),
 		setTranslations: (ids: number[]) => update('selectedTranslations', ids),
 		setReciter: (id: number) => update('selectedReciter', id),
 		toggleWordByWord: () => update('wordByWord', !prefs.wordByWord),
