@@ -14,143 +14,46 @@
 
 <svelte:head>
 	<title>Surah {chapter.transliteratedName} ({chapter.nameArabic}) - Quran</title>
-	<meta
-		name="description"
-		content="Read Surah {chapter.transliteratedName} - {chapter.translatedName}, {chapter.versesCount} verses"
-	/>
 </svelte:head>
 
-<main>
-	<header class="chapter-header">
-		<div class="chapter-meta">
-			<span class="chapter-id">{chapter.id}</span>
+<main class="max-w-2xl mx-auto px-4 py-8">
+	<header class="mb-6 pb-5 border-b border-base-200">
+		<div class="flex items-center gap-4 mb-1">
+			<span class="text-2xl font-bold text-base-content/30">{chapter.id}</span>
 			<div>
-				<h1>{chapter.transliteratedName}</h1>
-				<p class="translated-name">{chapter.translatedName}</p>
+				<h1 class="text-2xl font-bold text-base-content">{chapter.transliteratedName}</h1>
+				<p class="text-sm text-base-content/60">{chapter.translatedName}</p>
 			</div>
-			<div class="arabic-name" dir="rtl">{chapter.nameArabic}</div>
+			<div class="ml-auto font-[IndoPak] text-2xl text-base-content" dir="rtl">{chapter.nameArabic}</div>
 		</div>
-		<div class="chapter-info">
+		<div class="flex gap-2 text-xs text-base-content/40 mt-2">
 			<span>{chapter.versesCount} verses</span>
-			<span class="dot">·</span>
-			<span class="revelation-place">{chapter.revelationPlace}</span>
+			<span>·</span>
+			<span class="capitalize">{chapter.revelationPlace}</span>
 		</div>
 	</header>
 
 	{#if chapter.bismillahPre}
-		<div class="bismillah" dir="rtl" lang="ar">
+		<div class="text-center font-[IndoPak] text-2xl py-4 mb-2 border-b border-base-200 text-base-content" dir="rtl" lang="ar">
 			بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
 		</div>
 	{/if}
 
-	<div class="verses">
+	<div>
 		{#each verses as verse (verse.verseKey)}
 			<VerseCard {verse} />
 		{/each}
 	</div>
 
 	{#if pagination.totalPages > 1}
-		<nav class="pagination">
+		<div class="flex justify-center items-center gap-4 py-8">
 			{#if page > 1}
-				<a href="/{chapter.id}?page={page - 1}">Previous</a>
+				<a href="/{chapter.id}?page={page - 1}" class="btn btn-sm btn-ghost">← Prev</a>
 			{/if}
-			<span>Page {page} of {pagination.totalPages}</span>
+			<span class="text-sm text-base-content/60">Page {page} of {pagination.totalPages}</span>
 			{#if pagination.nextPage}
-				<a href="/{chapter.id}?page={page + 1}">Next</a>
+				<a href="/{chapter.id}?page={page + 1}" class="btn btn-sm btn-ghost">Next →</a>
 			{/if}
-		</nav>
+		</div>
 	{/if}
 </main>
-
-<style>
-	main {
-		max-width: 800px;
-		margin: 0 auto;
-		padding: 2rem 1rem;
-	}
-
-	.chapter-header {
-		margin-bottom: 2rem;
-		padding-bottom: 1.5rem;
-		border-bottom: 2px solid #e5e7eb;
-	}
-
-	.chapter-meta {
-		display: flex;
-		align-items: center;
-		gap: 1.5rem;
-		margin-bottom: 0.5rem;
-	}
-
-	.chapter-id {
-		font-size: 1.5rem;
-		font-weight: 700;
-		color: #9ca3af;
-		min-width: 2.5rem;
-	}
-
-	h1 {
-		font-size: 1.75rem;
-		font-weight: 700;
-		color: #111827;
-		margin: 0;
-	}
-
-	.translated-name {
-		font-size: 0.9rem;
-		color: #6b7280;
-		margin: 0.1rem 0 0;
-	}
-
-	.arabic-name {
-		font-size: 1.75rem;
-		font-family: 'Amiri', 'Scheherazade New', serif;
-		color: #111827;
-		margin-left: auto;
-	}
-
-	.chapter-info {
-		font-size: 0.85rem;
-		color: #9ca3af;
-		display: flex;
-		gap: 0.5rem;
-		align-items: center;
-	}
-
-	.revelation-place {
-		text-transform: capitalize;
-	}
-
-	.bismillah {
-		text-align: center;
-		font-size: 1.5rem;
-		font-family: 'Amiri', 'Scheherazade New', serif;
-		padding: 1.5rem;
-		color: #374151;
-		border-bottom: 1px solid #e5e7eb;
-	}
-
-	.verses {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.pagination {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		gap: 1.5rem;
-		padding: 2rem 0;
-		font-size: 0.9rem;
-	}
-
-	.pagination a {
-		color: #059669;
-		text-decoration: none;
-		font-weight: 500;
-	}
-
-	.pagination a:hover {
-		text-decoration: underline;
-	}
-</style>

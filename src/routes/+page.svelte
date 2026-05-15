@@ -18,103 +18,20 @@
 	<title>Quran</title>
 </svelte:head>
 
-<main>
-	<header>
-		<h1>القرآن الكريم</h1>
-		<p>The Noble Quran</p>
+<main class="max-w-6xl mx-auto px-4 py-8">
+	<header class="text-center mb-8">
+		<h1 class="font-[IndoPak] text-4xl text-base-content mb-1">القرآن الكريم</h1>
+		<p class="text-base-content/60">The Noble Quran</p>
 	</header>
 
-	<div class="grid">
+	<div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
 		{#each surahs as surah (surah.id)}
-			<a href="/{surah.id}" class="surah-card">
-				<span class="number">{surah.id}</span>
-				<span class="name">{surah.transliteratedName}</span>
-				<span class="translated">{surah.translatedName}</span>
-				<span class="verses">{surah.versesCount} verses</span>
+			<a href="/{surah.id}" class="card card-border bg-base-100 hover:bg-base-200 transition-colors p-3 gap-0.5 no-underline">
+				<span class="text-xs font-bold text-base-content/40">{surah.id}</span>
+				<span class="text-sm font-semibold text-base-content leading-tight">{surah.transliteratedName}</span>
+				<span class="text-xs text-base-content/60">{surah.translatedName}</span>
+				<span class="text-xs text-base-content/40 mt-0.5">{surah.versesCount}v</span>
 			</a>
 		{/each}
 	</div>
 </main>
-
-<style>
-	main {
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 2rem 1rem;
-	}
-
-	header {
-		text-align: center;
-		margin-bottom: 2.5rem;
-	}
-
-	h1 {
-		font-family: 'IndoPak', serif;
-		font-size: 2.5rem;
-		color: #111827;
-		margin: 0 0 0.25rem;
-	}
-
-	header p {
-		color: #6b7280;
-		margin: 0;
-	}
-
-	.grid {
-		display: grid;
-		grid-template-columns: repeat(6, 1fr);
-		gap: 0.75rem;
-	}
-
-	.surah-card {
-		display: flex;
-		flex-direction: column;
-		gap: 0.2rem;
-		padding: 1rem 0.75rem;
-		border: 1px solid #e5e7eb;
-		border-radius: 0.5rem;
-		text-decoration: none;
-		color: inherit;
-		transition: background 0.15s, border-color 0.15s;
-	}
-
-	.surah-card:hover {
-		background: #f9fafb;
-		border-color: #d1d5db;
-	}
-
-	.number {
-		font-size: 0.7rem;
-		font-weight: 700;
-		color: #9ca3af;
-	}
-
-	.name {
-		font-size: 0.95rem;
-		font-weight: 600;
-		color: #111827;
-	}
-
-	.translated {
-		font-size: 0.75rem;
-		color: #6b7280;
-	}
-
-	.verses {
-		font-size: 0.7rem;
-		color: #9ca3af;
-		margin-top: 0.1rem;
-	}
-
-	@media (max-width: 1024px) {
-		.grid {
-			grid-template-columns: repeat(4, 1fr);
-		}
-	}
-
-	@media (max-width: 640px) {
-		.grid {
-			grid-template-columns: repeat(3, 1fr);
-		}
-	}
-</style>
