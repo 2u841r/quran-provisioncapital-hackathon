@@ -24,23 +24,8 @@
 		position: number;
 	};
 
-	// SvelteMap is intrinsically reactive — no $state wrapper needed
 	const lineMap = new SvelteMap<number, LineWord[]>();
 
-	// Inject QCF per-page font
-	$effect(() => {
-		if (typeof document === 'undefined') return;
-		const p = pageNum;
-		const id = `qcf-p${p}`;
-		if (!document.getElementById(id)) {
-			const s = document.createElement('style');
-			s.id = id;
-			s.textContent = `@font-face{font-family:p${p}-v2;src:url('https://fonts.qurancdn.com/code_v2/${p}.woff2')format('woff2');}`;
-			document.head.appendChild(s);
-		}
-	});
-
-	// Fetch page data whenever pageNum changes
 	$effect(() => {
 		const p = pageNum;
 		loading = true;
@@ -49,14 +34,13 @@
 
 		fetchMushafPage(fetch, p)
 			.then((res) => {
-				// Temp grouping via plain record to avoid lint noise
 				const temp: Record<number, LineWord[]> = {};
 				for (const verse of res.verses) {
 					for (const word of (verse.words ?? []) as Word[]) {
 						const ln = word.lineNumber;
 						if (!ln) continue;
 						(temp[ln] ??= []).push({
-							text: word.codeV2 ?? word.text ?? '',
+							text: word.textUthmani ?? word.text ?? '',
 							lineNumber: ln,
 							verseKey: verse.verseKey,
 							charTypeName: word.charTypeName,
@@ -74,7 +58,6 @@
 	});
 
 	const lineCount = $derived(readerState.mushafLines);
-	const fontFamily = $derived(`p${pageNum}-v2`);
 	const lines = $derived([...lineMap.entries()]);
 </script>
 
@@ -89,10 +72,10 @@
 		<div class="mushaf-page bg-base-100 mx-auto py-6 px-4" style="max-width: 560px;">
 			{#each lines as [lineNum, words] (lineNum)}
 				<div
-					class="mushaf-line flex justify-center items-baseline leading-none mb-1"
+					class="mushaf-line flex justify-center items-baseline gap-1 mb-1"
 					dir="rtl"
 					lang="ar"
-					style="font-family: {fontFamily}, serif; font-size: {lineCount === 15 ? 1.5 : 1.4}rem; line-height: {lineCount === 15 ? 2.4 : 2.2};"
+					style="font-family: 'Amiri Quran', 'Amiri', serif; font-size: {lineCount === 15 ? 1.45 : 1.35}rem; line-height: {lineCount === 15 ? 2.6 : 2.4};"
 				>
 					{#each words as word (`${word.verseKey}:${word.position}`)}
 						<span>{word.text}</span>
@@ -102,7 +85,6 @@
 		</div>
 	{/if}
 
-	<!-- Page navigation -->
 	<div class="flex justify-between items-center pt-6 pb-2 max-w-md mx-auto px-4">
 		{#if pageNum > 1}
 			<button class="btn btn-sm btn-ghost" onclick={() => (pageOffset -= 1)}>← Prev</button>

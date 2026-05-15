@@ -189,8 +189,8 @@ export async function fetchMushafPage(
 ): Promise<VersesResponse> {
 	return apiFetch<VersesResponse>(fetchFn, `/verses/by_page/${pageId}`, {
 		words: true,
-		word_fields: 'code_v2,line_number,page_number,position',
-		fields: 'code_v2,verse_key,chapter_id,page_number',
+		word_fields: 'text_uthmani,line_number,page_number,position,char_type_name',
+		fields: 'verse_key,chapter_id,page_number',
 		per_page: 50
 	});
 }
