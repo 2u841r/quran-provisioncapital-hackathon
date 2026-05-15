@@ -23,16 +23,34 @@
 		verse.textImlaeiSimple ?? ''
 	);
 
-	// QCF v2: render word-by-word glyphs; other fonts: render full text
+	// QCF fonts: render word-by-word glyphs per page font
 	const useWordGlyphs = $derived(
-		readerState.quranFont === 'code_v2' || readerState.quranFont === 'code_v1'
+		readerState.quranFont === 'code_v2' ||
+		readerState.quranFont === 'code_v1' ||
+		readerState.quranFont === 'tajweed_v4'
 	);
 
 	const fontFamily = $derived(fontFamilyMap[readerState.quranFont]);
 	const fontSize = $derived(0.8 + readerState.fontScale * 0.3);
 
-	// Page number for QCF font-face (code_v2 uses per-page font families)
 	const pageNumber = $derived(verse.pageNumber ?? 1);
+
+	// Inject per-page font-face when using QCF fonts in translation view
+	$effect(() => {
+		if (typeof document === 'undefined' || !useWordGlyphs) return;
+		const p = pageNumber;
+		const font = readerState.quranFont;
+		const version = font === 'tajweed_v4' ? 'v4' : font === 'code_v1' ? 'v1' : 'v2';
+		const id = `qcf-p${p}-${version}`;
+		if (document.getElementById(id)) return;
+		const src = font === 'tajweed_v4'
+			? `/fonts/quran/hafs/v4/colrv1/woff2/p${p}.woff2`
+			: `/fonts-v2/p${p}.woff2`;
+		const s = document.createElement('style');
+		s.id = id;
+		s.textContent = `@font-face{font-family:p${p}-${version};src:url('${src}') format('woff2');}`;
+		document.head.appendChild(s);
+	});
 
 	type Tab = 'tafsir' | 'lessons' | 'reflections' | 'answers' | 'hadith';
 	let activeTab = $state<Tab | null>(null);
@@ -68,14 +86,17 @@
 	}
 
 	function wordFontFamily(word: { pageNumber?: number }): string {
-		if (readerState.quranFont === 'code_v2') return `p${word.pageNumber ?? pageNumber}-v2`;
-		if (readerState.quranFont === 'code_v1') return `p${word.pageNumber ?? pageNumber}-v1`;
+		const pg = word.pageNumber ?? pageNumber;
+		if (readerState.quranFont === 'code_v2') return `p${pg}-v2`;
+		if (readerState.quranFont === 'code_v1') return `p${pg}-v1`;
+		if (readerState.quranFont === 'tajweed_v4') return `p${pg}-v4`;
 		return fontFamily;
 	}
 
 	function wordGlyph(word: { codeV2?: string; codeV1?: string }): string {
 		if (readerState.quranFont === 'code_v2') return word.codeV2 ?? '';
 		if (readerState.quranFont === 'code_v1') return word.codeV1 ?? '';
+		if (readerState.quranFont === 'tajweed_v4') return word.codeV2 ?? ''; // v4 uses same glyph codes as v2
 		return '';
 	}
 </script>

@@ -3,7 +3,8 @@ export type QuranFont =
 	| 'text_uthmani'
 	| 'text_uthmani_simple'
 	| 'code_v1'
-	| 'code_v2';
+	| 'code_v2'
+	| 'tajweed_v4';
 
 export type ReadingMode = 'translation' | 'reading';
 export type ReadingSubMode = 'arabic' | 'translation';
@@ -89,7 +90,8 @@ export const fontFamilyMap: Record<QuranFont, string> = {
 	text_uthmani: "'UthmanicHafs', 'NotoNaskhArabic', serif",
 	text_uthmani_simple: "'UthmanicHafs', 'NotoNaskhArabic', serif",
 	code_v1: "'QCFv1', serif",
-	code_v2: "'QCFv2', serif"
+	code_v2: "'QCFv2', serif",
+	tajweed_v4: "serif"
 };
 
 export const fontLabels: Record<QuranFont, string> = {
@@ -97,5 +99,6 @@ export const fontLabels: Record<QuranFont, string> = {
 	text_uthmani: 'Uthmani',
 	text_uthmani_simple: 'Uthmani Simple',
 	code_v1: 'QCF v1',
-	code_v2: 'QCF v2'
+	code_v2: 'QCF v2',
+	tajweed_v4: 'Tajweed'
 };

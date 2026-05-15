@@ -26,15 +26,22 @@
 
 	const lineMap = new SvelteMap<number, LineWord[]>();
 
-	// Inject QCF v2 per-page font from quran.com's own public CDN (p1–p604)
+	// Inject QCF per-page font-faces (v2 and v4/Tajweed)
 	$effect(() => {
 		if (typeof document === 'undefined') return;
 		const p = pageNum;
-		const id = `qcf-p${p}`;
-		if (!document.getElementById(id)) {
+		const idV2 = `qcf-p${p}-v2`;
+		if (!document.getElementById(idV2)) {
 			const s = document.createElement('style');
-			s.id = id;
+			s.id = idV2;
 			s.textContent = `@font-face{font-family:p${p}-v2;src:url('/fonts-v2/p${p}.woff2') format('woff2');}`;
+			document.head.appendChild(s);
+		}
+		const idV4 = `qcf-p${p}-v4`;
+		if (!document.getElementById(idV4)) {
+			const s = document.createElement('style');
+			s.id = idV4;
+			s.textContent = `@font-face{font-family:p${p}-v4;src:url('/fonts/quran/hafs/v4/colrv1/woff2/p${p}.woff2') format('woff2');}`;
 			document.head.appendChild(s);
 		}
 	});

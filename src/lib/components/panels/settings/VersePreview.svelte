@@ -4,13 +4,15 @@
 	const previewByFont: Record<string, string> = {
 		text_indopak: 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِیْمِ',
 		text_uthmani: 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
-		text_uthmani_simple: 'بسم الله الرحمن الرحيم'
+		text_uthmani_simple: 'بسم الله الرحمن الرحيم',
+		tajweed_v4: 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ'
 	};
 
 	const fontFamilyMap: Record<string, string> = {
 		text_indopak: "'IndoPak', serif",
 		text_uthmani: "'UthmanicHafs', 'NotoNaskhArabic', serif",
-		text_uthmani_simple: "'UthmanicHafs', 'NotoNaskhArabic', serif"
+		text_uthmani_simple: "'UthmanicHafs', 'NotoNaskhArabic', serif",
+		tajweed_v4: "p1-v4, serif"
 	};
 
 	const arabicText = $derived(previewByFont[readerState.quranFont] ?? previewByFont['text_uthmani']);

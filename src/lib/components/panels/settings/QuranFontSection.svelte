@@ -12,7 +12,8 @@
 
 	const fontTypes = [
 		{ value: 'text_uthmani' as QuranFont, label: 'Uthmani' },
-		{ value: 'text_indopak' as QuranFont, label: 'IndoPak' }
+		{ value: 'text_indopak' as QuranFont, label: 'IndoPak' },
+		{ value: 'tajweed_v4' as QuranFont, label: 'Tajweed' }
 	];
 
 	const selectedIdx = $derived(fontTypes.findIndex((f) => f.value === readerState.quranFont));
