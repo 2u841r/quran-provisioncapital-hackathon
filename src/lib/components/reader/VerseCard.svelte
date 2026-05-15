@@ -1,19 +1,19 @@
 <script lang="ts">
 	import { audioState } from '$lib/state/audio.svelte';
-	import { readerState } from '$lib/state/reader.svelte';
+	import { readerState, fontFamilyMap } from '$lib/state/reader.svelte';
 	import type { Verse } from '$lib/types/quran';
 
 	interface Props {
 		verse: Verse;
 		highlight?: boolean;
+		chapterName?: string;
 		onTafsir?: (verseKey: string) => void;
 	}
 
-	const { verse, highlight = false, onTafsir }: Props = $props();
+	const { verse, highlight = false, chapterName = '', onTafsir }: Props = $props();
 
-	const isPlaying = $derived(
-		audioState.isPlaying && audioState.currentVerseKey === verse.verseKey
-	);
+	const isCurrentVerse = $derived(audioState.currentVerseKey === verse.verseKey);
+	const isPlaying = $derived(isCurrentVerse && audioState.isPlaying);
 
 	const arabicText = $derived(
 		(verse as Record<string, unknown>)[readerState.quranFont] as string ??
@@ -21,31 +21,31 @@
 		''
 	);
 
-	const fontStyle = $derived(`font-size: ${0.8 + readerState.fontScale * 0.3}rem`);
+	const fontFamily = $derived(fontFamilyMap[readerState.quranFont]);
+	const fontSize = $derived(0.8 + readerState.fontScale * 0.3);
 
 	function togglePlay() {
-		if (isPlaying) {
-			audioState.pause();
+		if (isCurrentVerse && audioState.isActive) {
+			audioState.togglePlay();
 		} else {
-			audioState.play(verse.verseKey);
+			audioState.playVerse(verse.verseKey, chapterName);
 		}
 	}
 </script>
 
-<div
-	class="verse-card border-b border-base-200 py-5 px-4 transition-colors"
-	class:bg-base-200={highlight}
->
+<div class="verse-card border-b border-base-200 py-5 px-4 transition-colors {isCurrentVerse && audioState.isActive ? 'bg-primary/5' : highlight ? 'bg-base-200' : ''}">
 	<div class="flex items-center justify-between mb-3">
 		<span class="badge badge-ghost text-xs font-mono">{verse.verseKey}</span>
 		<div class="flex gap-1">
 			<button
 				class="btn btn-ghost btn-xs btn-circle"
-				class:text-primary={isPlaying}
+				class:text-primary={isCurrentVerse && audioState.isActive}
 				onclick={togglePlay}
 				aria-label={isPlaying ? 'Pause' : 'Play verse'}
 			>
-				{#if isPlaying}
+				{#if isCurrentVerse && audioState.status === 'loading'}
+					<span class="loading loading-spinner loading-xs"></span>
+				{:else if isPlaying}
 					<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
 						<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
 					</svg>
@@ -73,7 +73,7 @@
 		class="text-right leading-loose mb-4"
 		dir="rtl"
 		lang="ar"
-		style="font-family: {readerState.quranFont === 'text_indopak' ? 'IndoPak' : 'Uthmanic, Scheherazade New'}, serif; {fontStyle}; line-height: {2.5 + readerState.fontScale * 0.2}"
+		style="font-family: {fontFamily}; font-size: {fontSize}rem; line-height: {2.5 + readerState.fontScale * 0.2}"
 	>
 		{arabicText}
 	</div>

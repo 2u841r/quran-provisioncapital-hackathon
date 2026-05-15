@@ -101,6 +101,7 @@
 				<VerseCard
 					{verse}
 					highlight={highlightVerseKey === verse.verseKey}
+					chapterName={chapter.nameSimple}
 					onTafsir={readerState.tafsirId ? openTafsir : undefined}
 				/>
 			{/each}
