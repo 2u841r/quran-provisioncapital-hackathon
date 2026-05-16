@@ -111,24 +111,27 @@ export function isValidVerseRange(verseId: string): boolean {
 const FONT_MUSHAF: Record<QuranFont, number> = {
 	code_v2: 1,         // QCFV2
 	code_v1: 2,         // QCFV1
-	tajweed_v4: 6,      // QCFTajweedV4 (mushaf id 6)
+	tajweed_v4: 19,     // QCFTajweedV4
 	text_uthmani: 4,    // UthmaniHafs
 	text_uthmani_simple: 4,
-	text_indopak: 3     // Indopak
+	text_indopak: 3     // Indopak (overridden below for 15/16 lines)
 };
 
-function verseParams(font: QuranFont, translations: number[], wordByWord = false) {
+function verseParams(font: QuranFont, translations: number[], wordByWord = false, mushafLines: 15 | 16 = 15) {
 	// tajweed_v4 uses same glyph codes as code_v2 — request code_v2 word fields
 	const wordFont = font === 'tajweed_v4' ? 'code_v2' : font;
 	const fields = [font, 'text_uthmani', 'text_indopak', 'text_imlaei_simple', 'chapter_id', 'page_number', 'juz_number', 'hizb_number'].join(',');
-	const wordFields = ['verse_key', 'page_number', 'location', 'text_uthmani', 'text_imlaei_simple', wordFont, wordByWord ? 'translation,transliteration' : ''].filter(Boolean).join(',');
+	const wordFields = ['verse_key', 'page_number', 'location', 'text', 'text_uthmani', 'text_imlaei_simple', wordFont, wordByWord ? 'translation,transliteration' : ''].filter(Boolean).join(',');
+	// IndoPak uses 15-line (id 6) or 16-line (id 7) variants
+	let mushaf = FONT_MUSHAF[font] ?? 4;
+	if (font === 'text_indopak') mushaf = mushafLines === 15 ? 6 : 7;
 	return {
 		translations: translations,
 		translation_fields: 'resource_name,language_id',
 		fields,
 		words: true,
 		word_fields: wordFields || wordFont,
-		mushaf: FONT_MUSHAF[font] ?? 4
+		mushaf
 	};
 }
 
@@ -141,10 +144,11 @@ export async function fetchChapterVerses(
 	translations: number[],
 	wordByWord = false,
 	page = 1,
-	perPage = 50
+	perPage = 50,
+	mushafLines: 15 | 16 = 15
 ): Promise<VersesResponse> {
 	return apiFetch<VersesResponse>(fetchFn, `/verses/by_chapter/${chapterId}`, {
-		...verseParams(font, translations, wordByWord),
+		...verseParams(font, translations, wordByWord, mushafLines),
 		page,
 		per_page: perPage
 	});

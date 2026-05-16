@@ -23,6 +23,7 @@
 	function applySettings() {
 		const params = new URLSearchParams(page.url.searchParams);
 		params.set('font', readerState.quranFont);
+		params.set('lines', String(readerState.mushafLines));
 		params.set('translations', readerState.selectedTranslations.join(','));
 		params.delete('page');
 		goto(`?${params.toString()}`, { invalidateAll: true });

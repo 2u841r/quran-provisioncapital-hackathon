@@ -43,10 +43,10 @@
 
 	// Returns display text for a regular (non-end) word based on selected font.
 	// For IndoPak last word, strip the embedded ornate end marker so we can render a plain UthmanicHafs circle instead.
-	function wordTextContent(word: { textIndopak?: string; textUthmani?: string }, stripEnd = false): string {
-		const text = readerState.quranFont === 'text_indopak'
-			? word.textIndopak ?? word.textUthmani ?? ''
-			: word.textUthmani ?? '';
+	function wordTextContent(word: { text?: string; textIndopak?: string; textUthmani?: string }, stripEnd = false): string {
+		const text = word.text
+			?? (readerState.quranFont === 'text_indopak' ? word.textIndopak : word.textUthmani)
+			?? '';
 		if (!stripEnd) return text;
 		// Strip Arabic end-of-ayah / small high mark sequences at the end
 		return text.replace(/[۔-ۭ][٠-٩\d]*\s*$/u, '').trimEnd();
