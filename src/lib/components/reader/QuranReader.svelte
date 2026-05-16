@@ -3,6 +3,7 @@
 	import type { Chapter, Verse, Pagination } from '$lib/types/quran';
 	import VerseCard from './VerseCard.svelte';
 	import MushafPage from './MushafPage.svelte';
+	import ChapterHeader from './ChapterHeader.svelte';
 	import TafsirPanel from '$lib/components/panels/TafsirPanel.svelte';
 
 	interface Props {
@@ -12,6 +13,7 @@
 		page?: number;
 		highlightVerseKey?: string | null;
 		baseHref: string;
+		onOpenTranslations?: () => void;
 	}
 
 	const {
@@ -20,7 +22,8 @@
 		pagination = null,
 		page = 1,
 		highlightVerseKey = null,
-		baseHref
+		baseHref,
+		onOpenTranslations
 	}: Props = $props();
 
 	let tafsirVerseKey = $state<string | null>(null);
@@ -85,15 +88,11 @@
 			{/if}
 		</div>
 	{:else}
-		{#if chapter.bismillahPre}
-			<div
-				class="text-center py-5 border-b border-base-200 text-base-content mb-1"
-				dir="rtl"
-				lang="ar"
-				style="font-family: IndoPak, serif; font-size: 1.5rem; line-height: 3"
-			>
-				بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
-			</div>
+		{#if page === 1}
+			<ChapterHeader
+				{chapter}
+				onOpenTranslations={() => onOpenTranslations?.()}
+			/>
 		{/if}
 
 		<div>

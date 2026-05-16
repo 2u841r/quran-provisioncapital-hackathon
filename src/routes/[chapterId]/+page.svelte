@@ -60,28 +60,13 @@
 		/>
 
 		<main class="max-w-2xl mx-auto px-4 py-6 w-full">
-			<header class="mb-6 pb-5 border-b border-base-200">
-				<div class="flex items-center gap-4 mb-1">
-					<span class="text-2xl font-bold text-base-content/30">{chapter.id}</span>
-					<div>
-						<h1 class="text-2xl font-bold text-base-content">{chapter.nameSimple}</h1>
-						<p class="text-sm text-base-content/60">{chapter.translatedName.name}</p>
-					</div>
-					<div class="ml-auto font-[IndoPak] text-2xl text-base-content" dir="rtl">{chapter.nameArabic}</div>
-				</div>
-				<div class="flex gap-2 text-xs text-base-content/40 mt-2">
-					<span>{chapter.versesCount} verses</span>
-					<span>·</span>
-					<span class="capitalize">{chapter.revelationPlace}</span>
-				</div>
-			</header>
-
 			<QuranReader
 				{chapter}
 				{verses}
 				{pagination}
 				page={pageNum}
 				baseHref="/{chapter.id}"
+				onOpenTranslations={() => (settingsOpen = true)}
 			/>
 		</main>
 	</div>
