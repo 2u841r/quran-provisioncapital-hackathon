@@ -2,6 +2,7 @@
 	import { readerState } from '$lib/state/reader.svelte';
 	import { navbarState } from '$lib/state/navbar.svelte';
 	import { getChaptersData } from '$lib/api/quran';
+	import NavigationDrawer from '$lib/components/NavigationDrawer.svelte';
 	import type { Chapter, Verse } from '$lib/types/quran';
 
 	interface Props {
@@ -14,10 +15,12 @@
 
 	const chaptersData = getChaptersData();
 	const chapterList = $derived(
-		Object.values(chaptersData).sort((a, b) => (a.id as number) - (b.id as number))
+		Object.values(chaptersData)
+			.map((c) => ({ ...c, id: Number(c.id) }))
+			.sort((a, b) => a.id - b.id)
 	);
 
-	let surahOpen = $state(false);
+	let navOpen = $state(false);
 
 	const isReading = $derived(readerState.readingMode === 'reading');
 	const readingSub = $derived(readerState.readingSubMode);
@@ -34,37 +37,17 @@
 		<!-- ── Desktop: 3 columns ────────────────────────────────────── -->
 		<div class="hidden md:grid grid-cols-3 items-center h-11 gap-2">
 
-			<!-- Left: Surah navigator -->
-			<div class="relative flex items-center">
+			<!-- Left: Surah → opens Navigate Quran drawer -->
+			<div class="flex items-center">
 				<button
 					class="flex items-center gap-1 font-semibold text-sm text-base-content hover:text-primary transition-colors"
-					onclick={() => (surahOpen = !surahOpen)}
-					aria-expanded={surahOpen}
+					onclick={() => (navOpen = true)}
 				>
 					<span>{chapter.id}. {chapter.nameSimple}</span>
-					<svg
-						xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 15 15"
-						class="transition-transform shrink-0 {surahOpen ? 'rotate-180' : ''}"
-					>
+					<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 15 15" class="shrink-0">
 						<path fill="currentColor" fill-rule="evenodd" d="M3.135 6.158a.5.5 0 0 1 .707-.023L7.5 9.565l3.658-3.43a.5.5 0 0 1 .684.73l-4 3.75a.5.5 0 0 1-.684 0l-4-3.75a.5.5 0 0 1-.023-.707" clip-rule="evenodd"/>
 					</svg>
 				</button>
-
-				{#if surahOpen}
-					<button class="fixed inset-0 z-30" onclick={() => (surahOpen = false)} aria-label="Close" tabindex="-1"></button>
-					<div class="absolute left-0 top-full mt-1 w-64 bg-base-100 border border-base-200 rounded-lg shadow-xl z-40 overflow-y-auto max-h-80">
-						{#each chapterList as ch (ch.id)}
-							<a
-								href="/{ch.id}"
-								class="flex items-center gap-3 px-3 py-2 hover:bg-base-200 transition-colors text-sm {ch.id === chapter.id ? 'bg-primary/10 text-primary font-medium' : 'text-base-content'}"
-								onclick={() => (surahOpen = false)}
-							>
-								<span class="text-xs text-base-content/40 w-6 text-right shrink-0">{ch.id}</span>
-								<span class="flex-1">{ch.nameSimple}</span>
-							</a>
-						{/each}
-					</div>
-				{/if}
 			</div>
 
 			<!-- Center: Page / Juz / Hizb -->
@@ -149,37 +132,15 @@
 
 		<!-- ── Mobile/Tablet: Row 1 — Surah + Settings ───────────────── -->
 		<div class="flex md:hidden items-center justify-between h-11">
-			<div class="relative">
-				<button
-					class="flex items-center gap-1 font-semibold text-sm text-base-content hover:text-primary transition-colors"
-					onclick={() => (surahOpen = !surahOpen)}
-					aria-expanded={surahOpen}
-				>
-					<span>{chapter.id}. {chapter.nameSimple}</span>
-					<svg
-						xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 15 15"
-						class="transition-transform shrink-0 {surahOpen ? 'rotate-180' : ''}"
-					>
-						<path fill="currentColor" fill-rule="evenodd" d="M3.135 6.158a.5.5 0 0 1 .707-.023L7.5 9.565l3.658-3.43a.5.5 0 0 1 .684.73l-4 3.75a.5.5 0 0 1-.684 0l-4-3.75a.5.5 0 0 1-.023-.707" clip-rule="evenodd"/>
-					</svg>
-				</button>
-
-				{#if surahOpen}
-					<button class="fixed inset-0 z-30" onclick={() => (surahOpen = false)} aria-label="Close" tabindex="-1"></button>
-					<div class="absolute left-0 top-full mt-1 w-64 bg-base-100 border border-base-200 rounded-lg shadow-xl z-40 overflow-y-auto max-h-72">
-						{#each chapterList as ch (ch.id)}
-							<a
-								href="/{ch.id}"
-								class="flex items-center gap-3 px-3 py-2 hover:bg-base-200 transition-colors text-sm {ch.id === chapter.id ? 'bg-primary/10 text-primary font-medium' : 'text-base-content'}"
-								onclick={() => (surahOpen = false)}
-							>
-								<span class="text-xs text-base-content/40 w-6 text-right shrink-0">{ch.id}</span>
-								<span class="flex-1">{ch.nameSimple}</span>
-							</a>
-						{/each}
-					</div>
-				{/if}
-			</div>
+			<button
+				class="flex items-center gap-1 font-semibold text-sm text-base-content hover:text-primary transition-colors"
+				onclick={() => (navOpen = true)}
+			>
+				<span>{chapter.id}. {chapter.nameSimple}</span>
+				<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 15 15" class="shrink-0">
+					<path fill="currentColor" fill-rule="evenodd" d="M3.135 6.158a.5.5 0 0 1 .707-.023L7.5 9.565l3.658-3.43a.5.5 0 0 1 .684.73l-4 3.75a.5.5 0 0 1-.684 0l-4-3.75a.5.5 0 0 1-.023-.707" clip-rule="evenodd"/>
+				</svg>
+			</button>
 
 			<button class="btn btn-ghost btn-sm btn-circle" onclick={onOpenSettings} aria-label="Change Settings">
 				<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
@@ -218,3 +179,5 @@
 
 	</div>
 </div>
+
+<NavigationDrawer open={navOpen} onClose={() => (navOpen = false)} chapters={chapterList} />
