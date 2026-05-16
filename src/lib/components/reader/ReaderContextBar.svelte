@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { readerState } from '$lib/state/reader.svelte';
+	import { navbarState } from '$lib/state/navbar.svelte';
 	import { getChaptersData } from '$lib/api/quran';
 	import type { Chapter, Verse } from '$lib/types/quran';
 
@@ -27,7 +28,7 @@
 	}
 </script>
 
-<div class="sticky top-0 z-20 bg-base-100 border-b border-base-200 shadow-sm">
+<div class="sticky z-20 bg-base-100 border-b border-base-200 shadow-sm transition-[top] duration-300 {navbarState.visible ? 'top-16' : 'top-0'}">
 	<div class="px-6">
 
 		<!-- ── Desktop: 3 columns ────────────────────────────────────── -->
