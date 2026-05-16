@@ -20,6 +20,24 @@
 
 	let settingsOpen = $state(false);
 
+	// Reconcile URL font with persisted readerState font on first mount.
+	// Without this, opening /1 directly fetches with default font from URL even
+	// when user previously chose Uthmani (code_v2) — words come back without
+	// codeV2 glyphs, so VerseCard renders empty.
+	$effect(() => {
+		if (typeof window === 'undefined') return;
+		const urlFont = page.url.searchParams.get('font');
+		if (urlFont !== readerState.quranFont) {
+			const params = new URLSearchParams(page.url.searchParams);
+			params.set('font', readerState.quranFont);
+			params.set('lines', String(readerState.mushafLines));
+			if (!params.get('translations')) {
+				params.set('translations', readerState.selectedTranslations.join(','));
+			}
+			goto(`?${params.toString()}`, { invalidateAll: true, replaceState: true });
+		}
+	});
+
 	function applySettings() {
 		const params = new URLSearchParams(page.url.searchParams);
 		params.set('font', readerState.quranFont);
