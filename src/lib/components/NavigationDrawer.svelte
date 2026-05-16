@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Chapter } from '$lib/types/quran';
-	import { uiState } from '$lib/state/ui.svelte';
 
 	interface Props {
 		open: boolean;
@@ -9,6 +8,13 @@
 	}
 
 	const { open, onClose, chapters }: Props = $props();
+
+	let toggleEl = $state<HTMLInputElement | null>(null);
+
+	// Force the native checkbox to mirror the `open` prop (avoid drift after close)
+	$effect(() => {
+		if (toggleEl) toggleEl.checked = open;
+	});
 
 	type Tab = 'surah' | 'verse' | 'juz' | 'page';
 	let tab = $state<Tab>('surah');
@@ -63,10 +69,7 @@
 	});
 
 	$effect(() => {
-		if (open) {
-			uiState.lockScroll();
-			return () => uiState.unlockScroll();
-		} else {
+		if (!open) {
 			const t = setTimeout(() => {
 				surahQuery = '';
 				juzQuery = '';
@@ -87,7 +90,7 @@
 		id="nav-drawer-toggle"
 		type="checkbox"
 		class="drawer-toggle"
-		checked={open}
+		bind:this={toggleEl}
 		onchange={(e) => { if (!(e.target as HTMLInputElement).checked) onClose(); }}
 	/>
 
@@ -273,9 +276,11 @@
 		}
 	}
 	.nav-drawer .drawer-side > * {
-		transition-duration: 800ms !important;
+		transition-duration: 280ms !important;
 		transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1) !important;
 	}
+	/* Overlay shouldn't keep pointer cursor while closing */
+	.nav-drawer .drawer-overlay { cursor: default; }
 	/* Thin modern scrollbars inside the drawer */
 	.nav-panel :global(.overflow-y-auto) {
 		scrollbar-width: thin;

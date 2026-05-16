@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { fetchSearch, getChaptersData } from '$lib/api/quran';
 	import type { SearchResult } from '$lib/types/quran';
-	import { uiState } from '$lib/state/ui.svelte';
 
 	interface Props {
 		open: boolean;
@@ -11,6 +10,11 @@
 	const { open, onClose }: Props = $props();
 
 	let inputEl = $state<HTMLInputElement | null>(null);
+	let searchToggleEl = $state<HTMLInputElement | null>(null);
+
+	$effect(() => {
+		if (searchToggleEl) searchToggleEl.checked = open;
+	});
 
 	let query = $state('');
 	let results = $state<SearchResult[]>([]);
@@ -57,9 +61,7 @@
 
 	$effect(() => {
 		if (open) {
-			uiState.lockScroll();
 			queueMicrotask(() => inputEl?.focus());
-			return () => uiState.unlockScroll();
 		} else {
 			// Wait for the slide-out animation, then reset state
 			if (debounceTimer) clearTimeout(debounceTimer);
@@ -109,7 +111,7 @@
 		id="search-drawer-toggle"
 		type="checkbox"
 		class="drawer-toggle"
-		checked={open}
+		bind:this={searchToggleEl}
 		onchange={(e) => {
 			if (!(e.target as HTMLInputElement).checked) onClose();
 		}}
@@ -268,9 +270,10 @@
 		width: 100vw;
 	}
 	.search-drawer .drawer-side > * {
-		transition-duration: 800ms !important;
+		transition-duration: 280ms !important;
 		transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1) !important;
 	}
+	.search-drawer .drawer-overlay { cursor: default; }
 	@media (min-width: 768px) {
 		.search-panel {
 			width: 384px;
