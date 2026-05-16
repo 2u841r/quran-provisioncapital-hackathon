@@ -111,7 +111,7 @@ function verseParams(font: QuranFont, translations: number[], wordByWord = false
 	// tajweed_v4 uses same glyph codes as code_v2 — request code_v2 word fields
 	const wordFont = font === 'tajweed_v4' ? 'code_v2' : font;
 	const fields = [font, 'text_uthmani', 'text_indopak', 'text_imlaei_simple', 'chapter_id', 'page_number', 'juz_number', 'hizb_number'].join(',');
-	const wordFields = [wordFont, wordByWord ? 'translation,transliteration' : ''].filter(Boolean).join(',');
+	const wordFields = [wordFont, 'text_uthmani', wordByWord ? 'translation,transliteration' : ''].filter(Boolean).join(',');
 	return {
 		translations: translations,
 		translation_fields: 'resource_name,language_id',

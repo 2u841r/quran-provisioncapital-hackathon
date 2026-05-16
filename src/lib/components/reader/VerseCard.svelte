@@ -189,7 +189,7 @@
 				>
 					{#each verse.words.filter(w => w.charTypeName === 'word' || w.charTypeName === 'end') as word (word.position)}
 						{#if word.charTypeName === 'end'}
-							<span style="font-family: 'UthmanicHafs', serif;">{word.text ?? ''}</span>
+							<span style="font-family: 'UthmanicHafs', serif;">{word.textUthmani ?? word.text ?? ''}</span>
 						{:else if useWordGlyphs}
 							<span style="font-family: {wordFontFamily(word)};">{wordGlyph(word)}</span>
 						{:else}
