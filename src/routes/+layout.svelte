@@ -3,6 +3,7 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
 	import AudioPlayer from '$lib/components/audio/AudioPlayer.svelte';
+	import Footer from '$lib/components/Footer.svelte';
 	import { navbarState } from '$lib/state/navbar.svelte';
 
 	let { children } = $props();
@@ -43,6 +44,8 @@
 	<div class="pb-14">
 		{@render children()}
 	</div>
+
+	<Footer />
 
 	<AudioPlayer />
 </div>
