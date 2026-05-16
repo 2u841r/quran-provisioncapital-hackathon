@@ -61,6 +61,16 @@
 		return '۝' + digits;
 	}
 
+	function toArabicNumerals(n: number): string {
+		return String(n).replace(/\d/g, d => String.fromCharCode(0x0660 + Number(d)));
+	}
+
+	// Waqf indicators for IndoPak: all 'end' words except the last one (the ayah marker itself)
+	const waqfIndicators = $derived.by(() => {
+		const ends = verse.words.filter(w => w.charTypeName === 'end');
+		return ends.slice(0, -1).map(w => w.textIndopak ?? w.text ?? '').join('');
+	});
+
 	const pageNumber = $derived(verse.pageNumber ?? 1);
 
 	// Inject per-page font-face when using QCF fonts in translation view
@@ -208,7 +218,7 @@
 					? verse.words.filter(w => w.charTypeName !== 'pause')
 					: verse.words.filter(w => w.charTypeName === 'word')}
 				<div
-					class="flex flex-wrap justify-start gap-x-1"
+					class="flex flex-wrap justify-start gap-x-1 items-baseline"
 					style="font-size: {fontSize}rem; line-height: {2.5 + readerState.fontScale * 0.2}"
 				>
 					{#each renderedWords as word, i (word.position)}
@@ -219,9 +229,19 @@
 							<span style="font-family: {fontFamily};">{wordTextContent(word, isIndoPak && i === renderedWords.length - 1)}</span>
 						{/if}
 					{/each}
-					<!-- Append UthmanicHafs ayah marker only for IndoPak (Uthmani QCF has its own glyph) -->
+					<!-- IndoPak: plain CSS circle with Arabic-Indic verse number + waqf indicators stacked above -->
 					{#if isIndoPak}
-						<span style="font-family: 'UthmanicHafs', serif;">{ayahMarker(verse.verseNumber)}</span>
+						<span class="relative inline-block" style="width: 1.6em; height: 1.6em; font-size: 0.55em; transform: translateY(7px);">
+							<span class="absolute inset-0 flex items-center justify-center rounded-full border border-current" style="border-width: 1.5px; line-height: 1;">
+								<span style="font-size: 0.7em;">{toArabicNumerals(verse.verseNumber)}</span>
+							</span>
+							{#if waqfIndicators}
+								<span
+									class="absolute left-0 right-0 text-center"
+									style="bottom: 95%; font-family: {fontFamily}; font-size: 1.3em; line-height: 1; transform: translateX(-0.4em);"
+								>{waqfIndicators}</span>
+							{/if}
+						</span>
 					{/if}
 				</div>
 			{:else}
