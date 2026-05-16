@@ -105,9 +105,9 @@
 				</label>
 			</div>
 
-			<!-- Tabs -->
-			<div class="px-3 pt-5">
-				<div role="tablist" class="tabs tabs-box tabs-sm w-full">
+			<!-- Tabs + close -->
+			<div class="px-3 pt-5 flex items-center gap-2">
+				<div role="tablist" class="tabs tabs-box tabs-sm flex-1">
 					{#each ['surah', 'verse', 'juz', 'page'] as t (t)}
 						<button
 							role="tab"
@@ -116,6 +116,11 @@
 						>{t}</button>
 					{/each}
 				</div>
+				<label for="nav-drawer-toggle" class="btn btn-ghost btn-sm btn-circle shrink-0" aria-label="Close">
+					<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 15 15" fill="currentColor">
+						<path fill-rule="evenodd" d="M11.782 4.032a.575.575 0 1 0-.813-.814L7.5 6.687 4.032 3.218a.575.575 0 0 0-.814.814L6.687 7.5l-3.469 3.468a.575.575 0 0 0 .814.814L7.5 8.313l3.469 3.469a.575.575 0 0 0 .813-.814L8.313 7.5z" clip-rule="evenodd"/>
+					</svg>
+				</label>
 			</div>
 
 			<!-- Body — flex container so child tabs can manage their own scroll -->
