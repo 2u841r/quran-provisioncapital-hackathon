@@ -31,54 +31,59 @@
 	<!-- Top controls -->
 	<div class="flex items-center justify-between mb-6 px-1">
 		<button
-			class="btn btn-sm btn-primary rounded-full gap-2"
+			class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-base-content bg-base-200 hover:bg-base-300 transition-colors"
 			onclick={listen}
 			aria-label="Play Surah {chapter.nameSimple}"
 			data-testid="listen-button"
 		>
-			<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M4 2v20.364l16-10.182z"/></svg>
-			Listen
+			<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M4 2v20.364l16-10.182z"/></svg>
+			<span>Listen</span>
 		</button>
 
 		<button
-			class="btn btn-sm rounded-full gap-1"
+			class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-base-content bg-base-200 hover:bg-base-300 transition-colors max-w-[220px]"
 			onclick={() => onOpenTranslations?.()}
 			aria-label="Choose translations"
 		>
-			<span class="text-xs">Translation: {translationLabel}</span>
-			<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 15 15" fill="currentColor"><path fill-rule="evenodd" d="M3.135 6.158a.5.5 0 0 1 .707-.023L7.5 9.565l3.658-3.43a.5.5 0 0 1 .684.73l-4 3.75a.5.5 0 0 1-.684 0l-4-3.75a.5.5 0 0 1-.023-.707" clip-rule="evenodd"/></svg>
+			<span class="truncate">Translation: {translationLabel}</span>
+			<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 15 15" fill="currentColor" class="shrink-0"><path fill-rule="evenodd" d="M3.135 6.158a.5.5 0 0 1 .707-.023L7.5 9.565l3.658-3.43a.5.5 0 0 1 .684.73l-4 3.75a.5.5 0 0 1-.684 0l-4-3.75a.5.5 0 0 1-.023-.707" clip-rule="evenodd"/></svg>
 		</button>
 	</div>
 
-	<!-- Title row -->
-	<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6" dir="rtl">
-		<!-- Right side (in LTR view) — Arabic Surah name in surahnames font -->
-		<div class="flex justify-center md:justify-end" dir="ltr">
-			<span class="chapter-icon text-primary leading-none" style="font-size: 4.5rem;">{String(chapterId).padStart(3, '0')}</span>
-		</div>
-
-		<!-- Left side — transliterated name + number + translated name -->
-		<div class="flex flex-col items-center md:items-start gap-1" dir="ltr">
-			<div class="flex items-center gap-2">
-				<h1 class="text-3xl md:text-4xl font-semibold text-base-content" data-testid="chapter-title">
-					{chapter.nameSimple}
-					<span class="text-base-content/40 text-2xl ml-1">.{chapterId}</span>
-				</h1>
-				<button
-					class="btn btn-ghost btn-xs btn-circle text-base-content/50"
-					onclick={() => (infoOpen = true)}
-					aria-label="Surah Info"
-					data-testid="surah-info-button"
-				>
-					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<circle cx="12" cy="12" r="10"/>
-						<path d="M12 16v-4"/>
-						<path d="M12 8h.01"/>
-					</svg>
-				</button>
+	<!-- Title container — dir=rtl so the text block (first child) renders on the LEFT, Arabic icon on the RIGHT -->
+	<div dir="rtl" class="title-container mb-6 flex justify-center">
+		<h1
+			data-testid="chapter-title"
+			class="flex items-center gap-4 m-0"
+		>
+			<!-- Left text block (transliterated name + number, info button, translated name) -->
+			<div class="flex flex-col items-start gap-1" dir="ltr">
+				<div class="flex items-center gap-1">
+					<div class="flex items-baseline gap-1.5">
+						<p class="text-xl md:text-2xl font-semibold text-base-content">{chapterId}.</p>
+						<p class="text-xl md:text-2xl font-semibold text-base-content">{chapter.nameSimple}</p>
+					</div>
+					<button
+						class="btn btn-ghost btn-xs btn-circle text-base-content/50 ml-1"
+						onclick={() => (infoOpen = true)}
+						aria-label="Surah Info"
+						data-testid="surah-info-button"
+					>
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<circle cx="12" cy="12" r="10"/>
+							<path d="M12 16v-4"/>
+							<path d="M12 8h.01"/>
+						</svg>
+					</button>
+				</div>
+				<p class="text-sm text-base-content/60">{chapter.translatedName.name}</p>
 			</div>
-			<p class="text-sm text-base-content/60">{chapter.translatedName.name}</p>
-		</div>
+
+			<!-- Right side — Arabic Surah name (surahnames font, massive size) -->
+			<div class="flex items-center">
+				<span class="chapter-icon text-primary leading-none" style="font-size: 4.5rem;">{String(chapterId).padStart(3, '0')}</span>
+			</div>
+		</h1>
 	</div>
 
 	<!-- Bismillah -->
