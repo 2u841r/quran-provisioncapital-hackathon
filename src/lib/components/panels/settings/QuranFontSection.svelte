@@ -11,7 +11,7 @@
 	const { reciters, onOpenReciterView }: Props = $props();
 
 	const fontTypes = [
-		{ value: 'text_uthmani' as QuranFont, label: 'Uthmani' },
+		{ value: 'code_v2' as QuranFont, label: 'Uthmani' },
 		{ value: 'text_indopak' as QuranFont, label: 'IndoPak' },
 		{ value: 'tajweed_v4' as QuranFont, label: 'Tajweed' }
 	];

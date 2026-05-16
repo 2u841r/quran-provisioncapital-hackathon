@@ -26,6 +26,7 @@ export interface Word {
 	charTypeName: string;
 	textUthmani?: string;
 	textIndopak?: string;
+	textImlaeiSimple?: string;
 	qpcUthmaniHafs?: string;
 	codeV2?: string;
 	codeV1?: string;

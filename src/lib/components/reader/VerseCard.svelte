@@ -41,6 +41,26 @@
 	const fontFamily = $derived(fontFamilyMap[readerState.quranFont]);
 	const fontSize = $derived(0.8 + readerState.fontScale * 0.3);
 
+	// Returns display text for a regular (non-end) word based on selected font.
+	// For IndoPak last word, strip the embedded ornate end marker so we can render a plain UthmanicHafs circle instead.
+	function wordTextContent(word: { textIndopak?: string; textUthmani?: string }, stripEnd = false): string {
+		const text = readerState.quranFont === 'text_indopak'
+			? word.textIndopak ?? word.textUthmani ?? ''
+			: word.textUthmani ?? '';
+		if (!stripEnd) return text;
+		// Strip Arabic end-of-ayah / small high mark sequences at the end
+		return text.replace(/[۔-ۭ][٠-٩\d]*\s*$/u, '').trimEnd();
+	}
+
+	const lastEndPosition = $derived(
+		verse.words.filter(w => w.charTypeName === 'end').at(-1)?.position ?? -1
+	);
+
+	function ayahMarker(verseNumber: number): string {
+		const digits = String(verseNumber).replace(/\d/g, d => String.fromCharCode(0x0660 + Number(d)));
+		return '۝' + digits;
+	}
+
 	const pageNumber = $derived(verse.pageNumber ?? 1);
 
 	// Inject per-page font-face when using QCF fonts in translation view
@@ -183,19 +203,26 @@
 		<!-- Arabic -->
 		<div class="text-right mt-[30px] md:mt-[50px] mb-4" dir="rtl" lang="ar">
 			{#if verse.words?.length}
+				{@const isIndoPak = readerState.quranFont === 'text_indopak'}
+				{@const renderedWords = useWordGlyphs
+					? verse.words.filter(w => w.charTypeName !== 'pause')
+					: verse.words.filter(w => w.charTypeName === 'word')}
 				<div
 					class="flex flex-wrap justify-start gap-x-1"
 					style="font-size: {fontSize}rem; line-height: {2.5 + readerState.fontScale * 0.2}"
 				>
-					{#each verse.words.filter(w => w.charTypeName === 'word' || w.charTypeName === 'end') as word (word.position)}
-						{#if word.charTypeName === 'end'}
-							<span style="font-family: 'UthmanicHafs', serif;">{word.textUthmani ?? word.text ?? ''}</span>
-						{:else if useWordGlyphs}
+					{#each renderedWords as word, i (word.position)}
+						{#if useWordGlyphs}
 							<span style="font-family: {wordFontFamily(word)};">{wordGlyph(word)}</span>
 						{:else}
-							<span style="font-family: {fontFamily};">{word.textIndopak ?? word.textUthmani ?? word.text ?? ''}</span>
+							<!-- Strip embedded end marker only from the last word in IndoPak -->
+							<span style="font-family: {fontFamily};">{wordTextContent(word, isIndoPak && i === renderedWords.length - 1)}</span>
 						{/if}
 					{/each}
+					<!-- Append UthmanicHafs ayah marker only for IndoPak (Uthmani QCF has its own glyph) -->
+					{#if isIndoPak}
+						<span style="font-family: 'UthmanicHafs', serif;">{ayahMarker(verse.verseNumber)}</span>
+					{/if}
 				</div>
 			{:else}
 				<p style="font-family: {fontFamily}; font-size: {fontSize}rem; line-height: {2.5 + readerState.fontScale * 0.2}">

@@ -5,28 +5,37 @@
 		text_indopak: 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِیْمِ',
 		text_uthmani: 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
 		text_uthmani_simple: 'بسم الله الرحمن الرحيم',
-		tajweed_v4: 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ'
+		code_v2: 'ﱁﱂﱃﱄﱅ',
+		tajweed_v4: 'ﱁﱂﱃﱄﱅ'
 	};
 
 	const fontFamilyMap: Record<string, string> = {
 		text_indopak: "'IndoPak', serif",
 		text_uthmani: "'UthmanicHafs', 'NotoNaskhArabic', serif",
 		text_uthmani_simple: "'UthmanicHafs', 'NotoNaskhArabic', serif",
-		tajweed_v4: "p1-v4, serif"
+		code_v2: 'p1-v2, serif',
+		tajweed_v4: 'p1-v4, serif'
 	};
 
 	const arabicText = $derived(previewByFont[readerState.quranFont] ?? previewByFont['text_uthmani']);
 	const fontFamily = $derived(fontFamilyMap[readerState.quranFont] ?? fontFamilyMap['text_uthmani']);
 	const fontSize = $derived(0.9 + (readerState.fontScale - 1) * 0.2);
 
-	// Inject p1-v4 font-face for Tajweed preview
+	// Inject QCF page-1 font-face(s) for preview
 	$effect(() => {
-		if (readerState.quranFont !== 'tajweed_v4' || typeof document === 'undefined') return;
-		if (document.getElementById('qcf-p1-v4')) return;
-		const s = document.createElement('style');
-		s.id = 'qcf-p1-v4';
-		s.textContent = `@font-face{font-family:p1-v4;src:url('/fonts/quran/hafs/v4/colrv1/woff2/p1.woff2') format('woff2');}`;
-		document.head.appendChild(s);
+		if (typeof document === 'undefined') return;
+		if (readerState.quranFont === 'tajweed_v4' && !document.getElementById('qcf-p1-v4')) {
+			const s = document.createElement('style');
+			s.id = 'qcf-p1-v4';
+			s.textContent = `@font-face{font-family:p1-v4;src:url('/fonts/quran/hafs/v4/colrv1/woff2/p1.woff2') format('woff2');}`;
+			document.head.appendChild(s);
+		}
+		if (readerState.quranFont === 'code_v2' && !document.getElementById('qcf-p1-v2')) {
+			const s = document.createElement('style');
+			s.id = 'qcf-p1-v2';
+			s.textContent = `@font-face{font-family:p1-v2;src:url('/fonts-v2/p1.woff2') format('woff2');}`;
+			document.head.appendChild(s);
+		}
 	});
 </script>
 

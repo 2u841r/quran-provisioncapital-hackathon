@@ -107,17 +107,28 @@ export function isValidVerseRange(verseId: string): boolean {
 
 // ─── Verse params ─────────────────────────────────────────────────────────────
 
+// Mushaf IDs per quran.com API (drives the `word.text` field formatting)
+const FONT_MUSHAF: Record<QuranFont, number> = {
+	code_v2: 1,         // QCFV2
+	code_v1: 2,         // QCFV1
+	tajweed_v4: 6,      // QCFTajweedV4 (mushaf id 6)
+	text_uthmani: 4,    // UthmaniHafs
+	text_uthmani_simple: 4,
+	text_indopak: 3     // Indopak
+};
+
 function verseParams(font: QuranFont, translations: number[], wordByWord = false) {
 	// tajweed_v4 uses same glyph codes as code_v2 — request code_v2 word fields
 	const wordFont = font === 'tajweed_v4' ? 'code_v2' : font;
 	const fields = [font, 'text_uthmani', 'text_indopak', 'text_imlaei_simple', 'chapter_id', 'page_number', 'juz_number', 'hizb_number'].join(',');
-	const wordFields = [wordFont, 'text_uthmani', wordByWord ? 'translation,transliteration' : ''].filter(Boolean).join(',');
+	const wordFields = ['verse_key', 'page_number', 'location', 'text_uthmani', 'text_imlaei_simple', wordFont, wordByWord ? 'translation,transliteration' : ''].filter(Boolean).join(',');
 	return {
 		translations: translations,
 		translation_fields: 'resource_name,language_id',
 		fields,
 		words: true,
-		word_fields: wordFields || wordFont
+		word_fields: wordFields || wordFont,
+		mushaf: FONT_MUSHAF[font] ?? 4
 	};
 }
 
