@@ -5,9 +5,17 @@
 		open: boolean;
 		onClose: () => void;
 		chapters: Array<Chapter & { id: number }>;
+		currentChapterId?: number | null;
+		currentVerseNumber?: number | null;
 	}
 
-	const { open, onClose, chapters }: Props = $props();
+	const {
+		open,
+		onClose,
+		chapters,
+		currentChapterId = null,
+		currentVerseNumber = null
+	}: Props = $props();
 
 	let toggleEl = $state<HTMLInputElement | null>(null);
 
@@ -32,7 +40,25 @@
 		);
 	});
 
-	let verseChapter = $state(1);
+	let verseChapter = $state(currentChapterId ?? 1);
+
+	// On open, sync verseChapter to current chapter
+	$effect(() => {
+		if (open && currentChapterId) verseChapter = currentChapterId;
+	});
+
+	// After drawer open OR tab switch, scroll the active row(s) into view
+	$effect(() => {
+		if (!open) return;
+		// Track tab + currentChapterId/currentVerseNumber so this re-runs on changes
+		void tab; void currentChapterId; void currentVerseNumber;
+		const t = setTimeout(() => {
+			document
+				.querySelectorAll('.nav-panel [data-current="true"]')
+				.forEach((el) => el.scrollIntoView({ block: 'center', behavior: 'auto' }));
+		}, 320);
+		return () => clearTimeout(t);
+	});
 	let verseSurahQuery = $state('');
 	let verseVerseQuery = $state('');
 
@@ -141,11 +167,12 @@
 						<a
 							href="/{ch.id}"
 							onclick={close}
-							class="flex items-center gap-3 px-4 py-2.5 hover:bg-base-200 no-underline"
+							data-current={ch.id === currentChapterId ? 'true' : undefined}
+							class="flex items-center gap-3 px-4 py-2.5 hover:bg-base-200 no-underline {ch.id === currentChapterId ? 'bg-primary/10' : ''}"
 						>
-							<span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-base-200 text-xs font-mono text-base-content/60 shrink-0">{ch.id}</span>
+							<span class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-mono shrink-0 {ch.id === currentChapterId ? 'bg-primary text-primary-content' : 'bg-base-200 text-base-content/60'}">{ch.id}</span>
 							<div class="flex-1 min-w-0">
-								<div class="text-sm font-semibold text-base-content truncate">{ch.nameSimple}</div>
+								<div class="text-sm font-semibold {ch.id === currentChapterId ? 'text-primary' : 'text-base-content'} truncate">{ch.nameSimple}</div>
 								<div class="text-xs text-base-content/60 truncate">{ch.translatedName.name} · {ch.versesCount} verses</div>
 							</div>
 							<span class="text-base text-base-content/70" dir="rtl" lang="ar" style="font-family: 'UthmanicHafs', serif;">{ch.nameArabic}</span>
@@ -167,6 +194,7 @@
 							<div class="overflow-y-auto flex-1">
 								{#each verseSurahList as ch (ch.id)}
 									<button
+										data-current={ch.id === currentChapterId ? 'true' : undefined}
 										class="flex items-center gap-2 w-full text-left px-3 py-1.5 text-xs hover:bg-base-200 {verseChapter === ch.id ? 'bg-primary/10 text-primary font-semibold' : ''}"
 										onclick={() => { verseChapter = ch.id; verseVerseQuery = ''; }}
 									>
@@ -192,7 +220,8 @@
 									<a
 										href="/{verseChapter}/{v}"
 										onclick={close}
-										class="block px-3 py-1.5 text-xs hover:bg-base-200 text-base-content no-underline"
+										data-current={verseChapter === currentChapterId && v === currentVerseNumber ? 'true' : undefined}
+										class="block px-3 py-1.5 text-xs hover:bg-base-200 no-underline {verseChapter === currentChapterId && v === currentVerseNumber ? 'bg-primary/10 text-primary font-semibold' : 'text-base-content'}"
 									>{v}</a>
 								{/each}
 								{#if verseList.length === 0}

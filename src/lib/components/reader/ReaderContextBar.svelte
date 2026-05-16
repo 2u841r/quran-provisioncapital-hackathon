@@ -21,6 +21,26 @@
 	);
 
 	let navOpen = $state(false);
+	let activeVerseNumber = $state<number | null>(null);
+
+	// When opening the drawer, sniff the first verse currently in viewport
+	function openNavDrawer() {
+		if (typeof document !== 'undefined') {
+			const cards = document.querySelectorAll<HTMLElement>('[data-verse-key]');
+			for (const el of cards) {
+				const r = el.getBoundingClientRect();
+				if (r.bottom > 80) {
+					const [, v] = (el.dataset.verseKey ?? '').split(':');
+					activeVerseNumber = Number(v) || null;
+					break;
+				}
+			}
+		}
+		if (activeVerseNumber == null && firstVerse?.verseNumber) {
+			activeVerseNumber = firstVerse.verseNumber;
+		}
+		navOpen = true;
+	}
 
 	const isReading = $derived(readerState.readingMode === 'reading');
 	const readingSub = $derived(readerState.readingSubMode);
@@ -41,7 +61,7 @@
 			<div class="flex items-center">
 				<button
 					class="flex items-center gap-1 font-semibold text-sm text-base-content hover:text-primary transition-colors"
-					onclick={() => (navOpen = true)}
+					onclick={openNavDrawer}
 				>
 					<span>{chapter.id}. {chapter.nameSimple}</span>
 					<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 15 15" class="shrink-0">
@@ -134,7 +154,7 @@
 		<div class="flex md:hidden items-center justify-between h-11">
 			<button
 				class="flex items-center gap-1 font-semibold text-sm text-base-content hover:text-primary transition-colors"
-				onclick={() => (navOpen = true)}
+				onclick={openNavDrawer}
 			>
 				<span>{chapter.id}. {chapter.nameSimple}</span>
 				<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 15 15" class="shrink-0">
@@ -180,4 +200,10 @@
 	</div>
 </div>
 
-<NavigationDrawer open={navOpen} onClose={() => (navOpen = false)} chapters={chapterList} />
+<NavigationDrawer
+	open={navOpen}
+	onClose={() => (navOpen = false)}
+	chapters={chapterList}
+	currentChapterId={Number(chapter.id)}
+	currentVerseNumber={activeVerseNumber}
+/>
