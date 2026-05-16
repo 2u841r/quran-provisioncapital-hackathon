@@ -19,6 +19,7 @@
 		if (!open && dialog.open) dialog.close();
 	});
 
+
 	function verseUrl(): string {
 		const [c, v] = verse.verseKey.split(':');
 		return `${typeof location !== 'undefined' ? location.origin : ''}/${c}/${v}`;
