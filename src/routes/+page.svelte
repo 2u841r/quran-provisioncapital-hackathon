@@ -4,6 +4,7 @@
 	import type { SearchResult } from '$lib/types/quran';
 	// @ts-expect-error -- Vite raw import
 	import backgroundSvg from '$lib/assets/background.svg?raw';
+	import juzMappings from '$lib/data/juz-to-chapter-verse-mappings.json';
 
 	interface Props {
 		data: PageData;
@@ -16,6 +17,28 @@
 			.map(([id, ch]) => ({ id: Number(id), ...ch }))
 			.sort((a, b) => a.id - b.id)
 	);
+
+	type View = 'surah' | 'juz' | 'revelation';
+	let view = $state<View>('surah');
+	let sortAsc = $state(true);
+
+	const chapterById = $derived(Object.fromEntries(surahs.map(s => [String(s.id), s])));
+
+	const juzList = $derived.by(() => {
+		const entries = Object.entries(juzMappings as Record<string, Record<string, string>>);
+		entries.sort(([a], [b]) => Number(a) - Number(b));
+		if (!sortAsc) entries.reverse();
+		return entries;
+	});
+
+	const visibleChapters = $derived.by(() => {
+		let list = [...surahs];
+		if (view === 'revelation') {
+			list.sort((a, b) => (a.revelationOrder ?? 0) - (b.revelationOrder ?? 0));
+		}
+		if (!sortAsc) list.reverse();
+		return list;
+	});
 
 	let query = $state('');
 	let results = $state<SearchResult[]>([]);
@@ -168,18 +191,106 @@
 	</div>
 </div>
 
-<!-- Surah grid -->
-<main class="max-w-6xl mx-auto px-4 py-8">
-	<div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-		{#each surahs as surah (surah.id)}
-			<a href="/{surah.id}" class="card card-border bg-base-100 hover:bg-base-200 transition-colors p-3 gap-0.5 no-underline">
-				<span class="text-xs font-bold text-base-content/40">{surah.id}</span>
-				<span class="text-sm font-semibold text-base-content leading-tight">{surah.nameSimple}</span>
-				<span class="text-xs text-base-content/60">{surah.translatedName.name}</span>
-				<span class="text-xs text-base-content/40 mt-0.5">{surah.versesCount}v</span>
-			</a>
-		{/each}
+<!-- Tabs + Sort + Chapter list -->
+<main class="max-w-5xl mx-auto px-4 py-8">
+	<!-- Tabs row -->
+	<div class="pb-4">
+		<div role="tablist" class="tabs tabs-bordered">
+			<button
+				role="tab"
+				class="tab {view === 'surah' ? 'tab-active' : ''}"
+				onclick={() => (view = 'surah')}
+			>Surah</button>
+			<button
+				role="tab"
+				class="tab {view === 'juz' ? 'tab-active' : ''}"
+				onclick={() => (view = 'juz')}
+			>Juz</button>
+			<button
+				role="tab"
+				class="tab {view === 'revelation' ? 'tab-active' : ''}"
+				onclick={() => (view = 'revelation')}
+			>Revelation Order</button>
+		</div>
+
+		<!-- Sorter -->
+		<div class="flex justify-end items-center gap-1 mt-2 text-xs">
+			<span class="uppercase text-base-content/50">Sort by:</span>
+			<button
+				onclick={() => (sortAsc = !sortAsc)}
+				class="flex items-center gap-1 font-bold uppercase text-base-content hover:text-primary"
+			>
+				<span>{sortAsc ? 'Ascending' : 'Descending'}</span>
+				<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform {sortAsc ? 'rotate-180' : ''}">
+					<path d="m6 9 6 6 6-6"/>
+				</svg>
+			</button>
+		</div>
+
+		{#if view === 'revelation'}
+			<div class="mt-4 p-3 text-xs rounded-lg border border-base-300 bg-success/10 text-base-content/70">
+				The chapters are ordered by the order in which they were revealed.
+				<a href="https://tanzil.net/docs/revelation_order" target="_blank" rel="noreferrer" class="underline">Source: tanzil.net</a>.
+			</div>
+		{/if}
 	</div>
+
+	{#if view === 'juz'}
+		<div class="columns-1 md:columns-2 lg:columns-3 gap-3">
+			{#each juzList as [juzId, chapterMap] (juzId)}
+				<div class="break-inside-avoid mb-3 rounded-lg border border-base-200 bg-base-100 p-3">
+					<a href="/juz/{juzId}" class="flex items-center justify-between text-primary hover:opacity-75 no-underline pb-2 border-b border-base-200 mb-2">
+						<span class="font-semibold text-sm">Juz {juzId}</span>
+						<span class="text-xs uppercase">Read Juz</span>
+					</a>
+					{#each Object.entries(chapterMap) as [chId, verseRange] (chId)}
+						{@const ch = chapterById[chId]}
+						{#if ch}
+							{@const firstVerse = String(verseRange).split('-')[0]}
+							<a
+								href="/{chId}?startingVerse={firstVerse}"
+								class="flex items-center justify-between gap-3 px-2 py-2 rounded hover:bg-base-200 no-underline"
+							>
+								<div class="flex items-center gap-3 min-w-0">
+									<div class="w-7 h-7 shrink-0 flex items-center justify-center text-[0.65rem] font-semibold text-base-content/70 rotate-45 border border-base-300 rounded">
+										<span class="-rotate-45">{ch.id}</span>
+									</div>
+									<div class="min-w-0">
+										<div class="text-xs font-semibold text-base-content truncate">{ch.nameSimple}</div>
+										<div class="text-[0.65rem] text-base-content/60 truncate">v. {verseRange}</div>
+									</div>
+								</div>
+								<span class="chapter-icon text-primary text-base leading-none shrink-0">{String(ch.id).padStart(3, '0')}</span>
+							</a>
+						{/if}
+					{/each}
+				</div>
+			{/each}
+		</div>
+	{:else}
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+			{#each visibleChapters as ch (ch.id)}
+				<a
+					href="/{ch.id}"
+					class="flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-base-100 hover:bg-base-200 border border-base-200 transition-colors no-underline"
+				>
+					<div class="flex items-center gap-3 min-w-0">
+						<div class="w-8 h-8 shrink-0 flex items-center justify-center text-xs font-semibold text-base-content/70 rotate-45 border border-base-300 rounded">
+							<span class="-rotate-45">{ch.id}</span>
+						</div>
+						<div class="min-w-0">
+							<div class="text-sm font-semibold text-base-content truncate">{ch.nameSimple}</div>
+							<div class="text-xs text-base-content/60 truncate">{ch.translatedName.name}</div>
+						</div>
+					</div>
+					<div class="flex flex-col items-end shrink-0">
+						<span class="chapter-icon text-primary text-lg leading-none">{String(ch.id).padStart(3, '0')}</span>
+						<div class="text-[0.65rem] text-base-content/50 mt-1">{ch.versesCount} Ayahs</div>
+					</div>
+				</a>
+			{/each}
+		</div>
+	{/if}
 </main>
 
 <style>
@@ -187,5 +298,8 @@
 		width: 100%;
 		height: auto;
 		display: block;
+	}
+	.chapter-icon {
+		font-family: 'surahnames';
 	}
 </style>
