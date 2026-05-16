@@ -27,7 +27,7 @@
 	}
 </script>
 
-<div class="sticky top-[64px] z-20 bg-base-100 border-b border-base-200 shadow-sm">
+<div class="sticky top-0 z-20 bg-base-100 border-b border-base-200 shadow-sm">
 	<div class="px-6">
 
 		<!-- ── Desktop: 3 columns ────────────────────────────────────── -->
