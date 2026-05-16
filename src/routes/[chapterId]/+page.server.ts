@@ -17,7 +17,14 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 		error(404, 'Chapter not found');
 	}
 
-	const page = Number(url.searchParams.get('page') ?? '1');
+	const PER_PAGE = 50;
+	const startingVerse = Number(url.searchParams.get('startingVerse') ?? '0') || 0;
+	const pageFromQuery = Number(url.searchParams.get('page') ?? '0') || 0;
+	const page = pageFromQuery > 0
+		? pageFromQuery
+		: startingVerse > 0
+			? Math.ceil(startingVerse / PER_PAGE)
+			: 1;
 	const font = (url.searchParams.get('font') as QuranFont) ?? 'text_indopak';
 	const mushafLines = (Number(url.searchParams.get('lines') ?? '15') === 16 ? 16 : 15) as 15 | 16;
 	const translationsParam = url.searchParams.get('translations');
@@ -25,11 +32,11 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 
 	const [chapter, versesResponse, availableTranslations, reciters, tafsirs] = await Promise.all([
 		fetchChapter(fetch, chapterId),
-		fetchChapterVerses(fetch, chapterId, font, translations, false, page, 50, mushafLines),
+		fetchChapterVerses(fetch, chapterId, font, translations, false, page, PER_PAGE, mushafLines),
 		fetchAvailableTranslations(fetch),
 		fetchReciters(fetch),
 		fetchAvailableTafsirs(fetch)
 	]);
 
-	return { chapter, versesResponse, page, availableTranslations, reciters, tafsirs };
+	return { chapter, versesResponse, page, startingVerse, availableTranslations, reciters, tafsirs };
 };

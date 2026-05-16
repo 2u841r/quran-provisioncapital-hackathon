@@ -16,7 +16,23 @@
 	const { chapter, versesResponse, availableTranslations, reciters, tafsirs } = $derived(data);
 	const { verses, pagination } = $derived(versesResponse);
 	const pageNum = $derived(data.page);
+	const startingVerse = $derived(data.startingVerse ?? 0);
 	const firstVerse = $derived(verses[0] ?? null);
+	const highlightVerseKey = $derived(
+		startingVerse > 0 ? `${chapter.id}:${startingVerse}` : null
+	);
+
+	// Scroll to verse element if startingVerse is set
+	$effect(() => {
+		if (typeof window === 'undefined' || !highlightVerseKey) return;
+		// Wait for DOM update
+		queueMicrotask(() => {
+			const el = document.querySelector(`[data-verse-key="${highlightVerseKey}"]`);
+			if (el) {
+				el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
+		});
+	});
 
 	let settingsOpen = $state(false);
 
@@ -84,6 +100,7 @@
 				{pagination}
 				page={pageNum}
 				baseHref="/{chapter.id}"
+				{highlightVerseKey}
 				onOpenTranslations={() => (settingsOpen = true)}
 			/>
 		</main>

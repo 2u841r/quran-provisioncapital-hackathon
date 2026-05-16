@@ -42,7 +42,7 @@
 		{
 			title: 'Popular Links',
 			links: [
-				{ text: 'Ayat ul Kursi', url: '/2?startingVerse=255' },
+				{ text: 'Ayat ul Kursi', url: '/2/255' },
 				{ text: 'Surah Yaseen', url: '/36' },
 				{ text: 'Surah Al-Mulk', url: '/67' },
 				{ text: 'Surah Ar-Rahman', url: '/55' },
