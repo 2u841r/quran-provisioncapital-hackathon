@@ -211,7 +211,7 @@
 	<!-- Content: Arabic + Translation -->
 	<div class="px-4 pb-3">
 		<!-- Arabic -->
-		<div class="text-right mt-[30px] md:mt-[50px] mb-4" dir="rtl" lang="ar">
+		<div class="text-right mt-2 md:mt-3 mb-3" dir="rtl" lang="ar">
 			{#if verse.words?.length}
 				{@const isIndoPak = readerState.quranFont === 'text_indopak'}
 				{@const renderedWords = useWordGlyphs
