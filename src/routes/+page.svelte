@@ -4,6 +4,8 @@
 	import type { SearchResult } from '$lib/types/quran';
 	// @ts-expect-error -- Vite raw import
 	import backgroundSvg from '$lib/assets/background.svg?raw';
+	// @ts-expect-error -- Vite raw import
+	import logoSvg from '$lib/assets/logo_main.svg?raw';
 	import juzMappings from '$lib/data/juz-to-chapter-verse-mappings.json';
 	import NavigationDrawer from '$lib/components/NavigationDrawer.svelte';
 
@@ -108,7 +110,7 @@
 		<div class="mx-auto flex flex-col items-center px-2 py-5 md:py-[30px] max-w-3xl">
 			<!-- Logo (hidden on mobile) -->
 			<div class="hidden md:block pb-5">
-				<img src="/icons/logo_main.svg" alt="Quran.com" class="h-12" />
+				<div class="logo-main" aria-label="Quran.com" style="color: var(--color-primary);">{@html logoSvg}</div>
 			</div>
 
 			<!-- Search input + dropdown -->
@@ -311,6 +313,11 @@
 	.hero-svg :global(svg) {
 		width: 100%;
 		height: auto;
+		display: block;
+	}
+	.logo-main :global(svg) {
+		height: 3rem;
+		width: auto;
 		display: block;
 	}
 	.chapter-icon {
