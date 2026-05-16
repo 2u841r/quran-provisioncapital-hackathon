@@ -2,6 +2,8 @@
 	import type { PageData } from './$types';
 	import { fetchSearch } from '$lib/api/quran';
 	import type { SearchResult } from '$lib/types/quran';
+	// @ts-expect-error -- Vite raw import
+	import backgroundSvg from '$lib/assets/background.svg?raw';
 
 	interface Props {
 		data: PageData;
@@ -67,13 +69,15 @@
 </svelte:head>
 
 <!-- Hero (HomePageHero_outerContainer) -->
-<div class="hero-outer relative">
+<div class="hero-outer relative isolate">
 	<!-- Background image -->
-	<div class="hero-bg absolute inset-0 -z-10 overflow-hidden bg-base-200">
-		<img src="/icons/background.svg" alt="" class="w-full" style="transform: translateY(-40%)" />
+	<div class="hero-bg absolute inset-0 z-0 overflow-hidden bg-base-200" style="--color-calligraphy: var(--color-base-300);">
+		<div class="hero-svg" style="transform: translateY(-40%)">
+			{@html backgroundSvg}
+		</div>
 	</div>
 
-	<div>
+	<div class="relative z-10">
 		<!-- Inner container -->
 		<div class="mx-auto flex flex-col items-center px-2 py-5 md:py-[30px] max-w-3xl">
 			<!-- Logo (hidden on mobile) -->
@@ -177,3 +181,11 @@
 		{/each}
 	</div>
 </main>
+
+<style>
+	.hero-svg :global(svg) {
+		width: 100%;
+		height: auto;
+		display: block;
+	}
+</style>
