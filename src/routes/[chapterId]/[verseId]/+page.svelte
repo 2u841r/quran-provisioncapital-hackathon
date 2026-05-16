@@ -18,6 +18,7 @@
 
 	let settingsOpen = $state(false);
 
+
 	const pageTitle = $derived(
 		isRange
 			? `Surah ${chapter.nameSimple} ${verseId} - Quran`
@@ -126,7 +127,7 @@
 
 	<div class="drawer-side z-[60]">
 		<label for="settings-drawer" class="drawer-overlay" aria-label="close"></label>
-		<div class="w-80 min-h-full bg-base-100 border-l border-base-200 shadow-2xl flex flex-col">
+		<div class="w-80 h-screen bg-base-100 border-l border-base-200 shadow-2xl flex flex-col fixed top-0 right-0">
 			<SettingsDrawer
 				translations={availableTranslations}
 				{reciters}

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Chapter } from '$lib/types/quran';
+	import { uiState } from '$lib/state/ui.svelte';
 
 	interface Props {
 		open: boolean;
@@ -62,7 +63,10 @@
 	});
 
 	$effect(() => {
-		if (!open) {
+		if (open) {
+			uiState.lockScroll();
+			return () => uiState.unlockScroll();
+		} else {
 			const t = setTimeout(() => {
 				surahQuery = '';
 				juzQuery = '';

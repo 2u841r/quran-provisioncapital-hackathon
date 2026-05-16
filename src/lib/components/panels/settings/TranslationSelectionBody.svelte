@@ -31,31 +31,39 @@
 	}
 </script>
 
-<div class="flex-1 overflow-y-auto px-4 py-2">
+<div class="flex-1 overflow-y-auto px-4 translation-scroll">
 	{#each sortedLangs as lang (lang)}
-		<details class="group">
-			<summary class="flex items-center justify-between cursor-pointer py-2.5 text-sm font-medium text-base-content/70 capitalize select-none border-b border-base-200">
-				<span>{lang}</span>
-				<svg class="group-open:rotate-90 transition-transform text-base-content/30" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 15 15">
-					<path fill="currentColor" fill-rule="evenodd" d="M6.158 3.135a.5.5 0 0 1 .707.023l3.75 4a.5.5 0 0 1 0 .684l-3.75 4a.5.5 0 1 1-.73-.684L9.566 7.5l-3.43-3.658a.5.5 0 0 1 .023-.707" clip-rule="evenodd"/>
-				</svg>
-			</summary>
-			<div class="py-1">
-				{#each byLang[lang] as tr (tr.id)}
-					<label class="flex items-start gap-3 cursor-pointer py-2 group/item">
-						<input
-							type="checkbox"
-							class="checkbox checkbox-primary checkbox-xs mt-0.5 shrink-0"
-							checked={readerState.selectedTranslations.includes(tr.id)}
-							onchange={() => toggle(tr.id)}
-						/>
-						<span class="text-xs text-base-content/70 group-hover/item:text-base-content leading-tight">
-							{tr.translatedName?.name ?? tr.name}
-							<span class="text-base-content/40"> — {tr.authorName}</span>
-						</span>
-					</label>
-				{/each}
+		<div class="py-2">
+			<div class="py-1.5 text-xs font-semibold uppercase tracking-wide text-base-content/50 border-b border-base-200 mb-1">
+				{lang}
 			</div>
-		</details>
+			{#each byLang[lang] as tr (tr.id)}
+				<label class="flex items-start gap-3 cursor-pointer py-2 group/item">
+					<input
+						type="checkbox"
+						class="checkbox checkbox-primary checkbox-xs mt-0.5 shrink-0"
+						checked={readerState.selectedTranslations.includes(tr.id)}
+						onchange={() => toggle(tr.id)}
+					/>
+					<span class="text-xs text-base-content leading-tight">
+						{tr.translatedName?.name ?? tr.name}
+						<span class="text-base-content/70"> — {tr.authorName}</span>
+					</span>
+				</label>
+			{/each}
+		</div>
 	{/each}
 </div>
+
+<style>
+	.translation-scroll {
+		scrollbar-width: thin;
+		scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+	}
+	.translation-scroll::-webkit-scrollbar { width: 6px; }
+	.translation-scroll::-webkit-scrollbar-track { background: transparent; }
+	.translation-scroll::-webkit-scrollbar-thumb {
+		background-color: rgba(0, 0, 0, 0.2);
+		border-radius: 3px;
+	}
+</style>

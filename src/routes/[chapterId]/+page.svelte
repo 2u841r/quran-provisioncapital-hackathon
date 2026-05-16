@@ -36,6 +36,7 @@
 
 	let settingsOpen = $state(false);
 
+
 	// Reconcile URL font with persisted readerState font on first mount.
 	// Without this, opening /1 directly fetches with default font from URL even
 	// when user previously chose Uthmani (code_v2) — words come back without
@@ -108,7 +109,7 @@
 
 	<div class="drawer-side z-[60]">
 		<label for="settings-drawer" class="drawer-overlay" aria-label="close"></label>
-		<div class="w-80 min-h-full bg-base-100 border-l border-base-200 shadow-2xl flex flex-col">
+		<div class="w-80 h-screen bg-base-100 border-l border-base-200 shadow-2xl flex flex-col fixed top-0 right-0">
 			<SettingsDrawer
 				translations={availableTranslations}
 				{reciters}

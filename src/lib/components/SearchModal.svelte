@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { fetchSearch, getChaptersData } from '$lib/api/quran';
 	import type { SearchResult } from '$lib/types/quran';
+	import { uiState } from '$lib/state/ui.svelte';
 
 	interface Props {
 		open: boolean;
@@ -56,7 +57,9 @@
 
 	$effect(() => {
 		if (open) {
+			uiState.lockScroll();
 			queueMicrotask(() => inputEl?.focus());
+			return () => uiState.unlockScroll();
 		} else {
 			// Wait for the slide-out animation, then reset state
 			if (debounceTimer) clearTimeout(debounceTimer);

@@ -6,6 +6,22 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import SearchModal from '$lib/components/SearchModal.svelte';
 	import { navbarState } from '$lib/state/navbar.svelte';
+	import { uiState } from '$lib/state/ui.svelte';
+
+	// Lock page scroll while any drawer/modal is open
+	$effect(() => {
+		if (typeof document === 'undefined') return;
+		const locked = uiState.scrollLockCount > 0;
+		const html = document.documentElement;
+		const body = document.body;
+		if (locked) {
+			html.style.overflow = 'hidden';
+			body.style.overflow = 'hidden';
+		} else {
+			html.style.overflow = '';
+			body.style.overflow = '';
+		}
+	});
 
 	let searchOpen = $state(false);
 
