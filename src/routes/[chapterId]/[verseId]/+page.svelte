@@ -93,26 +93,32 @@
 
 			<!-- Prev / Next single verse nav -->
 			{#if !isRange}
-				<div class="flex justify-between items-center gap-3 mt-6 px-2">
-					{#if Number(verseId) > 1}
-						<a href="/{chapter.id}/{Number(verseId) - 1}" class="btn btn-sm btn-ghost gap-1">
-							<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-							Previous
-						</a>
-					{:else}
-						<div></div>
-					{/if}
+				<div class="grid grid-cols-3 items-center gap-3 mt-6 px-2">
+					<div>
+						{#if Number(verseId) > 1}
+							<a href="/{chapter.id}/{Number(verseId) - 1}" class="btn btn-sm btn-ghost gap-1">
+								<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+								Previous
+							</a>
+						{/if}
+					</div>
 
-					<a href="/{chapter.id}" class="btn btn-sm btn-ghost">View all verses</a>
+					<!-- Centered EndOfScrollingControls -->
+					<div class="flex flex-col sm:flex-row items-center justify-center gap-2">
+						<a href="/{chapter.id}" class="btn btn-sm btn-outline rounded-full">Read full surah</a>
+						{#if Number(verseId) < chapter.versesCount}
+							<a href="/{chapter.id}?startingVerse={Number(verseId) + 1}" class="btn btn-sm btn-primary rounded-full">Continue</a>
+						{/if}
+					</div>
 
-					{#if Number(verseId) < chapter.versesCount}
-						<a href="/{chapter.id}/{Number(verseId) + 1}" class="btn btn-sm btn-ghost gap-1">
-							Next
-							<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-						</a>
-					{:else}
-						<div></div>
-					{/if}
+					<div class="flex justify-end">
+						{#if Number(verseId) < chapter.versesCount}
+							<a href="/{chapter.id}/{Number(verseId) + 1}" class="btn btn-sm btn-ghost gap-1">
+								Next
+								<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+							</a>
+						{/if}
+					</div>
 				</div>
 			{/if}
 		</main>
