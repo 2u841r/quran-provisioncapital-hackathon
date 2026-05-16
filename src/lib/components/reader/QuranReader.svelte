@@ -13,6 +13,7 @@
 		page?: number;
 		highlightVerseKey?: string | null;
 		baseHref: string;
+		showChapterHeader?: boolean;
 		onOpenTranslations?: () => void;
 	}
 
@@ -23,6 +24,7 @@
 		page = 1,
 		highlightVerseKey = null,
 		baseHref,
+		showChapterHeader = true,
 		onOpenTranslations
 	}: Props = $props();
 
@@ -88,7 +90,7 @@
 			{/if}
 		</div>
 	{:else}
-		{#if page === 1}
+		{#if page === 1 && showChapterHeader}
 			<ChapterHeader
 				{chapter}
 				onOpenTranslations={() => onOpenTranslations?.()}

@@ -87,6 +87,7 @@
 				page={1}
 				baseHref="/{chapter.id}/{verseId}"
 				{highlightVerseKey}
+				showChapterHeader={false}
 				onOpenTranslations={() => (settingsOpen = true)}
 			/>
 
