@@ -181,7 +181,7 @@
 	<!-- Content: Arabic + Translation -->
 	<div class="px-4 pb-3">
 		<!-- Arabic -->
-		<div class="text-right mb-4" dir="rtl" lang="ar">
+		<div class="text-right mt-[30px] md:mt-[50px] mb-4" dir="rtl" lang="ar">
 			{#if verse.words?.length}
 				<div
 					class="flex flex-wrap justify-start gap-x-1"
