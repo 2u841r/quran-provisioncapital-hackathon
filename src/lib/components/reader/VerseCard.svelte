@@ -187,7 +187,7 @@
 					class="flex flex-wrap justify-start gap-x-1"
 					style="font-size: {fontSize}rem; line-height: {2.5 + readerState.fontScale * 0.2}"
 				>
-					{#each verse.words.filter(w => w.charTypeName === 'word') as word (word.position)}
+					{#each verse.words.filter(w => w.charTypeName === 'word' || w.charTypeName === 'end') as word (word.position)}
 						<span style="font-family: {wordFontFamily(word)};">{wordGlyph(word)}</span>
 					{/each}
 				</div>
@@ -195,7 +195,7 @@
 				<p
 					style="font-family: {fontFamily}; font-size: {fontSize}rem; line-height: {2.5 + readerState.fontScale * 0.2}"
 				>
-					{arabicText}
+					{arabicText}{#if verse.words?.length}<span style="font-family: 'UthmanicHafs', serif;">{verse.words.find(w => w.charTypeName === 'end')?.text ?? ''}</span>{/if}
 				</p>
 			{/if}
 		</div>
