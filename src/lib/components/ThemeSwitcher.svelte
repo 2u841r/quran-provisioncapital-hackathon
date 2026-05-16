@@ -1,9 +1,14 @@
 <script lang="ts">
 	const themes = [
 		{ name: 'caramellatte', label: 'Peach' },
+		{ name: 'valentine', label: 'Pink' },
+		{ name: 'lemonade', label: 'Lemonade' },
+		{ name: 'aqua', label: 'Aqua' },
+		{ name: 'cyberpunk', label: 'Cyberpunk' },
 		{ name: 'light', label: 'Light' },
 		{ name: 'dark', label: 'Dark' },
-		{ name: 'valentine', label: 'Pink' },
+		{ name: 'coffee', label: 'Coffee' },
+		{ name: 'luxury', label: 'Luxury' },
 		{ name: 'abyss', label: 'Abyss' }
 	];
 
@@ -34,15 +39,10 @@
 		{#each themes as theme (theme.name)}
 			<li>
 				<button
-					class="flex items-center gap-2 w-full text-sm"
+					class="w-full text-sm text-left"
 					class:active={current === theme.name}
 					onclick={() => setTheme(theme.name)}
 				>
-					<span
-						class="w-4 h-4 rounded-full border border-base-300 shrink-0"
-						data-theme={theme.name}
-						style="background: oklch(var(--b1))"
-					></span>
 					{theme.label}
 				</button>
 			</li>

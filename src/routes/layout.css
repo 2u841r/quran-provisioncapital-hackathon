@@ -1,4 +1,4 @@
 @import 'tailwindcss';
 @plugin 'daisyui' {
-  themes: caramellatte --default, light, dark, valentine, abyss;
+  themes: caramellatte --default, light, dark, valentine, abyss, cyberpunk, aqua, coffee, luxury, lemonade;
 }
