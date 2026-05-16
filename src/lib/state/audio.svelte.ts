@@ -47,6 +47,9 @@ function createAudioState() {
 	let chapterName = $state('');
 	let totalVerses = $state(0);
 	let audio: HTMLAudioElement | null = null;
+	let volume = $state(1);
+	let playbackRate = $state(1);
+	let audioUrl = $state('');
 
 	const currentVerseIdx = $derived(() => {
 		if (!verseTimings.length) return 0;
@@ -90,7 +93,10 @@ function createAudioState() {
 			const data = await fetchChapterAudio(reciterId, chapterId);
 			cleanup();
 			const el = new Audio(data.audioUrl);
+			el.volume = volume;
+			el.playbackRate = playbackRate;
 			audio = el;
+			audioUrl = data.audioUrl;
 			verseTimings = data.verseTimings;
 			totalVerses = data.verseTimings.length;
 			loadedChapterId = chapterId;
@@ -174,6 +180,17 @@ function createAudioState() {
 		stop();
 	}
 
+	function setVolume(v: number) {
+		const clamped = Math.max(0, Math.min(1, v));
+		volume = clamped;
+		if (audio) audio.volume = clamped;
+	}
+
+	function setPlaybackRate(r: number) {
+		playbackRate = r;
+		if (audio) audio.playbackRate = r;
+	}
+
 	return {
 		get status() { return status; },
 		get reciterId() { return reciterId; },
@@ -187,13 +204,18 @@ function createAudioState() {
 		get isActive() { return status !== 'idle'; },
 		get currentVerseNumber() { return currentVerseNumber; },
 		get currentVerseKey() { return currentVerseKey; },
+		get volume() { return volume; },
+		get playbackRate() { return playbackRate; },
+		get audioUrl() { return audioUrl; },
 		playVerse,
 		togglePlay,
 		nextVerse,
 		prevVerse,
 		seek,
 		stop,
-		setReciter
+		setReciter,
+		setVolume,
+		setPlaybackRate
 	};
 }
 
