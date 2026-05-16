@@ -89,7 +89,7 @@
 		</main>
 	</div>
 
-	<div class="drawer-side z-50">
+	<div class="drawer-side z-[60]">
 		<label for="settings-drawer" class="drawer-overlay" aria-label="close"></label>
 		<div class="w-80 min-h-full bg-base-100 border-l border-base-200 shadow-2xl flex flex-col">
 			<SettingsDrawer
