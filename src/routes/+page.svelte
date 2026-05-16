@@ -5,6 +5,9 @@
 	// @ts-expect-error -- Vite raw import
 	import backgroundSvg from '$lib/assets/background.svg?raw';
 	import juzMappings from '$lib/data/juz-to-chapter-verse-mappings.json';
+	import NavigationDrawer from '$lib/components/NavigationDrawer.svelte';
+
+	let navOpen = $state(false);
 
 	interface Props {
 		data: PageData;
@@ -174,12 +177,21 @@
 
 			<!-- Buttons -->
 			<div class="flex gap-2 md:gap-[15px] mt-2 md:mt-4">
-				<a href="/1" class="btn btn-sm md:btn-md btn-ghost bg-base-100 rounded-full">
+				<button
+					class="btn btn-sm md:btn-md btn-ghost bg-base-100 rounded-full"
+					onclick={() => (navOpen = true)}
+					data-testid="navigate-quran-button"
+				>
 					<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+						<line x1="8" y1="6" x2="21" y2="6"/>
+						<line x1="8" y1="12" x2="21" y2="12"/>
+						<line x1="8" y1="18" x2="21" y2="18"/>
+						<line x1="3" y1="6" x2="3.01" y2="6"/>
+						<line x1="3" y1="12" x2="3.01" y2="12"/>
+						<line x1="3" y1="18" x2="3.01" y2="18"/>
 					</svg>
-					Navigate
-				</a>
+					Navigate Quran
+				</button>
 				<button class="btn btn-sm md:btn-md btn-ghost bg-base-100 rounded-full">
 					<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
@@ -292,6 +304,8 @@
 		</div>
 	{/if}
 </main>
+
+<NavigationDrawer open={navOpen} onClose={() => (navOpen = false)} chapters={surahs} />
 
 <style>
 	.hero-svg :global(svg) {
