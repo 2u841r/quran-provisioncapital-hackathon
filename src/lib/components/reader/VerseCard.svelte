@@ -182,20 +182,24 @@
 	<div class="px-4 pb-3">
 		<!-- Arabic -->
 		<div class="text-right mb-4" dir="rtl" lang="ar">
-			{#if useWordGlyphs && verse.words?.length}
+			{#if verse.words?.length}
 				<div
 					class="flex flex-wrap justify-start gap-x-1"
 					style="font-size: {fontSize}rem; line-height: {2.5 + readerState.fontScale * 0.2}"
 				>
 					{#each verse.words.filter(w => w.charTypeName === 'word' || w.charTypeName === 'end') as word (word.position)}
-						<span style="font-family: {wordFontFamily(word)};">{wordGlyph(word)}</span>
+						{#if word.charTypeName === 'end'}
+							<span style="font-family: 'UthmanicHafs', serif;">{word.text ?? ''}</span>
+						{:else if useWordGlyphs}
+							<span style="font-family: {wordFontFamily(word)};">{wordGlyph(word)}</span>
+						{:else}
+							<span style="font-family: {fontFamily};">{word.textIndopak ?? word.textUthmani ?? word.text ?? ''}</span>
+						{/if}
 					{/each}
 				</div>
 			{:else}
-				<p
-					style="font-family: {fontFamily}; font-size: {fontSize}rem; line-height: {2.5 + readerState.fontScale * 0.2}"
-				>
-					{arabicText}{#if verse.words?.length}<span style="font-family: 'UthmanicHafs', serif;">{verse.words.find(w => w.charTypeName === 'end')?.text ?? ''}</span>{/if}
+				<p style="font-family: {fontFamily}; font-size: {fontSize}rem; line-height: {2.5 + readerState.fontScale * 0.2}">
+					{arabicText}
 				</p>
 			{/if}
 		</div>
