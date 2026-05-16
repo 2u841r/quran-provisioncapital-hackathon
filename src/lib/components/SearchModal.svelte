@@ -270,6 +270,7 @@
 		width: 100vw;
 	}
 	.search-drawer .drawer-side > * {
+		transition-property: transform !important;
 		transition-duration: 280ms !important;
 		transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1) !important;
 	}

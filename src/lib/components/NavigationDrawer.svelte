@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Chapter } from '$lib/types/quran';
+	import { scrollCurrentIntoView } from '$lib/util/reader';
 
 	interface Props {
 		open: boolean;
@@ -7,6 +8,8 @@
 		chapters: Array<Chapter & { id: number }>;
 		currentChapterId?: number | null;
 		currentVerseNumber?: number | null;
+		currentPageNumber?: number | null;
+		currentJuzNumber?: number | null;
 	}
 
 	const {
@@ -14,7 +17,9 @@
 		onClose,
 		chapters,
 		currentChapterId = null,
-		currentVerseNumber = null
+		currentVerseNumber = null,
+		currentPageNumber = null,
+		currentJuzNumber = null
 	}: Props = $props();
 
 	let toggleEl = $state<HTMLInputElement | null>(null);
@@ -47,17 +52,15 @@
 		if (open && currentChapterId) verseChapter = currentChapterId;
 	});
 
-	// After drawer open OR tab switch, scroll the active row(s) into view
+	// Scroll active rows into view: 320ms wait on first open (for slide),
+	// then 0ms on subsequent tab switches.
+	let prevTab: Tab | '' = $state('');
 	$effect(() => {
-		if (!open) return;
-		// Track tab + currentChapterId/currentVerseNumber so this re-runs on changes
-		void tab; void currentChapterId; void currentVerseNumber;
-		const t = setTimeout(() => {
-			document
-				.querySelectorAll('.nav-panel [data-current="true"]')
-				.forEach((el) => el.scrollIntoView({ block: 'center', behavior: 'auto' }));
-		}, 320);
-		return () => clearTimeout(t);
+		if (!open) { prevTab = ''; return; }
+		if (prevTab === tab) return;
+		const firstRun = prevTab === '';
+		prevTab = tab;
+		scrollCurrentIntoView('.nav-panel', firstRun ? 320 : 0);
 	});
 	let verseSurahQuery = $state('');
 	let verseVerseQuery = $state('');
@@ -245,7 +248,8 @@
 							<a
 								href="/juz/{j}"
 								onclick={close}
-								class="btn btn-sm btn-ghost border border-base-300 no-underline"
+								data-current={j === currentJuzNumber ? 'true' : undefined}
+								class="btn btn-sm border no-underline transition-none {j === currentJuzNumber ? 'btn-primary border-primary' : 'btn-ghost border-base-300'}"
 							>{j}</a>
 						{/each}
 						{#if juzList.length === 0}
@@ -267,7 +271,8 @@
 							<a
 								href="/page/{p}"
 								onclick={close}
-								class="btn btn-xs btn-ghost border border-base-300 no-underline"
+								data-current={p === currentPageNumber ? 'true' : undefined}
+								class="btn btn-xs border no-underline transition-none {p === currentPageNumber ? 'btn-primary border-primary' : 'btn-ghost border-base-300'}"
 							>{p}</a>
 						{/each}
 						{#if pageList.length === 0}
@@ -305,6 +310,7 @@
 		}
 	}
 	.nav-drawer .drawer-side > * {
+		transition-property: transform !important;
 		transition-duration: 280ms !important;
 		transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1) !important;
 	}

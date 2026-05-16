@@ -163,6 +163,10 @@
 
 <div
 	data-verse-key={verse.verseKey}
+	data-page={verse.pageNumber ?? ''}
+	data-juz={verse.juzNumber ?? ''}
+	data-hizb={verse.hizbNumber ?? ''}
+	data-chapter-id={verse.chapterId ?? chapterId ?? ''}
 	class="border-b border-base-200 transition-colors {isCurrentVerse && audioState.isActive ? 'bg-primary/5' : highlight ? 'bg-base-200' : ''}"
 >
 	<!-- Action bar -->

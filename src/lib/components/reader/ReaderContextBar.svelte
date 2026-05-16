@@ -3,6 +3,7 @@
 	import { navbarState } from '$lib/state/navbar.svelte';
 	import { getChaptersData } from '$lib/api/quran';
 	import NavigationDrawer from '$lib/components/NavigationDrawer.svelte';
+	import { detectActiveLocation } from '$lib/util/reader';
 	import type { Chapter, Verse } from '$lib/types/quran';
 
 	interface Props {
@@ -22,23 +23,14 @@
 
 	let navOpen = $state(false);
 	let activeVerseNumber = $state<number | null>(null);
+	let activePageNumber = $state<number | null>(null);
+	let activeJuzNumber = $state<number | null>(null);
 
-	// When opening the drawer, sniff the first verse currently in viewport
 	function openNavDrawer() {
-		if (typeof document !== 'undefined') {
-			const cards = document.querySelectorAll<HTMLElement>('[data-verse-key]');
-			for (const el of cards) {
-				const r = el.getBoundingClientRect();
-				if (r.bottom > 80) {
-					const [, v] = (el.dataset.verseKey ?? '').split(':');
-					activeVerseNumber = Number(v) || null;
-					break;
-				}
-			}
-		}
-		if (activeVerseNumber == null && firstVerse?.verseNumber) {
-			activeVerseNumber = firstVerse.verseNumber;
-		}
+		const loc = detectActiveLocation();
+		activeVerseNumber = loc.verseNumber ?? firstVerse?.verseNumber ?? null;
+		activePageNumber = loc.pageNumber ?? firstVerse?.pageNumber ?? null;
+		activeJuzNumber = loc.juzNumber ?? firstVerse?.juzNumber ?? null;
 		navOpen = true;
 	}
 
@@ -206,4 +198,6 @@
 	chapters={chapterList}
 	currentChapterId={Number(chapter.id)}
 	currentVerseNumber={activeVerseNumber}
+	currentPageNumber={activePageNumber}
+	currentJuzNumber={activeJuzNumber}
 />
