@@ -31,13 +31,69 @@
 
 <div class="min-h-screen bg-base-100 text-base-content">
 	<nav class="navbar bg-base-200 border-b border-base-300 px-4 sticky top-0 z-30 transition-transform duration-300 {navbarState.visible ? 'translate-y-0' : '-translate-y-full'}">
+		<!-- Left: logo -->
 		<div class="flex-1">
 			<a href="/" class="font-semibold text-base-content hover:opacity-75 transition-opacity">
 				Quran
 			</a>
 		</div>
-		<div class="flex-none">
+
+		<!-- Right: items container -->
+		<div class="flex-none flex items-center gap-1">
+			<!-- Language selector dropdown -->
+			<div class="dropdown dropdown-end">
+				<button tabindex="0" class="btn btn-ghost btn-sm btn-circle" aria-label="Languages">
+					<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="12" cy="12" r="10"/>
+						<line x1="2" y1="12" x2="22" y2="12"/>
+						<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+					</svg>
+				</button>
+				<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+				<ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-40 p-2 shadow border border-base-200 mt-2">
+					<li>
+						<button class="active">
+							<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+							English
+						</button>
+					</li>
+				</ul>
+			</div>
+
+			<!-- Search shortcut -->
+			<a href="/" class="btn btn-ghost btn-sm btn-circle" aria-label="Search">
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="11" cy="11" r="8"/>
+					<path d="m21 21-4.3-4.3"/>
+				</svg>
+			</a>
+
 			<ThemeSwitcher />
+
+			<!-- Profile / Login -->
+			{#if false}
+				<!-- Logged-in: profile dropdown (stubbed; all links → /#) -->
+				<div class="dropdown dropdown-end">
+					<button tabindex="0" class="btn btn-ghost btn-sm btn-circle" aria-label="Profile">
+						<div class="avatar avatar-placeholder">
+							<div class="w-7 rounded-full bg-primary/20 text-primary">
+								<span class="text-xs font-semibold">U</span>
+							</div>
+						</div>
+					</button>
+					<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+					<ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow border border-base-200 mt-2">
+						<li><a href="/#">My Profile</a></li>
+						<li><a href="/#">Bookmarks</a></li>
+						<li><a href="/#">Notes & Reflections</a></li>
+						<li><a href="/#">Reading History</a></li>
+						<li><a href="/#">Settings</a></li>
+						<li><a href="/#">Log out</a></li>
+					</ul>
+				</div>
+			{:else}
+				<a href="/#" class="btn btn-primary btn-sm rounded-full">Login</a>
+			{/if}
 		</div>
 	</nav>
 
