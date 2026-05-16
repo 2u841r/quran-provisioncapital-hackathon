@@ -86,7 +86,7 @@
 				<div class="flex items-center gap-1 bg-base-200 rounded-full p-0.5 text-xs font-medium">
 					<!-- Verse by Verse -->
 					<button
-						class="flex items-center gap-1 px-3 py-1 rounded-full transition-all {!isReading ? 'bg-base-100 text-base-content shadow-sm' : 'text-base-content/50 hover:text-base-content'}"
+						class="flex items-center gap-1 px-3 py-1 rounded-full transition-all whitespace-nowrap shrink-0 {!isReading ? 'bg-base-100 text-base-content shadow-sm' : 'text-base-content/50 hover:text-base-content'}"
 						onclick={() => readerState.setReadingMode('translation')}
 					>
 						<svg xmlns="http://www.w3.org/2000/svg" width="10" height="12" fill="none" viewBox="0 0 12 15">
@@ -193,7 +193,7 @@
 			<button
 				role="tab"
 				aria-selected={!isReading}
-				class="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors border-b-2 {!isReading ? 'border-primary text-primary' : 'border-transparent text-base-content/50 hover:text-base-content'}"
+				class="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors border-b-2 whitespace-nowrap {!isReading ? 'border-primary text-primary' : 'border-transparent text-base-content/50 hover:text-base-content'}"
 				onclick={() => readerState.setReadingMode('translation')}
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" width="11" height="13" fill="none" viewBox="0 0 12 15">
