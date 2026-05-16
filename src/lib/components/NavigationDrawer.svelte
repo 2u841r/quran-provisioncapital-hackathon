@@ -91,10 +91,10 @@
 		onchange={(e) => { if (!(e.target as HTMLInputElement).checked) onClose(); }}
 	/>
 
-	<div class="drawer-side z-[20]">
+	<div class="drawer-side z-[20] h-full">
 		<label for="nav-drawer-toggle" class="drawer-overlay" aria-label="Close navigation"></label>
 
-		<div class="nav-panel bg-base-100 flex flex-col {open ? '' : 'invisible'}" style="height: calc(100vh - 4rem);">
+		<div class="nav-panel bg-base-100 flex flex-col h-full {open ? '' : 'invisible'}">
 			<!-- Header -->
 			<div class="sticky top-0 z-10 flex items-center justify-between gap-2 px-4 py-3 border-b border-base-200 bg-base-100">
 				<h2 class="text-sm font-semibold">Navigate Quran</h2>
