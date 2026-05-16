@@ -281,7 +281,7 @@
 	</div>
 
 	<!-- Tab bar -->
-	<div class="flex items-center justify-around border-t border-base-200 overflow-x-auto px-2">
+	<div class="flex items-center justify-between border-t border-base-200 px-1 sm:px-2">
 		{#each [
 			{ id: 'tafsir', label: 'Tafsirs' },
 			{ id: 'lessons', label: 'Lessons' },
@@ -292,7 +292,7 @@
 				<div class="h-3.5 w-px bg-base-300 shrink-0"></div>
 			{/if}
 			<button
-				class="flex items-center gap-1.5 px-3 py-2.5 text-xs shrink-0 transition-colors {activeTab === tab.id ? 'text-primary' : 'text-base-content/50 hover:text-base-content'}"
+				class="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-2.5 text-[0.65rem] sm:text-xs shrink-0 transition-colors [&_svg]:w-3.5 [&_svg]:h-3.5 sm:[&_svg]:w-4 sm:[&_svg]:h-4 {activeTab === tab.id ? 'text-primary' : 'text-base-content/50 hover:text-base-content'}"
 				onclick={() => toggleTab(tab.id as Tab)}
 				aria-label={tab.label}
 				data-testid="bottom-action-tab-{tab.id}"
