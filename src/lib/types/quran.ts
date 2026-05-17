@@ -129,3 +129,111 @@ export interface SearchResponse {
 		results: SearchResult[];
 	};
 }
+
+// ─── Hadith ────────────────────────────────────────────────────────────────────
+
+export interface HadithGrade {
+	grade: string;
+	gradedBy: string;
+}
+
+export interface HadithText {
+	lang: string;
+	chapterNumber: string;
+	chapterTitle: string;
+	body: string;
+	urn: number;
+	grades: HadithGrade[];
+}
+
+export interface HadithItem {
+	urn: number;
+	collection: string;
+	bookNumber: string;
+	chapterId: string;
+	hadithNumber: string;
+	name: string;
+	hadith: HadithText[];
+}
+
+export interface HadithsResponse {
+	hadiths: HadithItem[];
+	page: number;
+	limit: number;
+	hasMore: boolean;
+	language: string;
+	direction: string;
+}
+
+// ─── Reflections / Lessons ─────────────────────────────────────────────────────
+
+export interface ReflectionAuthor {
+	id: string;
+	username: string;
+	firstName?: string;
+	lastName?: string;
+	avatarUrl?: string;
+	verified?: boolean;
+}
+
+export interface ReflectionReference {
+	id: string;
+	chapterId: number;
+	from: number;
+	to: number;
+}
+
+export interface ReflectionItem {
+	id: number;
+	authorId: string;
+	body: string;
+	createdAt: string;
+	updatedAt: string;
+	publishedAt?: string;
+	commentsCount: number;
+	likesCount: number;
+	viewsCount: number;
+	languageName: string;
+	postTypeId: number;
+	postTypeName: string;
+	author?: ReflectionAuthor;
+	references?: ReflectionReference[];
+	verified?: boolean;
+}
+
+export interface ReflectionsResponse {
+	total: number;
+	currentPage: number;
+	limit: number;
+	pages: number;
+	data: ReflectionItem[];
+}
+
+// ─── Answers (Questions & Answers) ─────────────────────────────────────────────
+
+export interface Answer {
+	id: string;
+	body: string;
+	answeredBy: string | null;
+	status: string;
+	language: string | null;
+}
+
+export interface Question {
+	id: string;
+	body: string;
+	type: string;
+	ranges: string[];
+	surah: number;
+	theme: string[] | null;
+	summary: string | null;
+	references: string[] | null;
+	language: string | null;
+	status: string;
+	answers: Answer[];
+}
+
+export interface QuestionsResponse {
+	questions: Question[];
+	totalCount: number;
+}

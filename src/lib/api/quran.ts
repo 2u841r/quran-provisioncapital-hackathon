@@ -6,7 +6,10 @@ import type {
 	Chapter,
 	ChapterInfo,
 	ChaptersData,
+	HadithsResponse,
+	QuestionsResponse,
 	Reciter,
+	ReflectionsResponse,
 	SearchResponse,
 	TafsirContent,
 	TafsirInfo,
@@ -277,4 +280,76 @@ export async function fetchSearch(
 		page,
 		translations
 	});
+}
+
+// ─── Gateway proxy fetch (hadiths, answers, reflections) ────────────────────────
+
+async function apiFetchProxy<T>(
+	fetchFn: typeof fetch,
+	path: string,
+	params: Record<string, string | number | boolean | number[]> = {}
+): Promise<T> {
+	const url = buildUrl(PROXY_API, path, params);
+	const res = await fetchFn(url);
+	if (!res.ok) throw new Error(`API error ${res.status}`);
+	const json = await res.json();
+	return camelizeKeys(json) as T;
+}
+
+// ─── Hadiths ────────────────────────────────────────────────────────────────────
+
+export async function fetchHadithsByAyah(
+	fetchFn: typeof fetch,
+	verseKey: string,
+	language: string = 'en',
+	page: number = 1,
+	limit: number = 10
+): Promise<HadithsResponse> {
+	return apiFetchProxy<HadithsResponse>(
+		fetchFn,
+		`/gateway/hadith_references/by_ayah/${verseKey}/hadiths`,
+		{ language, page, limit }
+	);
+}
+
+// ─── Answers ────────────────────────────────────────────────────────────────────
+
+export async function fetchAnswersByAyah(
+	fetchFn: typeof fetch,
+	verseKey: string,
+	language: string = 'en',
+	page: number = 1,
+	pageSize: number = 10
+): Promise<QuestionsResponse> {
+	return apiFetchProxy<QuestionsResponse>(
+		fetchFn,
+		`/auth/questions/by-verse/${verseKey}`,
+		{ language, page, pageSize }
+	);
+}
+
+// ─── Reflections / Lessons ──────────────────────────────────────────────────────
+
+export async function fetchReflections(
+	fetchFn: typeof fetch,
+	chapterId: number,
+	verseNumber: number,
+	postTypeId: number,
+	page: number = 1,
+	languageId: number = 2
+): Promise<ReflectionsResponse> {
+	return apiFetchProxy<ReflectionsResponse>(
+		fetchFn,
+		'/quran-reflect/v1/posts/feed',
+		{
+			'filter[references][0][chapterId]': chapterId,
+			'filter[references][0][from]': verseNumber,
+			'filter[references][0][to]': verseNumber,
+			'filter[postTypeIds]': postTypeId,
+			page,
+			tab: 'popular',
+			languages: languageId,
+			'filter[verifiedOnly]': true
+		}
+	);
 }
