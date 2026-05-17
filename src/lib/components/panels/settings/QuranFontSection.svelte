@@ -17,6 +17,20 @@
 	];
 
 	const selectedIdx = $derived(fontTypes.findIndex((f) => f.value === readerState.quranFont));
+
+	const NON_QCF_FAMILIES: Partial<Record<QuranFont, string>> = {
+		text_indopak: 'IndoPak',
+		text_uthmani: 'UthmanicHafs',
+		text_uthmani_simple: 'UthmanicHafs'
+	};
+
+	async function selectFont(value: QuranFont) {
+		const family = NON_QCF_FAMILIES[value];
+		if (family && typeof document !== 'undefined') {
+			try { await document.fonts.load(`1em "${family}"`); } catch { /* proceed */ }
+		}
+		readerState.setFont(value);
+	}
 </script>
 
 <div id="quran-font-section" class="space-y-5">
@@ -30,7 +44,7 @@
 		{#each fontTypes as { value, label } (value)}
 			<button
 				class="flex-1 relative z-10 py-1.5 text-xs font-medium rounded-md transition-colors {readerState.quranFont === value ? 'text-base-content' : 'text-base-content/50 hover:text-base-content'}"
-				onclick={() => readerState.setFont(value)}
+				onclick={() => selectFont(value)}
 			>
 				{label}
 			</button>

@@ -43,6 +43,7 @@ function saveToStorage(prefs: typeof DEFAULTS) {
 
 function createReaderState() {
 	let prefs = $state(loadFromStorage());
+	let loadedFontFaces = $state<string[]>([]);
 
 	function update<K extends keyof typeof DEFAULTS>(key: K, value: (typeof DEFAULTS)[K]) {
 		prefs = { ...prefs, [key]: value };
@@ -64,6 +65,11 @@ function createReaderState() {
 		get wordByWordLocale() { return prefs.wordByWordLocale; },
 		get tafsirId() { return prefs.tafsirId; },
 		get fontScale() { return prefs.fontScale; },
+
+		get loadedFontFaces() { return loadedFontFaces; },
+		markFontLoaded: (key: string) => {
+			if (!loadedFontFaces.includes(key)) loadedFontFaces = [...loadedFontFaces, key];
+		},
 
 		setFont: (f: QuranFont) => update('quranFont', f),
 		setLines: (l: MushafLines) => update('mushafLines', l),

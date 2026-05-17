@@ -74,22 +74,42 @@
 
 	const pageNumber = $derived(verse.pageNumber ?? 1);
 
-	// Inject per-page font-face when using QCF fonts in translation view
+	// Inject per-page QCF font via style tag; track load via Font Loading API
 	$effect(() => {
 		if (typeof document === 'undefined' || !useWordGlyphs) return;
 		const p = pageNumber;
 		const font = readerState.quranFont;
 		const version = font === 'tajweed_v4' ? 'v4' : font === 'code_v1' ? 'v1' : 'v2';
-		const id = `qcf-p${p}-${version}`;
-		if (document.getElementById(id)) return;
-		const src = font === 'tajweed_v4'
-			? `/fonts/quran/hafs/v4/colrv1/woff2/p${p}.woff2`
-			: `/fonts-v2/p${p}.woff2`;
-		const s = document.createElement('style');
-		s.id = id;
-		s.textContent = `@font-face{font-family:p${p}-${version};src:url('${src}') format('woff2');}`;
-		document.head.appendChild(s);
+		const fontFaceName = `p${p}-${version}`;
+		const styleId = `qcf-${fontFaceName}`;
+
+		if (!document.getElementById(styleId)) {
+			const src = font === 'tajweed_v4'
+				? `/fonts/quran/hafs/v4/colrv1/woff2/p${p}.woff2`
+				: `/fonts-v2/p${p}.woff2`;
+			const s = document.createElement('style');
+			s.id = styleId;
+			s.textContent = `@font-face{font-family:${fontFaceName};src:url('${src}') format('woff2');}`;
+			document.head.appendChild(s);
+		}
+
+		if (document.fonts.check(`1em "${fontFaceName}"`)) {
+			readerState.markFontLoaded(fontFaceName);
+			return;
+		}
+
+		document.fonts.load(`1em "${fontFaceName}"`)
+			.then(() => readerState.markFontLoaded(fontFaceName))
+			.catch(() => {});
 	});
+
+	const qcfFontKey = $derived(
+		useWordGlyphs
+			? `p${pageNumber}-${readerState.quranFont === 'tajweed_v4' ? 'v4' : readerState.quranFont === 'code_v1' ? 'v1' : 'v2'}`
+			: ''
+	);
+	// Reads the getter directly so Svelte tracks loadedFontFaces as a reactive dependency
+	const isFontReady = $derived(!useWordGlyphs || readerState.loadedFontFaces.includes(qcfFontKey));
 
 	type Tab = 'tafsir' | 'lessons' | 'reflections' | 'answers' | 'hadith';
 	let activeTab = $state<Tab | null>(null);
@@ -248,8 +268,11 @@
 					style="font-size: {fontSize}rem; line-height: {2.5 + readerState.fontScale * 0.2}"
 				>
 					{#each renderedWords as word, i (word.position)}
-						{#if useWordGlyphs}
+						{#if useWordGlyphs && isFontReady}
 							<span style="font-family: {wordFontFamily(word)};">{wordGlyph(word)}</span>
+						{:else if useWordGlyphs}
+							<!-- Fallback: show readable Arabic while QCF per-page font loads -->
+							<span style="font-family: 'UthmanicHafs', 'NotoNaskhArabic', serif;">{word.textUthmani ?? word.text ?? word.textImlaeiSimple ?? ''}</span>
 						{:else}
 							<!-- Strip embedded end marker only from the last word in IndoPak -->
 							<span style="font-family: {fontFamily};">{wordTextContent(word, isIndoPak && i === renderedWords.length - 1)}</span>

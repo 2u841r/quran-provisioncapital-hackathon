@@ -118,16 +118,20 @@ const FONT_MUSHAF: Record<QuranFont, number> = {
 };
 
 function verseParams(font: QuranFont, translations: number[], wordByWord = false, _mushafLines: 15 | 16 = 15) {
-	// tajweed_v4 uses same glyph codes as code_v2 — request code_v2 word fields
+	// tajweed_v4 uses same glyph codes as code_v2
 	const wordFont = font === 'tajweed_v4' ? 'code_v2' : font;
 	const fields = [font, 'text_uthmani', 'text_indopak', 'text_imlaei_simple', 'chapter_id', 'page_number', 'juz_number', 'hizb_number'].join(',');
+	// Always fetch all text variants so client-side font switching works without a re-fetch
 	const wordFields = [
 		'verse_key',
 		'page_number',
 		'location',
-		...(font === 'text_indopak'
-			? ['text_indopak']
-			: ['text', 'text_uthmani', 'text_imlaei_simple', wordFont]),
+		'text_indopak',
+		'text_uthmani',
+		'text',
+		'text_imlaei_simple',
+		'code_v2',
+		...(wordFont !== 'code_v2' && !['text_indopak', 'text_uthmani', 'text', 'text_imlaei_simple'].includes(wordFont) ? [wordFont] : []),
 		wordByWord ? 'translation,transliteration' : ''
 	].filter(Boolean).join(',');
 	return {
@@ -135,7 +139,7 @@ function verseParams(font: QuranFont, translations: number[], wordByWord = false
 		translation_fields: 'resource_name,language_id',
 		fields,
 		words: true,
-		word_fields: wordFields || wordFont,
+		word_fields: wordFields,
 		mushaf: FONT_MUSHAF[font] ?? 4
 	};
 }

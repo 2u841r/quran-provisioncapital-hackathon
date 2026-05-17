@@ -21,20 +21,22 @@
 	const fontFamily = $derived(fontFamilyMap[readerState.quranFont] ?? fontFamilyMap['text_uthmani']);
 	const fontSize = $derived(0.9 + (readerState.fontScale - 1) * 0.2);
 
-	// Inject QCF page-1 font-face(s) for preview
+	// Inject QCF page-1 font-face(s) for preview and mark loaded in shared state
 	$effect(() => {
 		if (typeof document === 'undefined') return;
-		if (readerState.quranFont === 'tajweed_v4' && !document.getElementById('qcf-p1-v4')) {
-			const s = document.createElement('style');
-			s.id = 'qcf-p1-v4';
-			s.textContent = `@font-face{font-family:p1-v4;src:url('/fonts/quran/hafs/v4/colrv1/woff2/p1.woff2') format('woff2');}`;
-			document.head.appendChild(s);
-		}
-		if (readerState.quranFont === 'code_v2' && !document.getElementById('qcf-p1-v2')) {
-			const s = document.createElement('style');
-			s.id = 'qcf-p1-v2';
-			s.textContent = `@font-face{font-family:p1-v2;src:url('/fonts-v2/p1.woff2') format('woff2');}`;
-			document.head.appendChild(s);
+		const entries: Array<{ id: string; family: string; css: string }> = [];
+		if (readerState.quranFont === 'tajweed_v4') entries.push({ id: 'qcf-p1-v4', family: 'p1-v4', css: `@font-face{font-family:p1-v4;src:url('/fonts/quran/hafs/v4/colrv1/woff2/p1.woff2') format('woff2');}` });
+		if (readerState.quranFont === 'code_v2') entries.push({ id: 'qcf-p1-v2', family: 'p1-v2', css: `@font-face{font-family:p1-v2;src:url('/fonts-v2/p1.woff2') format('woff2');}` });
+		for (const { id, family, css } of entries) {
+			if (!document.getElementById(id)) {
+				const s = document.createElement('style');
+				s.id = id;
+				s.textContent = css;
+				document.head.appendChild(s);
+			}
+			document.fonts.load(`1em "${family}"`)
+				.then(() => readerState.markFontLoaded(family))
+				.catch(() => {});
 		}
 	});
 </script>
