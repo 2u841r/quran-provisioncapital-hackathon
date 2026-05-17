@@ -3,16 +3,17 @@
 	import { readerState, fontFamilyMap } from '$lib/state/reader.svelte';
 	import ShareVerseModal from './ShareVerseModal.svelte';
 	import type { Verse } from '$lib/types/quran';
+	import type { StudyTab } from './StudyModeModal.svelte';
 
 	interface Props {
 		verse: Verse;
 		chapterName?: string;
 		chapterId?: number;
 		highlight?: boolean;
-		onTafsir?: (verseKey: string) => void;
+		onStudyMode?: (verseKey: string, tab: StudyTab) => void;
 	}
 
-	const { verse, chapterName = '', chapterId, highlight = false, onTafsir }: Props = $props();
+	const { verse, chapterName = '', chapterId, highlight = false, onStudyMode }: Props = $props();
 
 	const isCurrentVerse = $derived(audioState.currentVerseKey === verse.verseKey);
 	const isPlaying = $derived(isCurrentVerse && audioState.isPlaying);
@@ -111,13 +112,8 @@
 	// Reads the getter directly so Svelte tracks loadedFontFaces as a reactive dependency
 	const isFontReady = $derived(!useWordGlyphs || readerState.loadedFontFaces.includes(qcfFontKey));
 
-	type Tab = 'tafsir' | 'lessons' | 'reflections' | 'answers' | 'hadith';
-	let activeTab = $state<Tab | null>(null);
-
-	function toggleTab(tab: Tab) {
-		activeTab = activeTab === tab ? null : tab;
-		if (tab === 'tafsir' && activeTab === 'tafsir') onTafsir?.(verse.verseKey);
-		if (tab !== 'tafsir') activeTab = null; // stubs
+	function toggleTab(tab: StudyTab) {
+		onStudyMode?.(verse.verseKey, tab);
 	}
 
 	function togglePlay() {
@@ -341,8 +337,8 @@
 				<div class="h-3.5 w-px bg-base-300 shrink-0"></div>
 			{/if}
 			<button
-				class="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-2.5 text-[0.65rem] sm:text-xs shrink-0 transition-colors [&_svg]:w-3.5 [&_svg]:h-3.5 sm:[&_svg]:w-4 sm:[&_svg]:h-4 {activeTab === tab.id ? 'text-primary' : 'text-base-content/50 hover:text-base-content'}"
-				onclick={() => toggleTab(tab.id as Tab)}
+				class="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-2.5 text-[0.65rem] sm:text-xs shrink-0 transition-colors [&_svg]:w-3.5 [&_svg]:h-3.5 sm:[&_svg]:w-4 sm:[&_svg]:h-4 text-base-content/50 hover:text-base-content"
+				onclick={() => toggleTab(tab.id as StudyTab)}
 				aria-label={tab.label}
 				data-testid="bottom-action-tab-{tab.id}"
 			>

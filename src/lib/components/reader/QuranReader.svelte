@@ -4,7 +4,7 @@
 	import VerseCard from './VerseCard.svelte';
 	import MushafPage from './MushafPage.svelte';
 	import ChapterHeader from './ChapterHeader.svelte';
-	import TafsirPanel from '$lib/components/panels/TafsirPanel.svelte';
+	import StudyModeModal, { type StudyTab } from './StudyModeModal.svelte';
 
 	interface Props {
 		chapter: Chapter;
@@ -28,10 +28,12 @@
 		onOpenTranslations
 	}: Props = $props();
 
-	let tafsirVerseKey = $state<string | null>(null);
+	let studyVerseKey = $state<string | null>(null);
+	let studyTab = $state<StudyTab>('tafsir');
 
-	function openTafsir(verseKey: string) {
-		tafsirVerseKey = tafsirVerseKey === verseKey ? null : verseKey;
+	function openStudyMode(verseKey: string, tab: StudyTab) {
+		studyVerseKey = verseKey;
+		studyTab = tab;
 	}
 
 	const mushafMode = $derived(
@@ -104,10 +106,11 @@
 					chapterId={Number(chapter.id)}
 					chapterName={chapter.nameSimple}
 					highlight={highlightVerseKey === verse.verseKey}
-					onTafsir={openTafsir}
+					onStudyMode={openStudyMode}
 				/>
 			{/each}
 		</div>
+
 
 		{#if pagination && pagination.totalPages > 1}
 			<div class="flex justify-center items-center gap-3 py-8">
@@ -125,10 +128,10 @@
 	{/if}
 </div>
 
-{#if tafsirVerseKey && readerState.tafsirId}
-	<TafsirPanel
-		verseKey={tafsirVerseKey}
-		tafsirId={readerState.tafsirId}
-		onClose={() => (tafsirVerseKey = null)}
-	/>
-{/if}
+<StudyModeModal
+	verseKey={studyVerseKey ?? ''}
+	tab={studyTab}
+	open={!!studyVerseKey}
+	onClose={() => (studyVerseKey = null)}
+	onTabChange={(t) => (studyTab = t)}
+/>

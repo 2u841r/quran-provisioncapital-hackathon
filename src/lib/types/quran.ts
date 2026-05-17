@@ -89,6 +89,7 @@ export interface Reciter {
 
 export interface TafsirInfo {
 	id: number;
+	slug: string;
 	name: string;
 	authorName: string;
 	languageName: string;
