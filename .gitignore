@@ -21,3 +21,9 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Local Claude Code settings (machine-specific)
+.claude/settings.local.json
+
+# Wrangler-generated types (auto-rebuilt before deploy)
+worker-configuration.d.ts
