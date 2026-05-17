@@ -161,7 +161,6 @@
 							<div class="dropdown dropdown-bottom">
 								<button
 									tabindex="0"
-									role="button"
 									class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-base-300 bg-base-100 text-sm text-base-content/70 hover:border-base-400 hover:text-base-content transition-colors"
 								>
 									<span>{displayLanguage(selectedLanguage)}</span>
