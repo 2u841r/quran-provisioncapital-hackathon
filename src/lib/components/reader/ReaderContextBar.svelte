@@ -43,7 +43,7 @@
 	}
 </script>
 
-<div class="sticky z-20 bg-base-100 border-b border-base-200 shadow-sm transition-[top] duration-300 {navbarState.visible ? 'top-16' : 'top-0'}">
+<div class="sticky z-20 bg-base-100 border-b border-base-200 shadow-sm transition-[top] duration-300 {navbarState.visible ? 'top-12' : 'top-0'}">
 	<div class="px-6">
 
 		<!-- ── Desktop: 3 columns ────────────────────────────────────── -->
@@ -142,10 +142,25 @@
 			</div>
 		</div>
 
-		<!-- ── Mobile/Tablet: Row 1 — Surah + Settings ───────────────── -->
-		<div class="flex md:hidden items-center justify-between h-11">
+		<!-- ── Mobile: Page info bar (slides in when navbar hides) ── -->
+		{#if firstVerse?.pageNumber}
+			<div class="flex md:hidden items-center justify-between border-b border-base-200 overflow-hidden transition-all duration-300 {navbarState.visible ? 'max-h-0 border-transparent opacity-0' : 'max-h-11 opacity-100'}" style="height: {navbarState.visible ? '0' : '44px'}">
+				<div class="flex items-center gap-1.5 text-xs text-base-content/70">
+					<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" d="M3.5 1.75h9v10.5l-4.5-3.375L3.5 12.25zm.75-1.5a1.5 1.5 0 0 0-1.5 1.5v12.5a.75.75 0 0 0 1.2.6l4.05-3.038 4.05 3.038a.75.75 0 0 0 1.2-.6V1.75a1.5 1.5 0 0 0-1.5-1.5z" clip-rule="evenodd"/></svg>
+					Page {firstVerse.pageNumber}
+				</div>
+				{#if firstVerse.juzNumber}
+					<div class="text-xs text-base-content/50">
+						Juz {firstVerse.juzNumber}{firstVerse.hizbNumber ? ` / Hizb ${firstVerse.hizbNumber}` : ''}
+					</div>
+				{/if}
+			</div>
+		{/if}
+
+		<!-- ── Mobile/Tablet: Surah row ──────────────────────────────── -->
+		<div class="flex md:hidden items-center justify-between h-11 gap-2">
 			<button
-				class="flex items-center gap-1 font-semibold text-sm text-base-content hover:text-primary transition-colors"
+				class="flex items-center gap-1 font-semibold text-sm text-base-content hover:text-primary transition-colors shrink-0"
 				onclick={openNavDrawer}
 			>
 				<span>{chapter.id}. {chapter.nameSimple}</span>
@@ -154,40 +169,70 @@
 				</svg>
 			</button>
 
-			<button class="btn btn-ghost btn-sm btn-circle" onclick={onOpenSettings} aria-label="Change Settings">
-				<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-					<path d="M12.32 7.582a4.044 4.044 0 1 0 4.044 4.043 4.056 4.056 0 0 0-4.043-4.043m8.73 4.043q-.003.567-.082 1.13l2.46 1.926a.586.586 0 0 1 .134.747l-2.328 4.02a.59.59 0 0 1-.715.248l-2.894-1.162a9 9 0 0 1-1.962 1.146l-.433 3.072a.6.6 0 0 1-.581.498H9.993a.61.61 0 0 1-.582-.482l-.433-3.072a8.6 8.6 0 0 1-1.962-1.147l-2.893 1.163a.59.59 0 0 1-.715-.249L1.08 15.445a.586.586 0 0 1 .133-.748l2.46-1.926a9 9 0 0 1-.082-1.146q.003-.567.083-1.13L1.213 8.57a.586.586 0 0 1-.133-.747l2.328-4.02a.59.59 0 0 1 .715-.248l2.893 1.162A9 9 0 0 1 8.978 3.57L9.411.498A.6.6 0 0 1 9.993 0h4.656a.61.61 0 0 1 .582.482l.432 3.072A8.6 8.6 0 0 1 17.628 4.7l2.89-1.163a.59.59 0 0 1 .716.249l2.328 4.019a.586.586 0 0 1-.133.747l-2.461 1.927q.078.57.083 1.145"/>
-				</svg>
-			</button>
+			<div class="flex items-center gap-1 shrink-0">
+				<!-- When scrolled: inline icon-only reading toggle -->
+				{#if !navbarState.visible}
+					<div class="flex items-center gap-0.5 bg-base-200 rounded-full p-0.5">
+						<button
+							class="flex items-center justify-center w-7 h-7 rounded-full transition-all {!isReading ? 'bg-base-100 text-base-content shadow-sm' : 'text-base-content/50'}"
+							onclick={() => readerState.setReadingMode('translation')}
+							aria-label="Verse by Verse"
+						>
+							<svg xmlns="http://www.w3.org/2000/svg" width="11" height="13" fill="none" viewBox="0 0 12 15">
+								<rect width="11" height="14" x="0.5" y="0.5" stroke="currentColor" rx="1.5"/>
+								<path fill="currentColor" d="M2.75 3.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5M2.75 6.75a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5M2.75 10a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5M5 3.5A.75.75 0 0 0 5 5h4.25a.75.75 0 0 0 0-1.5zM5 6.75a.75.75 0 0 0 0 1.5h4.25a.75.75 0 0 0 0-1.5zM5 10a.75.75 0 0 0 0 1.5h4.25a.75.75 0 0 0 0-1.5z"/>
+							</svg>
+						</button>
+						<button
+							class="flex items-center justify-center w-7 h-7 rounded-full transition-all {isReading ? 'bg-base-100 text-base-content shadow-sm' : 'text-base-content/50'}"
+							onclick={() => selectReadingSubMode('arabic')}
+							aria-label="Reading"
+						>
+							<svg xmlns="http://www.w3.org/2000/svg" width="11" height="13" fill="none" viewBox="0 0 12 15">
+								<rect width="11" height="14" x="0.5" y="0.5" stroke="currentColor" rx="1.5"/>
+								<path fill="currentColor" d="M10 4.26c0-.442-.3-.76-.67-.76H2.67c-.37 0-.67.318-.67.76 0 .443.3.8.67.8h6.66c.37 0 .67-.357.67-.8m0 3.214c0-.442-.3-.76-.67-.76H2.67c-.37 0-.67.318-.67.76 0 .443.3.8.67.8h6.66c.37 0 .67-.357.67-.8m0 3.225c0-.442-.3-.759-.67-.759H2.67c-.37 0-.67.317-.67.76 0 .442.3.8.67.8h6.66c.37 0 .67-.358.67-.8"/>
+							</svg>
+						</button>
+					</div>
+				{/if}
+
+				<button class="btn btn-ghost btn-sm btn-circle" onclick={onOpenSettings} aria-label="Change Settings">
+					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+						<path d="M12.32 7.582a4.044 4.044 0 1 0 4.044 4.043 4.056 4.056 0 0 0-4.043-4.043m8.73 4.043q-.003.567-.082 1.13l2.46 1.926a.586.586 0 0 1 .134.747l-2.328 4.02a.59.59 0 0 1-.715.248l-2.894-1.162a9 9 0 0 1-1.962 1.146l-.433 3.072a.6.6 0 0 1-.581.498H9.993a.61.61 0 0 1-.582-.482l-.433-3.072a8.6 8.6 0 0 1-1.962-1.147l-2.893 1.163a.59.59 0 0 1-.715-.249L1.08 15.445a.586.586 0 0 1 .133-.748l2.46-1.926a9 9 0 0 1-.082-1.146q.003-.567.083-1.13L1.213 8.57a.586.586 0 0 1-.133-.747l2.328-4.02a.59.59 0 0 1 .715-.248l2.893 1.162A9 9 0 0 1 8.978 3.57L9.411.498A.6.6 0 0 1 9.993 0h4.656a.61.61 0 0 1 .582.482l.432 3.072A8.6 8.6 0 0 1 17.628 4.7l2.89-1.163a.59.59 0 0 1 .716.249l2.328 4.019a.586.586 0 0 1-.133.747l-2.461 1.927q.078.57.083 1.145"/>
+					</svg>
+				</button>
+			</div>
 		</div>
 
-		<!-- ── Mobile/Tablet: Row 2 — Reading mode tabs ──────────────── -->
-		<div class="flex md:hidden border-t border-base-200" role="tablist" aria-label="Reading mode">
-			<button
-				role="tab"
-				aria-selected={!isReading}
-				class="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors border-b-2 whitespace-nowrap {!isReading ? 'border-primary text-primary' : 'border-transparent text-base-content/50 hover:text-base-content'}"
-				onclick={() => readerState.setReadingMode('translation')}
-			>
-				<svg xmlns="http://www.w3.org/2000/svg" width="11" height="13" fill="none" viewBox="0 0 12 15">
-					<rect width="11" height="14" x="0.5" y="0.5" stroke="currentColor" rx="1.5"/>
-					<path fill="currentColor" d="M2.75 3.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5M2.75 6.75a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5M2.75 10a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5M5 3.5A.75.75 0 0 0 5 5h4.25a.75.75 0 0 0 0-1.5zM5 6.75a.75.75 0 0 0 0 1.5h4.25a.75.75 0 0 0 0-1.5zM5 10a.75.75 0 0 0 0 1.5h4.25a.75.75 0 0 0 0-1.5z"/>
-				</svg>
-				Verse by Verse
-			</button>
-			<button
-				role="tab"
-				aria-selected={isReading}
-				class="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors border-b-2 {isReading ? 'border-primary text-primary' : 'border-transparent text-base-content/50 hover:text-base-content'}"
-				onclick={() => selectReadingSubMode('arabic')}
-			>
-				<svg xmlns="http://www.w3.org/2000/svg" width="11" height="13" fill="none" viewBox="0 0 12 15">
-					<rect width="11" height="14" x="0.5" y="0.5" stroke="currentColor" rx="1.5"/>
-					<path fill="currentColor" d="M10 4.26c0-.442-.3-.76-.67-.76H2.67c-.37 0-.67.318-.67.76 0 .443.3.8.67.8h6.66c.37 0 .67-.357.67-.8m0 3.214c0-.442-.3-.76-.67-.76H2.67c-.37 0-.67.318-.67.76 0 .443.3.8.67.8h6.66c.37 0 .67-.357.67-.8m0 3.225c0-.442-.3-.759-.67-.759H2.67c-.37 0-.67.317-.67.76 0 .442.3.8.67.8h6.66c.37 0 .67-.358.67-.8"/>
-				</svg>
-				Reading
-			</button>
-		</div>
+		<!-- ── Mobile/Tablet: Row 2 — Reading mode tabs (navbar visible only) ── -->
+		{#if navbarState.visible}
+			<div class="flex md:hidden border-t border-base-200" role="tablist" aria-label="Reading mode">
+				<button
+					role="tab"
+					aria-selected={!isReading}
+					class="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors border-b-2 whitespace-nowrap {!isReading ? 'border-primary text-primary' : 'border-transparent text-base-content/50 hover:text-base-content'}"
+					onclick={() => readerState.setReadingMode('translation')}
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" width="11" height="13" fill="none" viewBox="0 0 12 15">
+						<rect width="11" height="14" x="0.5" y="0.5" stroke="currentColor" rx="1.5"/>
+						<path fill="currentColor" d="M2.75 3.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5M2.75 6.75a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5M2.75 10a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5M5 3.5A.75.75 0 0 0 5 5h4.25a.75.75 0 0 0 0-1.5zM5 6.75a.75.75 0 0 0 0 1.5h4.25a.75.75 0 0 0 0-1.5zM5 10a.75.75 0 0 0 0 1.5h4.25a.75.75 0 0 0 0-1.5z"/>
+					</svg>
+					Verse by Verse
+				</button>
+				<button
+					role="tab"
+					aria-selected={isReading}
+					class="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors border-b-2 {isReading ? 'border-primary text-primary' : 'border-transparent text-base-content/50 hover:text-base-content'}"
+					onclick={() => selectReadingSubMode('arabic')}
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" width="11" height="13" fill="none" viewBox="0 0 12 15">
+						<rect width="11" height="14" x="0.5" y="0.5" stroke="currentColor" rx="1.5"/>
+						<path fill="currentColor" d="M10 4.26c0-.442-.3-.76-.67-.76H2.67c-.37 0-.67.318-.67.76 0 .443.3.8.67.8h6.66c.37 0 .67-.357.67-.8m0 3.214c0-.442-.3-.76-.67-.76H2.67c-.37 0-.67.318-.67.76 0 .443.3.8.67.8h6.66c.37 0 .67-.357.67-.8m0 3.225c0-.442-.3-.759-.67-.759H2.67c-.37 0-.67.317-.67.76 0 .442.3.8.67.8h6.66c.37 0 .67-.358.67-.8"/>
+					</svg>
+					Reading
+				</button>
+			</div>
+		{/if}
 
 	</div>
 </div>

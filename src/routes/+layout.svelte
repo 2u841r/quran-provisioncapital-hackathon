@@ -18,15 +18,22 @@
 	const reciters = $derived((data.reciters ?? []) as Reciter[]);
 
 	let lastScrollY = 0;
+	const THRESHOLD = 6;
+	let locked = false;
 
 	function onScroll() {
+		if (locked) { lastScrollY = window.scrollY; return; }
 		const current = window.scrollY;
 		if (current < 10) {
 			navbarState.visible = true;
-		} else if (current < lastScrollY) {
+		} else if (lastScrollY - current > THRESHOLD) {
 			navbarState.visible = true;
-		} else if (current > lastScrollY) {
+			locked = true;
+			setTimeout(() => { locked = false; lastScrollY = window.scrollY; }, 350);
+		} else if (current - lastScrollY > THRESHOLD) {
 			navbarState.visible = false;
+			locked = true;
+			setTimeout(() => { locked = false; lastScrollY = window.scrollY; }, 350);
 		}
 		lastScrollY = current;
 	}
@@ -39,7 +46,7 @@
 </svelte:head>
 
 <div class="min-h-screen bg-base-100 text-base-content">
-	<nav class="navbar bg-base-200 border-b border-base-300 px-4 sticky top-0 z-30 transition-transform duration-300 {navbarState.visible ? 'translate-y-0' : '-translate-y-full'}">
+	<nav class="flex items-center h-12 bg-base-200 border-b border-base-300 px-4 sticky top-0 z-30 transition-transform duration-300 {navbarState.visible ? 'translate-y-0' : '-translate-y-full'}">
 		<!-- Left: logo -->
 		<div class="flex-1">
 			<a href="/" class="font-semibold text-base-content hover:opacity-75 transition-opacity">
