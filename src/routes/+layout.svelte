@@ -104,7 +104,7 @@
 							</a>
 						</li>
 						<li>
-							<a href="/quran" class="flex items-center gap-3 px-3 py-2 text-sm text-base-content/80 hover:bg-base-200 transition-colors rounded-lg mx-1">
+							<a href="/my-quran" class="flex items-center gap-3 px-3 py-2 text-sm text-base-content/80 hover:bg-base-200 transition-colors rounded-lg mx-1">
 								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M12.5 1.75h-9v12L8 9.25l4.5 4.5zm.412-1.5q.216 0 .413.092.309.134.492.42.183.287.183.635v13.206q0 .348-.183.635a1.08 1.08 0 0 1-.492.42 1 1 0 0 1-.412.082q-.45 0-.779-.328L8 11.068l-4.134 4.344a1.07 1.07 0 0 1-.779.338 1 1 0 0 1-.412-.092 1.08 1.08 0 0 1-.492-.42A1.16 1.16 0 0 1 2 14.603V1.397q0-.348.183-.635t.492-.42A1 1 0 0 1 3.088.25z"/><path d="M12.5 1.75h-9v12L8 9.25l4.5 4.5z"/></svg>
 								My Quran
 							</a>

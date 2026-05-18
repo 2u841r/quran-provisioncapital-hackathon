@@ -15,6 +15,37 @@
 
 	const { verse, chapterName = '', chapterId, highlight = false, onStudyMode }: Props = $props();
 
+	let bookmarked = $state(false);
+	let bookmarkLoading = $state(false);
+
+	async function toggleBookmark() {
+		if (bookmarkLoading) return;
+		bookmarkLoading = true;
+		try {
+			if (bookmarked) {
+				await fetch('/api/bookmarks', {
+					method: 'DELETE',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ verseKey: verse.verseKey })
+				});
+				bookmarked = false;
+			} else {
+				const res = await fetch('/api/bookmarks', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ verseKey: verse.verseKey })
+				});
+				if (res.status === 401) {
+					window.location.href = '/login?next=' + encodeURIComponent(window.location.pathname);
+					return;
+				}
+				bookmarked = true;
+			}
+		} finally {
+			bookmarkLoading = false;
+		}
+	}
+
 	const isCurrentVerse = $derived(audioState.currentVerseKey === verse.verseKey);
 	const isPlaying = $derived(isCurrentVerse && audioState.isPlaying);
 	const isLoading = $derived(isCurrentVerse && audioState.status === 'loading');
@@ -216,9 +247,14 @@
 				{/if}
 			</button>
 
-			<!-- Bookmark (stub) -->
-			<button class="btn btn-ghost btn-xs btn-circle text-base-content/40" aria-label="Bookmark">
-				<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+			<!-- Bookmark -->
+			<button
+				class="btn btn-ghost btn-xs btn-circle {bookmarked ? 'text-warning' : 'text-base-content/40'} hover:text-warning transition-colors"
+				aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark verse'}
+				onclick={toggleBookmark}
+				disabled={bookmarkLoading}
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill={bookmarked ? 'currentColor' : 'none'} stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
 				</svg>
 			</button>
