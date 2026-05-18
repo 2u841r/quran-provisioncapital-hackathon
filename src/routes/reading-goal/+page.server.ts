@@ -9,6 +9,14 @@ const VERSES_PER_PAGE = 10.3;
 // rough seconds per verse when reading aloud or following along
 const SECONDS_PER_VERSE = 30;
 
+function formValue(formData: FormData, ...names: string[]) {
+	for (const name of names) {
+		const value = formData.get(name);
+		if (value !== null) return value;
+	}
+	return null;
+}
+
 function startOfDay(date: Date) {
 	const d = new Date(date);
 	d.setHours(0, 0, 0, 0);
@@ -92,9 +100,7 @@ export const load = async ({ locals }: RequestEvent) => {
 		db
 			.select({ verseKey: readingHistory.verseKey })
 			.from(readingHistory)
-			.where(
-				and(eq(readingHistory.userId, locals.user.id), gte(readingHistory.readAt, todayStart))
-			)
+			.where(and(eq(readingHistory.userId, locals.user.id), gte(readingHistory.readAt, todayStart)))
 	]);
 
 	const streak = calcStreak(
@@ -155,10 +161,7 @@ export const load = async ({ locals }: RequestEvent) => {
 			.select({ verseKey: readingHistory.verseKey })
 			.from(readingHistory)
 			.where(
-				and(
-					eq(readingHistory.userId, locals.user.id),
-					gte(readingHistory.readAt, goal.createdAt)
-				)
+				and(eq(readingHistory.userId, locals.user.id), gte(readingHistory.readAt, goal.createdAt))
 			);
 		const readInRange = new Set<string>();
 		for (const { verseKey } of allHistory) {
@@ -173,9 +176,7 @@ export const load = async ({ locals }: RequestEvent) => {
 	// Duration progress for continuous goals
 	let durationProgress: { elapsed: number; total: number; percent: number } | null = null;
 	if (goal.period === 'continuous' && goal.duration) {
-		const elapsed = Math.floor(
-			(today.getTime() - goal.createdAt.getTime()) / 86400000
-		);
+		const elapsed = Math.floor((today.getTime() - goal.createdAt.getTime()) / 86400000);
 		const percent = Math.min(100, Math.round((elapsed / goal.duration) * 100));
 		durationProgress = { elapsed, total: goal.duration, percent };
 	}
@@ -201,11 +202,11 @@ export const actions = {
 		const formData = await request.formData();
 		const type = formData.get('type') as string;
 		const period = (formData.get('period') as string) ?? 'daily';
-		const dailyPages = formData.get('dailyPages');
-		const dailySeconds = formData.get('dailySeconds');
+		const dailyPages = formValue(formData, 'dailyPages', 'daily_pages');
+		const dailySeconds = formValue(formData, 'dailySeconds', 'daily_seconds', 'daily_seocnds');
 		const duration = formData.get('duration');
-		const rangeStart = formData.get('rangeStart') as string;
-		const rangeEnd = formData.get('rangeEnd') as string;
+		const rangeStart = formValue(formData, 'rangeStart', 'range_start') as string | null;
+		const rangeEnd = formValue(formData, 'rangeEnd', 'range_end') as string | null;
 
 		if (!['time', 'pages', 'range'].includes(type)) {
 			return fail(400, { error: 'Invalid goal type' });
@@ -213,10 +214,10 @@ export const actions = {
 		if (!['daily', 'continuous'].includes(period)) {
 			return fail(400, { error: 'Invalid period' });
 		}
-		if (type === 'pages' && period === 'daily' && (!dailyPages || Number(dailyPages) < 1)) {
+		if (type === 'pages' && (!dailyPages || Number(dailyPages) < 1)) {
 			return fail(400, { error: 'Enter a daily page target' });
 		}
-		if (type === 'time' && period === 'daily' && (!dailySeconds || Number(dailySeconds) < 60)) {
+		if (type === 'time' && (!dailySeconds || Number(dailySeconds) < 60)) {
 			return fail(400, { error: 'Enter a daily time target' });
 		}
 		if (type === 'range' && (!rangeStart || !rangeEnd)) {
@@ -229,8 +230,8 @@ export const actions = {
 		const values = {
 			type,
 			period,
-			dailyPages: type === 'pages' && period === 'daily' ? Number(dailyPages) : null,
-			dailySeconds: type === 'time' && period === 'daily' ? Number(dailySeconds) : null,
+			dailyPages: type === 'pages' ? Number(dailyPages) : null,
+			dailySeconds: type === 'time' ? Number(dailySeconds) : null,
 			duration: period === 'continuous' ? Number(duration) : null,
 			rangeStart: type === 'range' ? rangeStart : null,
 			rangeEnd: type === 'range' ? rangeEnd : null,

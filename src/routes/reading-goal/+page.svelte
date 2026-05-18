@@ -147,6 +147,10 @@
 			<input type="hidden" name="duration" value={durationDays} />
 			<input type="hidden" name="rangeStart" value={rangeStart} />
 			<input type="hidden" name="rangeEnd" value={rangeEnd} />
+			<input type="hidden" name="daily_pages" value={dailyPagesInput} />
+			<input type="hidden" name="daily_seconds" value={dailySeconds} />
+			<input type="hidden" name="range_start" value={rangeStart} />
+			<input type="hidden" name="range_end" value={rangeEnd} />
 
 			<!-- Goal type -->
 			<fieldset>
@@ -294,7 +298,7 @@
 						>
 					</div>
 					<div class="mt-3 flex flex-wrap gap-2">
-						{#each [5, 10, 15, 20, 30] as p (p)}
+						{#each [5, 10, 20, 30, 60] as p (p)}
 							<button
 								type="button"
 								class="btn rounded-full btn-xs {dailyMinutes === p
@@ -338,7 +342,7 @@
 						{dailyPagesInput} pages/day = full Quran in ~{Math.round(604 / dailyPagesInput)} days
 					</p>
 					<div class="mt-2 flex flex-wrap gap-2">
-						{#each [1, 2, 4, 8] as p (p)}
+						{#each [1, 5, 10, 20] as p (p)}
 							<button
 								type="button"
 								class="btn rounded-full btn-xs {dailyPagesInput === p
@@ -482,6 +486,18 @@
 							onchange={(e) => onDatePick((e.target as HTMLInputElement).value)}
 							class="input-bordered input w-full"
 						/>
+						<div class="mt-2 flex flex-wrap gap-2">
+							<button
+								type="button"
+								class="btn rounded-full border border-base-300 btn-ghost btn-xs"
+								onclick={() => onDatePick('2026-06-16')}>Next Hijri year</button
+							>
+							<button
+								type="button"
+								class="btn rounded-full border border-base-300 btn-ghost btn-xs"
+								onclick={() => onDatePick('2027-02-07')}>Before Ramadan 2027</button
+							>
+						</div>
 						{#if targetDate}
 							<p class="mt-1 text-xs text-base-content/40">
 								{new Date(targetDate).toLocaleDateString('en-GB', {
@@ -628,14 +644,20 @@
 						><span class="font-medium text-base-content">{data.goal.dailyPages} pages/day</span> · {data
 							.goal.period === 'daily'
 							? 'Daily goal'
-							: 'Over a duration'}</span
+							: data.goal.duration
+								? `For ${data.goal.duration} days`
+								: 'Over a duration'}</span
 					>
 				{:else if data.goal.type === 'time'}
 					<span
 						><span class="font-medium text-base-content"
 							>{Math.round((data.goal.dailySeconds ?? 0) / 60)} min/day</span
 						>
-						· {data.goal.period === 'daily' ? 'Daily goal' : 'Over a duration'}</span
+						· {data.goal.period === 'daily'
+							? 'Daily goal'
+							: data.goal.duration
+								? `For ${data.goal.duration} days`
+								: 'Over a duration'}</span
 					>
 				{:else}
 					<span
