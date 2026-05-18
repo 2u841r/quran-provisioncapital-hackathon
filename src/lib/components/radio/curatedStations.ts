@@ -52,3 +52,7 @@ export const curatedStations: CuratedStation[] = [
 export function sampleTrack(tracks: AudioTrack[]): AudioTrack {
 	return tracks[Math.floor(Math.random() * tracks.length)] ?? tracks[0];
 }
+
+export function getRandomStation(): CuratedStation {
+	return curatedStations[Math.floor(Math.random() * curatedStations.length)] ?? curatedStations[0];
+}

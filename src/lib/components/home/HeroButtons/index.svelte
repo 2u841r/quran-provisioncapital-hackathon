@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { audioState } from '$lib/state/audio.svelte';
+	import { getRandomStation, sampleTrack } from '$lib/components/radio/curatedStations';
+
 	interface Props {
 		onNavigate: () => void;
 	}
@@ -14,6 +17,18 @@
 		{ label: 'Ayatul Kursi', href: '/2?startingVerse=255' },
 		{ label: '2. Al-Baqarah 285-286', href: '/2/285-286' }
 	];
+
+	function handleRadioClick() {
+		if (audioState.radioMode && audioState.isActive) {
+			audioState.togglePlay();
+			return;
+		}
+		const station = getRandomStation();
+		const track = sampleTrack(station.tracks);
+		audioState.playRadioStation(station.title, track.reciterId, track.chapterId);
+	}
+
+	const isRadioPlaying = $derived(audioState.radioMode && audioState.isPlaying);
 </script>
 
 <div class="relative mt-2 flex flex-col items-center md:mt-4">
@@ -133,23 +148,31 @@
 				{/each}
 			</div>
 			<div class="my-3 h-px bg-base-200"></div>
-			<a
-				href="/radio"
-				class="btn-compact btn mx-auto flex w-fit rounded-full border-none bg-base-200 text-sm font-medium text-base-content/70 hover:bg-base-300"
-				data-testid="play-radio-button"
-			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="14"
-					height="14"
-					viewBox="0 0 24 24"
-					fill="currentColor"
-					aria-hidden="true"
+			<div class="flex flex-col items-center gap-1">
+				<button
+					type="button"
+					class="btn-compact btn mx-auto flex w-fit rounded-full border-none bg-base-200 text-sm font-medium text-base-content/70 hover:bg-base-300"
+					onclick={handleRadioClick}
+					data-testid="play-radio-button"
 				>
-					<path d="M8 5v14l11-7z" />
-				</svg>
-				Listen to Radio
-			</a>
+					{#if isRadioPlaying}
+						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+							<path d="M6 5h4v14H6zM14 5h4v14h-4z" />
+						</svg>
+					{:else}
+						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+							<path d="M8 5v14l11-7z" />
+						</svg>
+					{/if}
+					Listen to Radio
+				</button>
+				{#if audioState.radioMode}
+					<p class="text-xs text-base-content/50">
+						Station: {audioState.radioStationTitle}
+						<a href="/radio" class="text-primary hover:underline ml-1">(change)</a>
+					</p>
+				{/if}
+			</div>
 		</div>
 	{/if}
 </div>

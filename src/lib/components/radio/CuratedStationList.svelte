@@ -26,8 +26,7 @@
 
 		const track = sampleTrack(station.tracks);
 		onStationChange({ type: 'curated', id });
-		audioState.setReciter(track.reciterId);
-		audioState.playVerse(`${track.chapterId}:1`, station.title);
+		audioState.playRadioStation(station.title, track.reciterId, track.chapterId);
 	}
 </script>
 

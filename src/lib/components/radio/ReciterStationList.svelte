@@ -52,8 +52,7 @@
 		}
 
 		onStationChange({ type: 'reciter', id: reciter.id });
-		audioState.setReciter(reciter.id);
-		audioState.playVerse(`${randomChapterId()}:1`, reciterName(reciter));
+		audioState.playRadioStation(reciterName(reciter), reciter.id, randomChapterId(), reciterStyle(reciter) ?? '');
 	}
 </script>
 

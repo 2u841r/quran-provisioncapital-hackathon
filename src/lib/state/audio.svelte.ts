@@ -50,6 +50,9 @@ function createAudioState() {
 	let volume = $state(1);
 	let playbackRate = $state(1);
 	let audioUrl = $state('');
+	let radioMode = $state(false);
+	let radioStationTitle = $state('');
+	let radioStationSubtitle = $state('');
 
 	const currentVerseIdx = $derived(() => {
 		if (!verseTimings.length) return 0;
@@ -118,6 +121,8 @@ function createAudioState() {
 
 	async function playVerse(verseKey: string, name = '') {
 		if (typeof window === 'undefined') return;
+		radioMode = false;
+		radioStationTitle = '';
 		const [chIdStr, vNumStr] = verseKey.split(':');
 		const chId = Number(chIdStr);
 		const vNum = Number(vNumStr);
@@ -173,6 +178,17 @@ function createAudioState() {
 		verseTimings = [];
 		totalVerses = 0;
 		chapterName = '';
+		radioMode = false;
+		radioStationTitle = '';
+		radioStationSubtitle = '';
+	}
+
+	async function playRadioStation(stationTitle: string, recId: number, chapterId: number, subtitle = '') {
+		radioMode = true;
+		radioStationTitle = stationTitle;
+		radioStationSubtitle = subtitle;
+		reciterId = recId;
+		await loadChapter(chapterId, 1, stationTitle);
 	}
 
 	function setReciter(id: number) {
@@ -207,7 +223,11 @@ function createAudioState() {
 		get volume() { return volume; },
 		get playbackRate() { return playbackRate; },
 		get audioUrl() { return audioUrl; },
+		get radioMode() { return radioMode; },
+		get radioStationTitle() { return radioStationTitle; },
+		get radioStationSubtitle() { return radioStationSubtitle; },
 		playVerse,
+		playRadioStation,
 		togglePlay,
 		nextVerse,
 		prevVerse,
