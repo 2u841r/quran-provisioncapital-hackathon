@@ -5,6 +5,7 @@
 	import MushafPage from './MushafPage.svelte';
 	import ChapterHeader from './ChapterHeader.svelte';
 	import StudyModeModal, { type StudyTab } from './StudyModeModal.svelte';
+	import ChapterControls from './EndOfScrollingControls/ChapterControls.svelte';
 
 	interface Props {
 		chapter: Chapter;
@@ -48,6 +49,11 @@
 
 	const initialPage = $derived(verses[0]?.pageNumber ?? 1);
 
+	const isLastPage = $derived(!pagination || !pagination.nextPage);
+	const lastVerse = $derived(verses[verses.length - 1] ?? null);
+	const showEndOfSurah = $derived(
+		isLastPage && lastVerse !== null && lastVerse.verseNumber === chapter.versesCount
+	);
 	function plainText(html: string): string {
 		return html.replace(/<[^>]*>/g, '').trim();
 	}
@@ -55,7 +61,7 @@
 
 <div class="quran-reader relative">
 	{#if mushafMode}
-		<MushafPage {initialPage} />
+		<MushafPage {initialPage} {chapter} onOpenTranslations={() => onOpenTranslations?.()} />
 	{:else if translationPageMode}
 		<!-- Continuous flowing translation text, verse numbers inline -->
 		<div class="translation-view py-4">
@@ -102,7 +108,15 @@
 		{/if}
 
 		<div>
-			{#each verses as verse (verse.verseKey)}
+			{#each verses as verse, i (verse.verseKey)}
+				{#if i > 0 && verse.pageNumber && verses[i - 1].pageNumber && verse.pageNumber !== verses[i - 1].pageNumber}
+					<div class="relative py-3 px-4">
+						<div class="absolute inset-x-4 top-1/2 h-px bg-base-300"></div>
+						<span class="relative z-10 mx-auto block w-fit bg-base-100 px-2 text-[0.65rem] text-base-content/30 select-none">
+							Page {verse.pageNumber}
+						</span>
+					</div>
+				{/if}
 				<VerseCard
 					{verse}
 					chapterId={Number(chapter.id)}
@@ -115,6 +129,9 @@
 			{/each}
 		</div>
 
+		{#if showEndOfSurah}
+			<ChapterControls chapterId={Number(chapter.id)} chapterName={chapter.nameSimple} />
+		{/if}
 
 		{#if pagination && pagination.totalPages > 1}
 			<div class="flex justify-center items-center gap-3 py-8">
