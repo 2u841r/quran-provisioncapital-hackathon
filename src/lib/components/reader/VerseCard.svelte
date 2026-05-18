@@ -562,7 +562,7 @@
 							<span class="shrink-0">{@html svgIcon(translationFeedbackRaw)}</span>
 							Translation Feedback
 						</button>
-						<button class="flex w-full items-center gap-2.5 px-3 py-2 hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors" onclick={() => { overflowOpen = false; window.open(`/${verse.verseKey.split(':')[0]}/${verse.verseKey.split(':')[1]}`, '_blank'); }}>
+						<button class="flex w-full items-center gap-2.5 px-3 py-2 hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors" onclick={() => { overflowOpen = false; window.open(`https://quran.com/embed?verses=${encodeURIComponent(verse.verseKey)}`, '_blank'); }}>
 							<span class="shrink-0">{@html svgIcon(codeEmbedRaw)}</span>
 							Embed Widget
 						</button>
