@@ -132,6 +132,24 @@
 					</a>
 				{/each}
 			</div>
+			<div class="my-3 h-px bg-base-200"></div>
+			<a
+				href="/radio"
+				class="btn-compact btn mx-auto flex w-fit rounded-full border-none bg-base-200 text-sm font-medium text-base-content/70 hover:bg-base-300"
+				data-testid="play-radio-button"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
+					fill="currentColor"
+					aria-hidden="true"
+				>
+					<path d="M8 5v14l11-7z" />
+				</svg>
+				Listen to Radio
+			</a>
 		</div>
 	{/if}
 </div>
