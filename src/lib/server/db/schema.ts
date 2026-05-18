@@ -40,4 +40,21 @@ export const readingHistory = pgTable(
 	]
 );
 
+export const readingGoal = pgTable('reading_goal', {
+	id: text('id').primaryKey(),
+	userId: text('user_id')
+		.notNull()
+		.unique()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	// 'daily_verses' | 'range'
+	type: text('type').notNull(),
+	// daily_verses: target verse count per day; range: ignored
+	dailyTarget: integer('daily_target'),
+	// range goal: start/end verse key e.g. "2:1", "2:286"
+	rangeStart: text('range_start'),
+	rangeEnd: text('range_end'),
+	createdAt: timestamp('created_at').defaultNow().notNull(),
+	updatedAt: timestamp('updated_at').defaultNow().notNull()
+});
+
 export * from './auth.schema';
