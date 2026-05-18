@@ -46,10 +46,16 @@ export const readingGoal = pgTable('reading_goal', {
 		.notNull()
 		.unique()
 		.references(() => user.id, { onDelete: 'cascade' }),
-	// 'daily_verses' | 'range'
+	// 'time' | 'pages' | 'range'
 	type: text('type').notNull(),
-	// daily_verses: target verse count per day; range: ignored
-	dailyTarget: integer('daily_target'),
+	// 'daily' | 'continuous'
+	period: text('period').notNull().default('daily'),
+	// pages per day (type='pages', period='daily')
+	dailyPages: integer('daily_pages'),
+	// seconds per day (type='time', period='daily')
+	dailySeconds: integer('daily_seconds'),
+	// total days for continuous goals
+	duration: integer('duration'),
 	// range goal: start/end verse key e.g. "2:1", "2:286"
 	rangeStart: text('range_start'),
 	rangeEnd: text('range_end'),
