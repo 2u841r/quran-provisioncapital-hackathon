@@ -15,6 +15,7 @@
 		baseHref: string;
 		showChapterHeader?: boolean;
 		onOpenTranslations?: () => void;
+		onOpenSettings?: () => void;
 	}
 
 	const {
@@ -25,7 +26,8 @@
 		highlightVerseKey = null,
 		baseHref,
 		showChapterHeader = true,
-		onOpenTranslations
+		onOpenTranslations,
+		onOpenSettings
 	}: Props = $props();
 
 	let studyVerseKey = $state<string | null>(null);
@@ -108,6 +110,7 @@
 					highlight={highlightVerseKey === verse.verseKey}
 					onStudyMode={openStudyMode}
 					onOpenTranslations={() => onOpenTranslations?.()}
+					onOpenSettings={() => onOpenSettings?.()}
 				/>
 			{/each}
 		</div>

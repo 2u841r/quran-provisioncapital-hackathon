@@ -105,6 +105,7 @@
 				baseHref="/{chapter.id}"
 				{highlightVerseKey}
 				onOpenTranslations={() => { settingsInitialView = 'translation'; settingsOpen = true; }}
+				onOpenSettings={() => { settingsInitialView = 'body'; settingsOpen = true; }}
 			/>
 		</main>
 	</div>

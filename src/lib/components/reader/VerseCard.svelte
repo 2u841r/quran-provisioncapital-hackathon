@@ -34,9 +34,10 @@
 		highlight?: boolean;
 		onStudyMode?: (verseKey: string, tab: StudyTab) => void;
 		onOpenTranslations?: () => void;
+		onOpenSettings?: () => void;
 	}
 
-	const { verse, chapterName = '', chapterId, highlight = false, onStudyMode, onOpenTranslations }: Props = $props();
+	const { verse, chapterName = '', chapterId, highlight = false, onStudyMode, onOpenTranslations, onOpenSettings }: Props = $props();
 
 	let bookmarked = $state(false);
 	let bookmarkLoading = $state(false);
@@ -566,7 +567,7 @@
 							<span class="shrink-0">{@html svgIcon(codeEmbedRaw)}</span>
 							Embed Widget
 						</button>
-						<button class="flex w-full items-center gap-2.5 px-3 py-2 hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors" onclick={() => { overflowOpen = false; }}>
+						<button class="flex w-full items-center gap-2.5 px-3 py-2 hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors" onclick={() => { overflowOpen = false; onOpenSettings?.(); }}>
 							<span class="shrink-0">{@html svgIcon(settingsRaw)}</span>
 							Settings
 						</button>

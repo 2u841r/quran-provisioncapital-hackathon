@@ -92,6 +92,7 @@
 				{highlightVerseKey}
 				showChapterHeader={false}
 				onOpenTranslations={() => { settingsInitialView = 'translation'; settingsOpen = true; }}
+				onOpenSettings={() => { settingsInitialView = 'body'; settingsOpen = true; }}
 			/>
 
 			<!-- Prev / Next single verse nav -->
