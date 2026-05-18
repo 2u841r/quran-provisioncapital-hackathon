@@ -22,7 +22,9 @@ const DEFAULTS = {
 	wordByWord: false,
 	wordByWordLocale: 'en',
 	tafsirId: null as number | null,
-	fontScale: 3 // 1-5
+	fontScale: 3, // 1-5
+	autoScroll: true,
+	showTooltipWhenPlaying: false
 };
 
 function loadFromStorage(): typeof DEFAULTS {
@@ -65,6 +67,8 @@ function createReaderState() {
 		get wordByWordLocale() { return prefs.wordByWordLocale; },
 		get tafsirId() { return prefs.tafsirId; },
 		get fontScale() { return prefs.fontScale; },
+		get autoScroll() { return prefs.autoScroll; },
+		get showTooltipWhenPlaying() { return prefs.showTooltipWhenPlaying; },
 
 		get loadedFontFaces() { return loadedFontFaces; },
 		markFontLoaded: (key: string) => {
@@ -79,7 +83,9 @@ function createReaderState() {
 		setReciter: (id: number) => update('selectedReciter', id),
 		toggleWordByWord: () => update('wordByWord', !prefs.wordByWord),
 		setTafsir: (id: number | null) => update('tafsirId', id),
-		setFontScale: (s: number) => update('fontScale', Math.max(1, Math.min(5, s)))
+		setFontScale: (s: number) => update('fontScale', Math.max(1, Math.min(5, s))),
+		toggleAutoScroll: () => update('autoScroll', !prefs.autoScroll),
+		toggleShowTooltipWhenPlaying: () => update('showTooltipWhenPlaying', !prefs.showTooltipWhenPlaying)
 	};
 }
 

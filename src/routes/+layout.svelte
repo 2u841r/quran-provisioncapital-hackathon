@@ -5,7 +5,9 @@
 	import AudioPlayer from '$lib/components/audio/AudioPlayer.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import SearchModal from '$lib/components/SearchModal.svelte';
+	import ReciterSelectionBody from '$lib/components/panels/settings/ReciterSelectionBody.svelte';
 	import { navbarState } from '$lib/state/navbar.svelte';
+	import type { Reciter } from '$lib/types/quran';
 
 	let searchOpen = $state(false);
 
@@ -13,6 +15,7 @@
 	let { children, data }: { children: any; data: LayoutData } = $props();
 
 	const user = $derived(data.user);
+	const reciters = $derived((data.reciters ?? []) as Reciter[]);
 
 	let lastScrollY = 0;
 
@@ -151,5 +154,22 @@
 
 	<AudioPlayer />
 </div>
+
+<!-- Global reciter drawer -->
+{#if navbarState.reciterDrawerOpen}
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div class="fixed inset-0 z-[70]" onclick={() => (navbarState.reciterDrawerOpen = false)} onkeydown={(e) => e.key === 'Escape' && (navbarState.reciterDrawerOpen = false)}></div>
+	<div class="fixed right-0 top-0 z-[71] h-screen w-80 border-l border-base-200 bg-base-100 shadow-2xl flex flex-col">
+		<div class="flex items-center justify-between border-b border-base-200 px-4 py-3">
+			<h2 class="font-semibold text-base-content">Reciter</h2>
+			<button class="btn btn-ghost btn-sm btn-circle" onclick={() => (navbarState.reciterDrawerOpen = false)} aria-label="Close">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+			</button>
+		</div>
+		<div class="flex-1 overflow-y-auto">
+			<ReciterSelectionBody {reciters} onClose={() => (navbarState.reciterDrawerOpen = false)} />
+		</div>
+	</div>
+{/if}
 
 <SearchModal open={searchOpen} onClose={() => (searchOpen = false)} />

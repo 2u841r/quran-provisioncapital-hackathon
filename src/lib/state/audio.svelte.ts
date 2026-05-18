@@ -50,6 +50,7 @@ function createAudioState() {
 	let volume = $state(1);
 	let playbackRate = $state(1);
 	let audioUrl = $state('');
+	let repeatChapter = $state(false);
 	let radioMode = $state(false);
 	let radioStationTitle = $state('');
 	let radioStationSubtitle = $state('');
@@ -111,7 +112,14 @@ function createAudioState() {
 				el.play().then(() => { status = 'playing'; }).catch(() => { status = 'idle'; });
 			};
 			el.ontimeupdate = () => { currentTime = el.currentTime; };
-			el.onended = () => { status = 'paused'; };
+			el.onended = () => {
+				if (repeatChapter && loadedChapterId) {
+					seekToVerse(1);
+					el.play().then(() => { status = 'playing'; }).catch(() => { status = 'paused'; });
+				} else {
+					status = 'paused';
+				}
+			};
 			el.onerror = () => { status = 'idle'; };
 			el.load();
 		} catch {
@@ -223,6 +231,8 @@ function createAudioState() {
 		get volume() { return volume; },
 		get playbackRate() { return playbackRate; },
 		get audioUrl() { return audioUrl; },
+		get repeatChapter() { return repeatChapter; },
+		toggleRepeatChapter() { repeatChapter = !repeatChapter; },
 		get radioMode() { return radioMode; },
 		get radioStationTitle() { return radioStationTitle; },
 		get radioStationSubtitle() { return radioStationSubtitle; },

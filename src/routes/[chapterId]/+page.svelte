@@ -35,7 +35,18 @@
 	});
 
 	let settingsOpen = $state(false);
-	let settingsInitialView = $state<'body' | 'translation'>('body');
+	let settingsInitialView = $state<'body' | 'translation' | 'reciter'>('body');
+
+	$effect(() => {
+		if (typeof window === 'undefined') return;
+		if (page.url.searchParams.get('openReciter') === '1') {
+			settingsInitialView = 'reciter';
+			settingsOpen = true;
+			const params = new URLSearchParams(page.url.searchParams);
+			params.delete('openReciter');
+			goto(`?${params.toString()}`, { replaceState: true, noScroll: true });
+		}
+	});
 
 
 	// Reconcile URL font with persisted readerState font on first mount.
