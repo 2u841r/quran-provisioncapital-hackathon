@@ -20,7 +20,7 @@
 <div class="fixed right-6 bottom-8 z-[298] hidden flex-col items-center gap-1.5 md:flex">
 	<button
 		type="button"
-		class="btn btn-square border border-base-200 bg-base-100/95 shadow-sm btn-ghost backdrop-blur transition-opacity btn-sm"
+		class="btn btn-square border border-primary bg-primary text-primary-content shadow-sm transition-opacity btn-sm hover:border-primary/90 hover:bg-primary/90"
 		class:opacity-40={!canGoPrevious}
 		disabled={!canGoPrevious}
 		onclick={previousPage}
@@ -45,7 +45,7 @@
 
 	<button
 		type="button"
-		class="btn btn-square border border-base-200 bg-base-100/95 shadow-sm btn-ghost backdrop-blur transition-opacity btn-sm"
+		class="btn btn-square border border-primary bg-primary text-primary-content shadow-sm transition-opacity btn-sm hover:border-primary/90 hover:bg-primary/90"
 		class:opacity-40={!canGoNext}
 		disabled={!canGoNext}
 		onclick={nextPage}
