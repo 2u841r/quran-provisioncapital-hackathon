@@ -35,6 +35,7 @@
 	});
 
 	let settingsOpen = $state(false);
+	let settingsInitialView = $state<'body' | 'translation'>('body');
 
 
 	// Reconcile URL font with persisted readerState font on first mount.
@@ -70,6 +71,7 @@
 
 	function closeSettings() {
 		settingsOpen = false;
+		settingsInitialView = 'body';
 		applySettings();
 	}
 </script>
@@ -102,7 +104,7 @@
 				page={pageNum}
 				baseHref="/{chapter.id}"
 				{highlightVerseKey}
-				onOpenTranslations={() => (settingsOpen = true)}
+				onOpenTranslations={() => { settingsInitialView = 'translation'; settingsOpen = true; }}
 			/>
 		</main>
 	</div>
@@ -115,6 +117,8 @@
 				{reciters}
 				{tafsirs}
 				onClose={closeSettings}
+				initialView={settingsInitialView}
+				onTranslationChange={applySettings}
 			/>
 		</div>
 	</div>

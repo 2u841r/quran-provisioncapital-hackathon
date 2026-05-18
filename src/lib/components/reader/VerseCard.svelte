@@ -33,9 +33,10 @@
 		chapterId?: number;
 		highlight?: boolean;
 		onStudyMode?: (verseKey: string, tab: StudyTab) => void;
+		onOpenTranslations?: () => void;
 	}
 
-	const { verse, chapterName = '', chapterId, highlight = false, onStudyMode }: Props = $props();
+	const { verse, chapterName = '', chapterId, highlight = false, onStudyMode, onOpenTranslations }: Props = $props();
 
 	let bookmarked = $state(false);
 	let bookmarkLoading = $state(false);
@@ -553,7 +554,7 @@
 							<span class="shrink-0">{@html svgIcon(repeatRaw)}</span>
 							Repeat Verse
 						</button>
-						<button class="flex w-full items-center gap-2.5 px-3 py-2 hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors" onclick={() => { overflowOpen = false; onStudyMode?.(verse.verseKey, 'tafsir'); }}>
+						<button class="flex w-full items-center gap-2.5 px-3 py-2 hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors" onclick={() => { overflowOpen = false; onOpenTranslations?.(); }}>
 							<span class="shrink-0">{@html svgIcon(translationRaw)}</span>
 							Translations
 						</button>

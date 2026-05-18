@@ -4,9 +4,10 @@
 
 	interface Props {
 		translations: AvailableTranslation[];
+		onTranslationChange?: () => void;
 	}
 
-	const { translations }: Props = $props();
+	const { translations, onTranslationChange }: Props = $props();
 
 	const popularLangs = ['english', 'urdu', 'bengali', 'turkish', 'french', 'indonesian'];
 
@@ -23,11 +24,15 @@
 		...Object.keys(byLang).filter((l) => !popularLangs.includes(l)).sort()
 	]);
 
+	let applyTimer: ReturnType<typeof setTimeout> | null = null;
+
 	function toggle(id: number) {
 		const cur = readerState.selectedTranslations;
 		readerState.setTranslations(
 			cur.includes(id) ? cur.filter((t) => t !== id) : [...cur, id]
 		);
+		if (applyTimer) clearTimeout(applyTimer);
+		applyTimer = setTimeout(() => { onTranslationChange?.(); }, 400);
 	}
 </script>
 

@@ -17,6 +17,7 @@
 	const firstVerse = $derived(verses[0] ?? null);
 
 	let settingsOpen = $state(false);
+	let settingsInitialView = $state<'body' | 'translation'>('body');
 
 
 	const pageTitle = $derived(
@@ -57,6 +58,7 @@
 
 	function closeSettings() {
 		settingsOpen = false;
+		settingsInitialView = 'body';
 		applySettings();
 	}
 </script>
@@ -89,7 +91,7 @@
 				baseHref="/{chapter.id}/{verseId}"
 				{highlightVerseKey}
 				showChapterHeader={false}
-				onOpenTranslations={() => (settingsOpen = true)}
+				onOpenTranslations={() => { settingsInitialView = 'translation'; settingsOpen = true; }}
 			/>
 
 			<!-- Prev / Next single verse nav -->
@@ -133,6 +135,8 @@
 				{reciters}
 				{tafsirs}
 				onClose={closeSettings}
+				initialView={settingsInitialView}
+				onTranslationChange={applySettings}
 			/>
 		</div>
 	</div>

@@ -9,12 +9,16 @@
 		reciters: Reciter[];
 		tafsirs: TafsirInfo[];
 		onClose: () => void;
+		initialView?: 'body' | 'reciter' | 'translation';
+		onTranslationChange?: () => void;
 	}
 
-	const { translations, reciters, tafsirs, onClose }: Props = $props();
+	const { translations, reciters, tafsirs, onClose, initialView = 'body', onTranslationChange }: Props = $props();
 
 	type SettingsView = 'body' | 'reciter' | 'translation';
-	let view = $state<SettingsView>('body');
+	let view = $state<SettingsView>(initialView);
+
+	$effect(() => { view = initialView; });
 
 	function goBack() { view = 'body'; }
 
@@ -56,5 +60,5 @@
 {:else if view === 'reciter'}
 	<ReciterSelectionBody {reciters} onSelect={goBack} />
 {:else if view === 'translation'}
-	<TranslationSelectionBody {translations} />
+	<TranslationSelectionBody {translations} {onTranslationChange} />
 {/if}

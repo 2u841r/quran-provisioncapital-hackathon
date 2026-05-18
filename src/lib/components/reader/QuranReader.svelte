@@ -107,6 +107,7 @@
 					chapterName={chapter.nameSimple}
 					highlight={highlightVerseKey === verse.verseKey}
 					onStudyMode={openStudyMode}
+					onOpenTranslations={() => onOpenTranslations?.()}
 				/>
 			{/each}
 		</div>
