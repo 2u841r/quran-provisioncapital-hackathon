@@ -187,20 +187,32 @@
 		{#if goalType !== 'range'}
 			<fieldset>
 				<legend class="text-xs font-semibold uppercase tracking-wide text-base-content/40 mb-2 block">Frequency</legend>
-				<div class="flex gap-2">
+				<div class="flex flex-col gap-2 sm:flex-row">
 					<button
 						type="button"
-						class="flex-1 py-2.5 rounded-xl border-2 text-sm font-medium transition-all {period === 'daily' ? 'border-primary bg-primary/10 text-primary' : 'border-base-300 text-base-content/60 hover:border-base-content/20'}"
+						class="flex-1 flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all {period === 'daily' ? 'border-primary bg-primary/10' : 'border-base-300 hover:border-base-content/20'}"
 						onclick={() => (period = 'daily')}
 					>
-						Daily
+						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="mt-0.5 shrink-0 {period === 'daily' ? 'text-primary' : 'text-base-content/40'}">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+						</svg>
+						<div>
+							<div class="font-semibold text-sm {period === 'daily' ? 'text-primary' : 'text-base-content'}">Daily goal</div>
+							<div class="text-xs text-base-content/50 mt-0.5">Your goal will reset every day</div>
+						</div>
 					</button>
 					<button
 						type="button"
-						class="flex-1 py-2.5 rounded-xl border-2 text-sm font-medium transition-all {period === 'continuous' ? 'border-primary bg-primary/10 text-primary' : 'border-base-300 text-base-content/60 hover:border-base-content/20'}"
+						class="flex-1 flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all {period === 'continuous' ? 'border-primary bg-primary/10' : 'border-base-300 hover:border-base-content/20'}"
 						onclick={() => (period = 'continuous')}
 					>
-						Continuous
+						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="mt-0.5 shrink-0 {period === 'continuous' ? 'text-primary' : 'text-base-content/40'}">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+						</svg>
+						<div>
+							<div class="font-semibold text-sm {period === 'continuous' ? 'text-primary' : 'text-base-content'}">Over a duration</div>
+							<div class="text-xs text-base-content/50 mt-0.5">Progress calculated over a number of days</div>
+						</div>
 					</button>
 				</div>
 			</fieldset>
@@ -382,12 +394,12 @@
 		</div>
 		<div class="text-sm text-base-content/60 flex flex-col gap-1">
 			{#if data.goal.type === 'pages'}
-				<span><span class="font-medium text-base-content">{data.goal.dailyPages} pages/day</span> · Daily</span>
+				<span><span class="font-medium text-base-content">{data.goal.dailyPages} pages/day</span> · {data.goal.period === 'daily' ? 'Daily goal' : 'Over a duration'}</span>
 			{:else if data.goal.type === 'time'}
-				<span><span class="font-medium text-base-content">{Math.round((data.goal.dailySeconds ?? 0) / 60)} min/day</span> · Daily</span>
+				<span><span class="font-medium text-base-content">{Math.round((data.goal.dailySeconds ?? 0) / 60)} min/day</span> · {data.goal.period === 'daily' ? 'Daily goal' : 'Over a duration'}</span>
 			{:else}
 				<span>Range: <span class="font-medium text-base-content">{verseLabel(data.goal.rangeStart)} – {verseLabel(data.goal.rangeEnd)}</span></span>
-				{#if data.goal.duration}<span>Duration: <span class="font-medium text-base-content">{data.goal.duration} days</span></span>{/if}
+				{#if data.goal.duration}<span>Over a duration: <span class="font-medium text-base-content">{data.goal.duration} days</span></span>{/if}
 			{/if}
 		</div>
 		<div class="text-xs text-base-content/30 mt-2">
