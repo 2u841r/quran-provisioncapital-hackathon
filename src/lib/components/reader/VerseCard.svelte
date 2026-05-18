@@ -5,6 +5,28 @@
 	import type { Verse } from '$lib/types/quran';
 	import type { StudyTab } from './StudyModeModal.svelte';
 
+	import pinRaw from '$lib/assets/icons/pin.svg?raw';
+	import advancedCopyRaw from '$lib/assets/icons/advanced_copy.svg?raw';
+	import bxBookRaw from '$lib/assets/icons/bx-book.svg?raw';
+	import repeatRaw from '$lib/assets/icons/repeat-new.svg?raw';
+	import translationRaw from '$lib/assets/icons/translation.svg?raw';
+	import translationFeedbackRaw from '$lib/assets/icons/translation-feedback.svg?raw';
+	import codeEmbedRaw from '$lib/assets/icons/code-embed.svg?raw';
+	import settingsRaw from '$lib/assets/icons/settings-stroke.svg?raw';
+
+	function svgIcon(raw: string): string {
+		return raw
+			.replace(/fill="(?!none)[^"]+"/g, 'fill="currentColor"')
+			.replace(/stroke="(?!none|currentColor)[^"]+"/g, 'stroke="currentColor"')
+			.replace(/<svg ([^>]*)>/, (_, attrs) => {
+				const cleaned = attrs
+					.replace(/\s*width="[^"]*"/g, '')
+					.replace(/\s*height="[^"]*"/g, '')
+					.replace(/\s*class="[^"]*"/g, '');
+				return `<svg width="14" height="14" ${cleaned}>`;
+			});
+	}
+
 	interface Props {
 		verse: Verse;
 		chapterName?: string;
@@ -191,6 +213,57 @@
 	}
 
 	let shareOpen = $state(false);
+	let overflowOpen = $state(false);
+	let wbwOpen = $state(false);
+	let advCopyOpen = $state(false);
+	let repeatOpen = $state(false);
+	let feedbackOpen = $state(false);
+	let repeatCount = $state(3);
+	let advCopyFormat = $state<'arabic' | 'translation' | 'both' | 'full'>('both');
+	let feedbackText = $state('');
+	let feedbackSent = $state(false);
+
+	async function copyAdvanced() {
+		const arabic = arabicText;
+		const trans = verse.translations?.[0]?.text?.replace(/<[^>]*>/g, '') ?? '';
+		let text = '';
+		if (advCopyFormat === 'arabic') text = arabic;
+		else if (advCopyFormat === 'translation') text = trans;
+		else if (advCopyFormat === 'both') text = `${arabic}\n${trans}`;
+		else text = `${arabic}\n${trans}\n(${verse.verseKey})`;
+		await navigator.clipboard.writeText(text);
+		advCopyOpen = false;
+	}
+
+	function startRepeat() {
+		repeatOpen = false;
+		let count = 0;
+		function playNext() {
+			if (count >= repeatCount) return;
+			count++;
+			audioState.playVerse(verse.verseKey, chapterName);
+			const checkDone = setInterval(() => {
+				if (!audioState.isPlaying) {
+					clearInterval(checkDone);
+					if (count < repeatCount) setTimeout(playNext, 500);
+				}
+			}, 500);
+		}
+		playNext();
+	}
+
+	function setAdvCopyFormat(v: string) {
+		advCopyFormat = v as typeof advCopyFormat;
+	}
+
+	function onFeedbackInput(e: Event) {
+		feedbackText = (e.target as HTMLTextAreaElement).value;
+	}
+
+	async function submitFeedback() {
+		feedbackSent = true;
+		setTimeout(() => { feedbackOpen = false; feedbackSent = false; feedbackText = ''; }, 1500);
+	}
 
 	function verseUrl(): string {
 		const [c, v] = verse.verseKey.split(':');
@@ -290,7 +363,7 @@
 			</button>
 		</div>
 
-		<!-- Right actions: copy, share -->
+		<!-- Right actions: copy, share, note, more -->
 		<div class="flex items-center gap-1">
 			<button
 				class="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-base-content"
@@ -313,6 +386,76 @@
 					<path d="m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98"/>
 				</svg>
 			</button>
+
+			<!-- Note / Reflection -->
+			<button
+				class="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-base-content"
+				onclick={() => onStudyMode?.(verse.verseKey, 'reflections')}
+				aria-label="Add a note or reflection"
+				title="Add a note or reflection"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+					<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+				</svg>
+			</button>
+
+			<!-- More (3-dot) -->
+			<div class="relative">
+				<button
+					class="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-base-content"
+					onclick={() => (overflowOpen = !overflowOpen)}
+					aria-label="More actions"
+					title="More"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+						<circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
+					</svg>
+				</button>
+
+				{#if overflowOpen}
+					<!-- svelte-ignore a11y_no_static_element_interactions -->
+					<div
+						class="fixed inset-0 z-40"
+						onclick={() => (overflowOpen = false)}
+						onkeydown={(e) => e.key === 'Escape' && (overflowOpen = false)}
+					></div>
+					<div class="absolute right-0 z-50 mt-1 w-48 rounded-xl border border-base-300 bg-base-100 shadow-lg py-1 text-sm">
+						<button class="flex w-full items-center gap-2.5 px-3 py-2 hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors" onclick={() => { overflowOpen = false; }}>
+							<span class="shrink-0">{@html svgIcon(pinRaw)}</span>
+							Pin &amp; compare
+						</button>
+						<button class="flex w-full items-center gap-2.5 px-3 py-2 hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors" onclick={() => { overflowOpen = false; advCopyOpen = true; }}>
+							<span class="shrink-0">{@html svgIcon(advancedCopyRaw)}</span>
+							Advanced Copy
+						</button>
+						<button class="flex w-full items-center gap-2.5 px-3 py-2 hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors" onclick={() => { overflowOpen = false; wbwOpen = true; }}>
+							<span class="shrink-0">{@html svgIcon(bxBookRaw)}</span>
+							Word By Word
+						</button>
+						<button class="flex w-full items-center gap-2.5 px-3 py-2 hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors" onclick={() => { overflowOpen = false; repeatOpen = true; }}>
+							<span class="shrink-0">{@html svgIcon(repeatRaw)}</span>
+							Repeat Verse
+						</button>
+						<button class="flex w-full items-center gap-2.5 px-3 py-2 hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors" onclick={() => { overflowOpen = false; onStudyMode?.(verse.verseKey, 'tafsir'); }}>
+							<span class="shrink-0">{@html svgIcon(translationRaw)}</span>
+							Translations
+						</button>
+						<button class="flex w-full items-center gap-2.5 px-3 py-2 hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors" onclick={() => { overflowOpen = false; feedbackOpen = true; }}>
+							<span class="shrink-0">{@html svgIcon(translationFeedbackRaw)}</span>
+							Translation Feedback
+						</button>
+						<button class="flex w-full items-center gap-2.5 px-3 py-2 hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors" onclick={() => { overflowOpen = false; window.open(`/${verse.verseKey.split(':')[0]}/${verse.verseKey.split(':')[1]}`, '_blank'); }}>
+							<span class="shrink-0">{@html svgIcon(codeEmbedRaw)}</span>
+							Embed Widget
+						</button>
+						<button class="flex w-full items-center gap-2.5 px-3 py-2 hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors" onclick={() => { overflowOpen = false; }}>
+							<span class="shrink-0">{@html svgIcon(settingsRaw)}</span>
+							Settings
+						</button>
+					</div>
+				{/if}
+			</div>
 		</div>
 	</div>
 
@@ -432,3 +575,141 @@
 </div>
 
 <ShareVerseModal {verse} {arabicText} open={shareOpen} onClose={() => (shareOpen = false)} />
+
+<!-- Word By Word modal -->
+{#if wbwOpen}
+	{@const wbwWords = verse.words.filter(w => w.charTypeName === 'word' || w.charTypeName === 'end')}
+	<div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40" onclick={() => (wbwOpen = false)} role="dialog" aria-modal="true" aria-label="Word by word" tabindex="-1" onkeydown={(e) => e.key === 'Escape' && (wbwOpen = false)}>
+		<div class="bg-base-100 rounded-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto shadow-xl" onclick={(e) => e.stopPropagation()} role="presentation">
+			<div class="flex items-center justify-between px-5 py-4 border-b border-base-200">
+				<h2 class="font-semibold">Word by Word — {verse.verseKey}</h2>
+				<button class="btn btn-ghost btn-sm btn-circle" onclick={() => (wbwOpen = false)}>✕</button>
+			</div>
+			<div class="p-5 flex flex-col gap-6">
+				<!-- Translation section -->
+				<div>
+					<p class="text-xs font-semibold uppercase tracking-wider text-base-content/40 mb-3">Word by Word Translation</p>
+					<div class="flex flex-wrap gap-x-3 gap-y-4" style="direction: rtl;">
+						{#each wbwWords as word (word.position)}
+							{@const wbwText = useWordGlyphs ? wordGlyph(word) : wordTextContent(word)}
+							{@const wbwFont = useWordGlyphs ? wordFontFamily(word) : fontFamily}
+							{#if word.charTypeName === 'end'}
+								<div class="flex flex-col items-center justify-start gap-0.5" style="direction: rtl;">
+									<span class="text-xl leading-tight" lang="ar" style="font-family: {wbwFont};">{wbwText}</span>
+								</div>
+							{:else}
+								<div class="flex flex-col items-center gap-0.5 text-center max-w-[5rem]">
+									<span class="text-xl leading-tight" lang="ar" style="font-family: {wbwFont};">{wbwText}</span>
+									<span class="text-[0.65rem] text-base-content/55 leading-tight w-full text-center">{word.translation?.text ?? ''}</span>
+								</div>
+							{/if}
+						{/each}
+					</div>
+				</div>
+				<!-- Divider -->
+				<div class="border-t border-base-200"></div>
+				<!-- Transliteration section -->
+				<div>
+					<p class="text-xs font-semibold uppercase tracking-wider text-base-content/40 mb-3">Word by Word Transliteration</p>
+					<div class="flex flex-wrap gap-x-3 gap-y-4" style="direction: rtl;">
+						{#each wbwWords as word (word.position)}
+							{@const wbwText = useWordGlyphs ? wordGlyph(word) : wordTextContent(word)}
+							{@const wbwFont = useWordGlyphs ? wordFontFamily(word) : fontFamily}
+							{#if word.charTypeName === 'end'}
+								<div class="flex flex-col items-center justify-start gap-0.5" style="direction: rtl;">
+									<span class="text-xl leading-tight" lang="ar" style="font-family: {wbwFont};">{wbwText}</span>
+								</div>
+							{:else}
+								<div class="flex flex-col items-center gap-0.5 text-center max-w-[5rem]">
+									<span class="text-xl leading-tight" lang="ar" style="font-family: {wbwFont};">{wbwText}</span>
+									<span class="text-[0.65rem] text-base-content/55 leading-tight italic w-full text-center">{word.transliteration?.text ?? ''}</span>
+								</div>
+							{/if}
+						{/each}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{/if}
+
+<!-- Advanced Copy modal -->
+{#if advCopyOpen}
+	<div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40" onclick={() => (advCopyOpen = false)} role="dialog" aria-modal="true" aria-label="Advanced copy" tabindex="-1" onkeydown={(e) => e.key === 'Escape' && (advCopyOpen = false)}>
+		<div class="bg-base-100 rounded-2xl w-full max-w-sm shadow-xl" onclick={(e) => e.stopPropagation()} role="presentation">
+			<div class="flex items-center justify-between px-5 py-4 border-b border-base-200">
+				<h2 class="font-semibold">Advanced Copy</h2>
+				<button class="btn btn-ghost btn-sm btn-circle" onclick={() => (advCopyOpen = false)}>✕</button>
+			</div>
+			<div class="p-5 flex flex-col gap-2">
+				{#each [
+					{ v: 'arabic', label: 'Arabic only' },
+					{ v: 'translation', label: 'Translation only' },
+					{ v: 'both', label: 'Arabic + Translation' },
+					{ v: 'full', label: 'Arabic + Translation + Key' }
+				] as opt (opt.v)}
+					<label class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-base-200 transition-colors">
+						<input type="radio" name="advCopyFormat" value={opt.v} checked={advCopyFormat === opt.v} onchange={() => setAdvCopyFormat(opt.v)} class="radio radio-primary radio-sm" />
+						<span class="text-sm">{opt.label}</span>
+					</label>
+				{/each}
+				<button class="btn btn-primary btn-sm mt-2 w-full" onclick={copyAdvanced}>Copy</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
+<!-- Repeat Verse modal -->
+{#if repeatOpen}
+	<div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40" onclick={() => (repeatOpen = false)} role="dialog" aria-modal="true" aria-label="Repeat verse" tabindex="-1" onkeydown={(e) => e.key === 'Escape' && (repeatOpen = false)}>
+		<div class="bg-base-100 rounded-2xl w-full max-w-sm shadow-xl" onclick={(e) => e.stopPropagation()} role="presentation">
+			<div class="flex items-center justify-between px-5 py-4 border-b border-base-200">
+				<h2 class="font-semibold">Repeat Verse</h2>
+				<button class="btn btn-ghost btn-sm btn-circle" onclick={() => (repeatOpen = false)}>✕</button>
+			</div>
+			<div class="p-5 flex flex-col gap-4">
+				<div class="flex items-center justify-between">
+					<span class="text-sm text-base-content/70">Number of times</span>
+					<div class="flex items-center gap-2">
+						<button class="btn btn-ghost btn-sm btn-circle border border-base-300" onclick={() => (repeatCount = Math.max(1, repeatCount - 1))}>-</button>
+						<span class="w-8 text-center font-bold">{repeatCount}</span>
+						<button class="btn btn-ghost btn-sm btn-circle border border-base-300" onclick={() => (repeatCount = Math.min(20, repeatCount + 1))}>+</button>
+					</div>
+				</div>
+				<div class="flex gap-2 flex-wrap">
+					{#each [1, 2, 3, 5, 10] as n (n)}
+						<button class="btn btn-xs rounded-full {repeatCount === n ? 'btn-primary' : 'btn-ghost border border-base-300'}" onclick={() => (repeatCount = n)}>{n}×</button>
+					{/each}
+				</div>
+				<button class="btn btn-primary btn-sm w-full" onclick={startRepeat}>Start</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
+<!-- Translation Feedback modal -->
+{#if feedbackOpen}
+	<div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40" onclick={() => (feedbackOpen = false)} role="dialog" aria-modal="true" aria-label="Translation feedback" tabindex="-1" onkeydown={(e) => e.key === 'Escape' && (feedbackOpen = false)}>
+		<div class="bg-base-100 rounded-2xl w-full max-w-sm shadow-xl" onclick={(e) => e.stopPropagation()} role="presentation">
+			<div class="flex items-center justify-between px-5 py-4 border-b border-base-200">
+				<h2 class="font-semibold">Translation Feedback</h2>
+				<button class="btn btn-ghost btn-sm btn-circle" onclick={() => (feedbackOpen = false)}>✕</button>
+			</div>
+			<div class="p-5 flex flex-col gap-3">
+				{#if feedbackSent}
+					<p class="text-sm text-success text-center py-4">Thank you for your feedback!</p>
+				{:else}
+					<p class="text-xs text-base-content/50">Verse {verse.verseKey} · {verse.translations?.[0]?.resourceName ?? 'Translation'}</p>
+					<textarea
+						class="textarea textarea-bordered w-full text-sm resize-none"
+						rows="4"
+						placeholder="Describe the issue with this translation..."
+						value={feedbackText}
+					oninput={onFeedbackInput}
+					></textarea>
+					<button class="btn btn-primary btn-sm w-full" disabled={!feedbackText.trim()} onclick={submitFeedback}>Submit</button>
+				{/if}
+			</div>
+		</div>
+	</div>
+{/if}

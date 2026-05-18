@@ -135,7 +135,7 @@ function verseParams(font: QuranFont, translations: number[], wordByWord = false
 		'text_imlaei_simple',
 		'code_v2',
 		...(wordFont !== 'code_v2' && !['text_indopak', 'text_uthmani', 'text', 'text_imlaei_simple'].includes(wordFont) ? [wordFont] : []),
-		wordByWord ? 'translation,transliteration' : ''
+		'translation,transliteration'
 	].filter(Boolean).join(',');
 	return {
 		translations: translations,
