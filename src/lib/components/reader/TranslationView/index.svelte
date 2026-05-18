@@ -182,7 +182,7 @@
 	data-juz={verse.juzNumber ?? ''}
 	data-hizb={verse.hizbNumber ?? ''}
 	data-chapter-id={verse.chapterId ?? chapterId ?? ''}
-	class="border-b border-base-200 transition-colors {isCurrentVerse && audioState.isActive ? 'bg-primary/5' : highlight ? 'bg-base-200' : ''}"
+	class="border-b border-base-200 transition-colors {isCurrentVerse && audioState.isActive ? 'bg-base-200' : highlight ? 'bg-base-200' : ''}"
 >
 	<ActionButtons
 		verseKey={verse.verseKey}
