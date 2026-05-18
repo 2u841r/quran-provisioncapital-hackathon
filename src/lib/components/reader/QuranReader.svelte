@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { readerState } from '$lib/state/reader.svelte';
 	import type { Chapter, Verse, Pagination } from '$lib/types/quran';
-	import VerseCard from './VerseCard.svelte';
+	import VerseCard from './TranslationView/index.svelte';
 	import MushafPage from './MushafPage.svelte';
 	import ChapterHeader from './ChapterHeader.svelte';
 	import StudyModeModal, { type StudyTab } from './StudyModeModal.svelte';
