@@ -7,6 +7,7 @@
 	// @ts-expect-error -- Vite raw import
 	import logoSvg from '$lib/assets/logo_main.svg?raw';
 	import juzMappings from '$lib/data/juz-to-chapter-verse-mappings.json';
+	import HeroButtons from '$lib/components/home/HeroButtons/index.svelte';
 	import NavigationDrawer from '$lib/components/NavigationDrawer.svelte';
 
 	let navOpen = $state(false);
@@ -27,7 +28,7 @@
 	let view = $state<View>('surah');
 	let sortAsc = $state(true);
 
-	const chapterById = $derived(Object.fromEntries(surahs.map(s => [String(s.id), s])));
+	const chapterById = $derived(Object.fromEntries(surahs.map((s) => [String(s.id), s])));
 
 	const juzList = $derived.by(() => {
 		const entries = Object.entries(juzMappings as Record<string, Record<string, string>>);
@@ -54,13 +55,16 @@
 	const chapterMatches = $derived.by(() => {
 		const q = query.trim().toLowerCase();
 		if (!q) return [];
-		return surahs.filter(s =>
-			s.nameSimple?.toLowerCase().includes(q) ||
-			s.nameComplex?.toLowerCase().includes(q) ||
-			s.nameArabic?.includes(q) ||
-			s.translatedName?.name?.toLowerCase().includes(q) ||
-			String(s.id) === q
-		).slice(0, 5);
+		return surahs
+			.filter(
+				(s) =>
+					s.nameSimple?.toLowerCase().includes(q) ||
+					s.nameComplex?.toLowerCase().includes(q) ||
+					s.nameArabic?.includes(q) ||
+					s.translatedName?.name?.toLowerCase().includes(q) ||
+					String(s.id) === q
+			)
+			.slice(0, 5);
 	});
 
 	function onInput(e: Event) {
@@ -99,7 +103,10 @@
 <!-- Hero (HomePageHero_outerContainer) -->
 <div class="hero-outer relative isolate">
 	<!-- Background image -->
-	<div class="hero-bg absolute inset-0 z-0 overflow-hidden bg-base-200" style="--color-calligraphy: var(--color-base-300);">
+	<div
+		class="hero-bg absolute inset-0 z-0 overflow-hidden bg-base-200"
+		style="--color-calligraphy: var(--color-base-300);"
+	>
 		<div class="hero-svg" style="transform: translateY(-40%)">
 			{@html backgroundSvg}
 		</div>
@@ -107,18 +114,31 @@
 
 	<div class="relative z-10">
 		<!-- Inner container -->
-		<div class="mx-auto flex flex-col items-center px-2 py-5 md:py-[30px] max-w-3xl">
+		<div class="mx-auto flex max-w-3xl flex-col items-center px-2 py-5 md:py-[30px]">
 			<!-- Logo (hidden on mobile) -->
-			<div class="hidden md:block pb-5">
-				<div class="logo-main" aria-label="Quran.com" style="color: var(--color-primary);">{@html logoSvg}</div>
+			<div class="hidden pb-5 md:block">
+				<div class="logo-main" aria-label="Quran.com" style="color: var(--color-primary);">
+					{@html logoSvg}
+				</div>
 			</div>
 
 			<!-- Search input + dropdown -->
 			<div class="relative w-full max-w-xl">
-				<label class="input input-bordered flex items-center gap-2 w-full bg-base-100 rounded-full">
-					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-50">
-						<circle cx="11" cy="11" r="8"/>
-						<path d="m21 21-4.3-4.3"/>
+				<label class="input-bordered input flex w-full items-center gap-2 rounded-full bg-base-100">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						class="opacity-50"
+					>
+						<circle cx="11" cy="11" r="8" />
+						<path d="m21 21-4.3-4.3" />
 					</svg>
 					<input
 						type="search"
@@ -129,42 +149,76 @@
 						onfocus={() => (open = true)}
 					/>
 					{#if loading}
-						<span class="loading loading-spinner loading-xs"></span>
+						<span class="loading loading-xs loading-spinner"></span>
 					{/if}
 				</label>
 
 				{#if open && (loading || results.length > 0 || chapterMatches.length > 0 || query.trim())}
-					<div class="absolute z-20 mt-2 w-full max-h-96 overflow-y-auto bg-base-100 border border-base-300 rounded-2xl shadow-xl">
+					<div
+						class="absolute z-20 mt-2 max-h-96 w-full overflow-y-auto rounded-2xl border border-base-300 bg-base-100 shadow-xl"
+					>
 						{#if chapterMatches.length > 0}
-							<div class="px-4 pt-3 pb-1 text-[0.65rem] uppercase tracking-wide text-base-content/40 font-semibold">Surahs</div>
+							<div
+								class="px-4 pt-3 pb-1 text-[0.65rem] font-semibold tracking-wide text-base-content/40 uppercase"
+							>
+								Surahs
+							</div>
 							{#each chapterMatches as ch (ch.id)}
 								<a
 									href="/{ch.id}"
-									class="flex items-center gap-3 px-4 py-2.5 hover:bg-base-200 no-underline"
+									class="flex items-center gap-3 px-4 py-2.5 no-underline hover:bg-base-200"
 								>
-									<span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-base-200 text-xs font-mono text-base-content/60 shrink-0">{ch.id}</span>
-									<div class="flex-1 min-w-0">
-										<div class="text-sm font-semibold text-base-content truncate">{ch.nameSimple}</div>
-										<div class="text-xs text-base-content/60 truncate">{ch.translatedName.name} · {ch.versesCount} verses</div>
+									<span
+										class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-base-200 font-mono text-xs text-base-content/60"
+										>{ch.id}</span
+									>
+									<div class="min-w-0 flex-1">
+										<div class="truncate text-sm font-semibold text-base-content">
+											{ch.nameSimple}
+										</div>
+										<div class="truncate text-xs text-base-content/60">
+											{ch.translatedName.name} · {ch.versesCount} verses
+										</div>
 									</div>
-									<span class="text-base text-base-content/70" dir="rtl" lang="ar" style="font-family: 'UthmanicHafs', serif;">{ch.nameArabic}</span>
+									<span
+										class="text-base text-base-content/70"
+										dir="rtl"
+										lang="ar"
+										style="font-family: 'UthmanicHafs', serif;">{ch.nameArabic}</span
+									>
 								</a>
 							{/each}
 						{/if}
 
 						{#if results.length > 0}
-							<div class="px-4 pt-3 pb-1 text-[0.65rem] uppercase tracking-wide text-base-content/40 font-semibold {chapterMatches.length > 0 ? 'border-t border-base-200' : ''}">Verses</div>
+							<div
+								class="px-4 pt-3 pb-1 text-[0.65rem] font-semibold tracking-wide text-base-content/40 uppercase {chapterMatches.length >
+								0
+									? 'border-t border-base-200'
+									: ''}"
+							>
+								Verses
+							</div>
 							{#each results as r (r.verseKey)}
 								<a
 									href="/{r.verseKey.split(':')[0]}?startingVerse={r.verseKey.split(':')[1]}"
-									class="block px-4 py-3 hover:bg-base-200 border-b border-base-200 last:border-b-0 no-underline"
+									class="block border-b border-base-200 px-4 py-3 no-underline last:border-b-0 hover:bg-base-200"
 								>
-									<div class="flex items-center justify-between mb-1">
-										<span class="text-xs font-mono text-primary">{r.verseKey}</span>
+									<div class="mb-1 flex items-center justify-between">
+										<span class="font-mono text-xs text-primary">{r.verseKey}</span>
 									</div>
-									<p class="text-right text-sm leading-relaxed mb-1" dir="rtl" lang="ar" style="font-family: 'UthmanicHafs', serif;">{stripHtml(r.text)}</p>
+									<p
+										class="mb-1 text-right text-sm leading-relaxed"
+										dir="rtl"
+										lang="ar"
+										style="font-family: 'UthmanicHafs', serif;"
+									>
+										{stripHtml(r.text)}
+									</p>
 									{#if r.translations?.[0]}
-										<p class="text-xs text-base-content/70 leading-snug">{stripHtml(r.translations[0].text)}</p>
+										<p class="text-xs leading-snug text-base-content/70">
+											{stripHtml(r.translations[0].text)}
+										</p>
 									{/if}
 								</a>
 							{/each}
@@ -177,84 +231,81 @@
 				{/if}
 			</div>
 
-			<!-- Buttons -->
-			<div class="flex gap-2 md:gap-[15px] mt-2 md:mt-4">
-				<button
-					class="btn btn-sm md:btn-md btn-ghost bg-base-100 rounded-full"
-					onclick={() => (navOpen = true)}
-					data-testid="navigate-quran-button"
-				>
-					<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<line x1="8" y1="6" x2="21" y2="6"/>
-						<line x1="8" y1="12" x2="21" y2="12"/>
-						<line x1="8" y1="18" x2="21" y2="18"/>
-						<line x1="3" y1="6" x2="3.01" y2="6"/>
-						<line x1="3" y1="12" x2="3.01" y2="12"/>
-						<line x1="3" y1="18" x2="3.01" y2="18"/>
-					</svg>
-					Navigate Quran
-				</button>
-				<button class="btn btn-sm md:btn-md btn-ghost bg-base-100 rounded-full">
-					<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-					</svg>
-					Popular
-				</button>
-			</div>
+			<HeroButtons onNavigate={() => (navOpen = true)} />
 		</div>
 	</div>
 </div>
 
 <!-- Tabs + Sort + Chapter list -->
-<main class="max-w-5xl mx-auto px-4 py-8">
+<main class="mx-auto max-w-5xl px-4 py-8">
 	<!-- Tabs row -->
 	<div class="pb-4">
-		<div role="tablist" class="tabs tabs-bordered">
+		<div role="tablist" class="tabs-bordered tabs">
 			<button
 				role="tab"
 				class="tab {view === 'surah' ? 'tab-active' : ''}"
-				onclick={() => (view = 'surah')}
-			>Surah</button>
+				onclick={() => (view = 'surah')}>Surah</button
+			>
 			<button
 				role="tab"
 				class="tab {view === 'juz' ? 'tab-active' : ''}"
-				onclick={() => (view = 'juz')}
-			>Juz</button>
+				onclick={() => (view = 'juz')}>Juz</button
+			>
 			<button
 				role="tab"
 				class="tab {view === 'revelation' ? 'tab-active' : ''}"
-				onclick={() => (view = 'revelation')}
-			>Revelation Order</button>
+				onclick={() => (view = 'revelation')}>Revelation Order</button
+			>
 		</div>
 
 		<!-- Sorter -->
-		<div class="flex justify-end items-center gap-1 mt-2 text-xs">
-			<span class="uppercase text-base-content/50">Sort by:</span>
+		<div class="mt-2 flex items-center justify-end gap-1 text-xs">
+			<span class="text-base-content/50 uppercase">Sort by:</span>
 			<button
 				onclick={() => (sortAsc = !sortAsc)}
-				class="flex items-center gap-1 font-bold uppercase text-base-content hover:text-primary"
+				class="flex items-center gap-1 font-bold text-base-content uppercase hover:text-primary"
 			>
 				<span>{sortAsc ? 'Ascending' : 'Descending'}</span>
-				<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform {sortAsc ? 'rotate-180' : ''}">
-					<path d="m6 9 6 6 6-6"/>
+				<svg
+					width="10"
+					height="10"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					class="transition-transform {sortAsc ? 'rotate-180' : ''}"
+				>
+					<path d="m6 9 6 6 6-6" />
 				</svg>
 			</button>
 		</div>
 
 		{#if view === 'revelation'}
-			<div class="mt-4 p-3 text-xs rounded-lg border border-base-300 bg-success/10 text-base-content/70">
+			<div
+				class="mt-4 rounded-lg border border-base-300 bg-success/10 p-3 text-xs text-base-content/70"
+			>
 				The chapters are ordered by the order in which they were revealed.
-				<a href="https://tanzil.net/docs/revelation_order" target="_blank" rel="noreferrer" class="underline">Source: tanzil.net</a>.
+				<a
+					href="https://tanzil.net/docs/revelation_order"
+					target="_blank"
+					rel="noreferrer"
+					class="underline">Source: tanzil.net</a
+				>.
 			</div>
 		{/if}
 	</div>
 
 	{#if view === 'juz'}
-		<div class="columns-1 md:columns-2 lg:columns-3 gap-3">
+		<div class="columns-1 gap-3 md:columns-2 lg:columns-3">
 			{#each juzList as [juzId, chapterMap] (juzId)}
-				<div class="break-inside-avoid mb-3 rounded-lg border border-base-200 bg-base-100 p-3">
-					<a href="/juz/{juzId}" class="flex items-center justify-between text-primary hover:opacity-75 no-underline pb-2 border-b border-base-200 mb-2">
-						<span class="font-semibold text-sm">Juz {juzId}</span>
+				<div class="mb-3 break-inside-avoid rounded-lg border border-base-200 bg-base-100 p-3">
+					<a
+						href="/juz/{juzId}"
+						class="mb-2 flex items-center justify-between border-b border-base-200 pb-2 text-primary no-underline hover:opacity-75"
+					>
+						<span class="text-sm font-semibold">Juz {juzId}</span>
 						<span class="text-xs uppercase">Read Juz</span>
 					</a>
 					{#each Object.entries(chapterMap) as [chId, verseRange] (chId)}
@@ -263,18 +314,24 @@
 							{@const firstVerse = String(verseRange).split('-')[0]}
 							<a
 								href="/{chId}?startingVerse={firstVerse}"
-								class="flex items-center justify-between gap-3 px-2 py-2 rounded hover:bg-base-200 no-underline"
+								class="flex items-center justify-between gap-3 rounded px-2 py-2 no-underline hover:bg-base-200"
 							>
-								<div class="flex items-center gap-3 min-w-0">
-									<div class="w-7 h-7 shrink-0 flex items-center justify-center text-[0.65rem] font-semibold text-base-content/70 rotate-45 border border-base-300 rounded">
+								<div class="flex min-w-0 items-center gap-3">
+									<div
+										class="flex h-7 w-7 shrink-0 rotate-45 items-center justify-center rounded border border-base-300 text-[0.65rem] font-semibold text-base-content/70"
+									>
 										<span class="-rotate-45">{ch.id}</span>
 									</div>
 									<div class="min-w-0">
-										<div class="text-xs font-semibold text-base-content truncate">{ch.nameSimple}</div>
-										<div class="text-[0.65rem] text-base-content/60 truncate">v. {verseRange}</div>
+										<div class="truncate text-xs font-semibold text-base-content">
+											{ch.nameSimple}
+										</div>
+										<div class="truncate text-[0.65rem] text-base-content/60">v. {verseRange}</div>
 									</div>
 								</div>
-								<span class="chapter-icon text-primary text-base leading-none shrink-0">{String(ch.id).padStart(3, '0')}</span>
+								<span class="chapter-icon shrink-0 text-base leading-none text-primary"
+									>{String(ch.id).padStart(3, '0')}</span
+								>
 							</a>
 						{/if}
 					{/each}
@@ -282,24 +339,28 @@
 			{/each}
 		</div>
 	{:else}
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+		<div class="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
 			{#each visibleChapters as ch (ch.id)}
 				<a
 					href="/{ch.id}"
-					class="flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-base-100 hover:bg-base-200 border border-base-200 transition-colors no-underline"
+					class="flex items-center justify-between gap-3 rounded-lg border border-base-200 bg-base-100 px-4 py-3 no-underline transition-colors hover:bg-base-200"
 				>
-					<div class="flex items-center gap-3 min-w-0">
-						<div class="w-8 h-8 shrink-0 flex items-center justify-center text-xs font-semibold text-base-content/70 rotate-45 border border-base-300 rounded">
+					<div class="flex min-w-0 items-center gap-3">
+						<div
+							class="flex h-8 w-8 shrink-0 rotate-45 items-center justify-center rounded border border-base-300 text-xs font-semibold text-base-content/70"
+						>
 							<span class="-rotate-45">{ch.id}</span>
 						</div>
 						<div class="min-w-0">
-							<div class="text-sm font-semibold text-base-content truncate">{ch.nameSimple}</div>
-							<div class="text-xs text-base-content/60 truncate">{ch.translatedName.name}</div>
+							<div class="truncate text-sm font-semibold text-base-content">{ch.nameSimple}</div>
+							<div class="truncate text-xs text-base-content/60">{ch.translatedName.name}</div>
 						</div>
 					</div>
-					<div class="flex flex-col items-end shrink-0">
-						<span class="chapter-icon text-primary text-lg leading-none">{String(ch.id).padStart(3, '0')}</span>
-						<div class="text-[0.65rem] text-base-content/50 mt-1">{ch.versesCount} Ayahs</div>
+					<div class="flex shrink-0 flex-col items-end">
+						<span class="chapter-icon text-lg leading-none text-primary"
+							>{String(ch.id).padStart(3, '0')}</span
+						>
+						<div class="mt-1 text-[0.65rem] text-base-content/50">{ch.versesCount} Ayahs</div>
 					</div>
 				</a>
 			{/each}
