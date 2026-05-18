@@ -20,9 +20,9 @@
 		const current = window.scrollY;
 		if (current < 10) {
 			navbarState.visible = true;
-		} else if (current < lastScrollY - 2) {
+		} else if (current < lastScrollY) {
 			navbarState.visible = true;
-		} else if (current > lastScrollY + 4) {
+		} else if (current > lastScrollY) {
 			navbarState.visible = false;
 		}
 		lastScrollY = current;
