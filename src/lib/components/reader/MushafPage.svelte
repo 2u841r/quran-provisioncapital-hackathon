@@ -29,6 +29,8 @@
 
 	// Plain (non-reactive) flag — no $state to avoid effect loops
 	let isSentinelVisible = false;
+	const pageFetchCache = new Map<number, Promise<PageData | null>>();
+	const fontLoadCache = new Map<string, Promise<void>>();
 
 	// chapter.pages from the API is [firstPage, lastPage] — a 2-element range, not a full list.
 	// Expand to every page number in that range.
@@ -41,22 +43,121 @@
 	});
 	const allLoaded = $derived(nextPageIdx >= pageNumbers.length);
 
-	function injectFont(p: number) {
+	function fontUrl(pageNum: number): string {
+		return readerState.quranFont === 'tajweed_v4'
+			? `/fonts/quran/hafs/v4/colrv1/woff2/p${pageNum}.woff2`
+			: `/fonts-v2/p${pageNum}.woff2`;
+	}
+
+	function fontFamily(pageNum: number): string {
+		return readerState.quranFont === 'tajweed_v4' ? `p${pageNum}-v4` : `p${pageNum}-v2`;
+	}
+
+	function injectFontFace(pageNum: number) {
 		if (typeof document === 'undefined') return;
-		const idV2 = `qcf-p${p}-v2`;
+		const idV2 = `qcf-p${pageNum}-v2`;
 		if (!document.getElementById(idV2)) {
 			const s = document.createElement('style');
 			s.id = idV2;
-			s.textContent = `@font-face{font-family:p${p}-v2;src:url('/fonts-v2/p${p}.woff2') format('woff2');}`;
+			s.textContent = `@font-face{font-family:p${pageNum}-v2;src:url('/fonts-v2/p${pageNum}.woff2') format('woff2');}`;
 			document.head.appendChild(s);
 		}
-		const idV4 = `qcf-p${p}-v4`;
+		const idV4 = `qcf-p${pageNum}-v4`;
 		if (!document.getElementById(idV4)) {
 			const s = document.createElement('style');
 			s.id = idV4;
-			s.textContent = `@font-face{font-family:p${p}-v4;src:url('/fonts/quran/hafs/v4/colrv1/woff2/p${p}.woff2') format('woff2');}`;
+			s.textContent = `@font-face{font-family:p${pageNum}-v4;src:url('/fonts/quran/hafs/v4/colrv1/woff2/p${pageNum}.woff2') format('woff2');}`;
 			document.head.appendChild(s);
 		}
+	}
+
+	function preloadFont(pageNum: number): Promise<void> {
+		if (typeof document === 'undefined') return Promise.resolve();
+
+		const family = fontFamily(pageNum);
+		const cached = fontLoadCache.get(family);
+		if (cached) return cached;
+
+		injectFontFace(pageNum);
+
+		const url = fontUrl(pageNum);
+		const linkId = `preload-${family}`;
+		if (!document.getElementById(linkId)) {
+			const link = document.createElement('link');
+			link.id = linkId;
+			link.rel = 'preload';
+			link.as = 'font';
+			link.type = 'font/woff2';
+			link.href = url;
+			link.crossOrigin = 'anonymous';
+			document.head.appendChild(link);
+		}
+
+		const loadPromise = (async () => {
+			if (!('FontFace' in window) || !document.fonts) return;
+			const existing = [...document.fonts].find((font) => font.family === family);
+			if (existing) {
+				await existing.load();
+			} else {
+				const fontFace = new FontFace(family, `url('${url}') format('woff2')`);
+				await fontFace.load();
+				document.fonts.add(fontFace);
+			}
+			await document.fonts.ready;
+		})().catch(() => {});
+
+		fontLoadCache.set(family, loadPromise);
+		return loadPromise;
+	}
+
+	function buildPageData(
+		res: Awaited<ReturnType<typeof fetchMushafPage>>,
+		pageNum: number,
+		fetchChapterId: number
+	): PageData | null {
+		const temp: Record<number, LineWord[]> = {};
+		for (const verse of res.verses) {
+			const [vChapter] = verse.verseKey.split(':');
+			if (Number(vChapter) !== fetchChapterId) continue;
+			for (const word of (verse.words ?? []) as Word[]) {
+				const ln = word.lineNumber;
+				if (!ln) continue;
+				(temp[ln] ??= []).push({
+					text: word.codeV2 ?? word.text ?? '',
+					lineNumber: ln,
+					verseKey: verse.verseKey,
+					charTypeName: word.charTypeName,
+					position: word.position
+				});
+			}
+		}
+
+		const lineNumbers = Object.keys(temp).map(Number);
+		if (lineNumbers.length === 0) return null;
+
+		const lineMap = new SvelteMap<number, LineWord[]>();
+		for (const k of lineNumbers.sort((a, b) => a - b)) {
+			lineMap.set(
+				k,
+				temp[k].sort((a, b) => a.position - b.position)
+			);
+		}
+
+		const showChapterHeader = Object.values(temp).some((words) =>
+			words.some((w) => w.verseKey === `${fetchChapterId}:1`)
+		);
+
+		return { pageNumber: pageNum, lineMap, showChapterHeader };
+	}
+
+	function preloadPage(pageNum: number, fetchChapterId = Number(chapter.id)) {
+		if (pageFetchCache.has(pageNum)) return;
+		pageFetchCache.set(
+			pageNum,
+			Promise.all([fetchMushafPage(fetch, pageNum), preloadFont(pageNum)]).then(([res]) =>
+				buildPageData(res, pageNum, fetchChapterId)
+			)
+		);
 	}
 
 	async function loadNextPage() {
@@ -69,44 +170,20 @@
 		error = null;
 
 		const pageNum = nums[idx];
-		injectFont(pageNum);
+		preloadPage(pageNum, fetchChapterId);
+		const preloadNextPageNum = nums[idx + 1];
+		if (preloadNextPageNum) preloadPage(preloadNextPageNum, fetchChapterId);
 
 		try {
-			const res = await fetchMushafPage(fetch, pageNum);
+			const pageData = await pageFetchCache.get(pageNum);
 
 			if (Number(chapter.id) !== fetchChapterId) return;
 
-			const temp: Record<number, LineWord[]> = {};
-			for (const verse of res.verses) {
-				const [vChapter] = verse.verseKey.split(':');
-				if (Number(vChapter) !== fetchChapterId) continue;
-				for (const word of (verse.words ?? []) as Word[]) {
-					const ln = word.lineNumber;
-					if (!ln) continue;
-					(temp[ln] ??= []).push({
-						text: word.codeV2 ?? word.text ?? '',
-						lineNumber: ln,
-						verseKey: verse.verseKey,
-						charTypeName: word.charTypeName,
-						position: word.position
-					});
-				}
-			}
-
-			const lineNumbers = Object.keys(temp).map(Number);
-			if (lineNumbers.length > 0) {
-				const lineMap = new SvelteMap<number, LineWord[]>();
-				for (const k of lineNumbers.sort((a, b) => a - b)) {
-					lineMap.set(k, temp[k].sort((a, b) => a.position - b.position));
-				}
-				const showChapterHeader = Object.values(temp).some((words) =>
-					words.some((w) => w.verseKey === `${fetchChapterId}:1`)
-				);
-				loadedPages = [...loadedPages, { pageNumber: pageNum, lineMap, showChapterHeader }];
-			}
+			if (pageData) loadedPages = [...loadedPages, pageData];
 
 			nextPageIdx = idx + 1;
 		} catch {
+			pageFetchCache.delete(pageNum);
 			error = 'Failed to load page';
 		} finally {
 			loading = false;
@@ -128,6 +205,8 @@
 		untrack(() => {
 			loadedPages = [];
 			nextPageIdx = 0;
+			pageFetchCache.clear();
+			fontLoadCache.clear();
 			error = null;
 			loading = false;
 			void loadNextPage();
@@ -142,17 +221,17 @@
 				isSentinelVisible = entry.isIntersecting;
 				if (entry.isIntersecting) void loadNextPage();
 			},
-			{ rootMargin: '400px' }
+			{ rootMargin: '1200px 0px' }
 		);
 		observer.observe(el);
-		return { destroy() { observer.disconnect(); } };
+		return {
+			destroy() {
+				observer.disconnect();
+			}
+		};
 	}
 
 	const lineCount = $derived(readerState.mushafLines);
-
-	function fontFamily(pageNum: number): string {
-		return readerState.quranFont === 'tajweed_v4' ? `p${pageNum}-v4` : `p${pageNum}-v2`;
-	}
 </script>
 
 <div class="mushaf-container select-none">
@@ -173,14 +252,14 @@
 	{/if}
 
 	{#if error}
-		<p class="text-error text-center py-4 text-sm">{error}</p>
+		<p class="py-4 text-center text-sm text-error">{error}</p>
 	{/if}
 
 	{#if !allLoaded}
 		<div use:sentinel class="h-1 w-full" aria-hidden="true"></div>
 		{#if loading}
 			<div class="flex justify-center py-8">
-				<span class="loading loading-spinner loading-md text-primary"></span>
+				<span class="loading loading-md loading-spinner text-primary"></span>
 			</div>
 		{/if}
 	{/if}
