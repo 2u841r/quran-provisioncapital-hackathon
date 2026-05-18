@@ -34,37 +34,6 @@
 		} catch {}
 	});
 
-	const PRESETS = [
-		{
-			key: '10_mins',
-			icon: '⏱',
-			label: '10 min/day',
-			values: { goalType: 'time' as GoalType, period: 'daily' as Period, dailyMinutes: 10 }
-		},
-		{
-			key: 'khatm_30',
-			icon: '📖',
-			label: 'Khatm in 30 days',
-			values: { goalType: 'range' as GoalType, period: 'continuous' as Period, durationDays: 30, rangeStart: '1:1', rangeEnd: '114:6' }
-		},
-		{
-			key: 'yearly',
-			icon: '📅',
-			label: 'Quran in a year',
-			values: { goalType: 'range' as GoalType, period: 'continuous' as Period, durationDays: 365, rangeStart: '1:1', rangeEnd: '114:6' }
-		}
-	] as const;
-
-	function applyPreset(key: (typeof PRESETS)[number]['key']) {
-		const v = PRESETS.find((p) => p.key === key)!.values;
-		goalType = v.goalType;
-		period = v.period;
-		if ('dailyMinutes' in v) dailyMinutes = v.dailyMinutes;
-		if ('durationDays' in v) durationDays = v.durationDays;
-		if ('rangeStart' in v) rangeStart = v.rangeStart;
-		if ('rangeEnd' in v) rangeEnd = v.rangeEnd;
-	}
-
 	let rangeStartSurah = $derived(Number(rangeStart.split(':')[0]) || 1);
 	let rangeStartAyah = $derived(Number(rangeStart.split(':')[1]) || 1);
 	let rangeEndSurah = $derived(Number(rangeEnd.split(':')[0]) || 114);
@@ -145,23 +114,6 @@
 		<input type="hidden" name="duration" value={durationDays} />
 		<input type="hidden" name="rangeStart" value={rangeStart} />
 		<input type="hidden" name="rangeEnd" value={rangeEnd} />
-
-		<!-- Quick presets -->
-		<div>
-			<p class="text-xs font-semibold uppercase tracking-wide text-base-content/40 mb-2">Quick start</p>
-			<div class="flex gap-2 flex-wrap">
-				{#each PRESETS as preset (preset.key)}
-					<button
-						type="button"
-						class="flex items-center gap-1.5 px-3 py-2 rounded-xl border text-sm font-medium transition-all bg-base-200 border-transparent hover:border-primary/40 hover:bg-base-200"
-						onclick={() => applyPreset(preset.key)}
-					>
-						<span aria-hidden="true">{preset.icon}</span>
-						{preset.label}
-					</button>
-				{/each}
-			</div>
-		</div>
 
 		<!-- Goal type -->
 		<fieldset>
