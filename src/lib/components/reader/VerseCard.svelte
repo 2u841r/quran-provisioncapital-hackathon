@@ -18,6 +18,35 @@
 	let bookmarked = $state(false);
 	let bookmarkLoading = $state(false);
 
+	// Track reading history: record verse after 3s of continuous visibility
+	let cardEl = $state<HTMLElement | null>(null);
+	$effect(() => {
+		if (!cardEl) return;
+		let timer: ReturnType<typeof setTimeout> | null = null;
+		let recorded = false;
+
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				if (entry.isIntersecting && !recorded) {
+					timer = setTimeout(async () => {
+						recorded = true;
+						fetch('/api/reading-history', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ verseKey: verse.verseKey })
+						}).catch(() => {});
+					}, 3000);
+				} else {
+					if (timer) { clearTimeout(timer); timer = null; }
+				}
+			},
+			{ threshold: 0.6 }
+		);
+
+		observer.observe(cardEl);
+		return () => { observer.disconnect(); if (timer) clearTimeout(timer); };
+	});
+
 	async function toggleBookmark() {
 		if (bookmarkLoading) return;
 		bookmarkLoading = true;
@@ -209,6 +238,7 @@
 </script>
 
 <div
+	bind:this={cardEl}
 	data-verse-key={verse.verseKey}
 	data-page={verse.pageNumber ?? ''}
 	data-juz={verse.juzNumber ?? ''}

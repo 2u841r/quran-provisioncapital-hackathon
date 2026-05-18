@@ -132,19 +132,26 @@
 			</div>
 		{:else}
 			<div class="flex flex-col divide-y divide-base-200 rounded-xl border border-base-200 overflow-hidden">
-				{#each data.history as item (item.id)}
-					<a
-						href={verseUrl(item.verseKey)}
-						class="flex items-center justify-between px-4 py-3 hover:bg-base-200/50 transition-colors"
-					>
-						<div class="flex flex-col gap-0.5">
-							<span class="text-sm font-medium text-base-content">{verseLabel(item.verseKey)}</span>
-							<span class="text-xs text-base-content/40">{formatDate(item.readAt)}</span>
-						</div>
-						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-base-content/30 shrink-0">
-							<path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-						</svg>
-					</a>
+				{#each data.history as item (item.surah)}
+					{@const surahName = chapters[String(item.surah)] ?? `Surah ${item.surah}`}
+					{#each item.ranges as [from, to], i (i)}
+						<a
+							href={`/${item.surah}#${item.surah}:${from}`}
+							class="flex items-center justify-between px-4 py-3 hover:bg-base-200/50 transition-colors"
+						>
+							<div class="flex flex-col gap-0.5">
+								<span class="text-sm font-medium text-base-content">
+									{surahName} · {from === to ? `${item.surah}:${from}` : `${item.surah}:${from}–${to}`}
+								</span>
+								{#if i === 0}
+									<span class="text-xs text-base-content/40">{formatDate(item.readAt)}</span>
+								{/if}
+							</div>
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-base-content/30 shrink-0">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+							</svg>
+						</a>
+					{/each}
 				{/each}
 			</div>
 		{/if}
