@@ -10,6 +10,7 @@
 	type Period = 'daily' | 'continuous';
 
 	let step = $state<Step>('presets');
+	let stepHistory = $state<Step[]>([]);
 	let goalType = $state<GoalType>('pages');
 	let period = $state<Period>('daily');
 
@@ -85,10 +86,22 @@
 		}
 	] as const;
 
+	function navigate(next: Step) {
+		stepHistory = [...stepHistory, step];
+		step = next;
+	}
+
+	function goBack() {
+		if (stepHistory.length > 0) {
+			step = stepHistory[stepHistory.length - 1];
+			stepHistory = stepHistory.slice(0, -1);
+		}
+	}
+
 	function applyPreset(key: (typeof PRESETS)[number]['key']) {
 		const preset = PRESETS.find((p) => p.key === key)!;
 		if (!preset.values) {
-			step = 'type';
+			navigate('type');
 			return;
 		}
 		const v = preset.values;
@@ -98,21 +111,14 @@
 		if ('durationDays' in v) durationDays = v.durationDays;
 		if ('rangeStart' in v) rangeStart = v.rangeStart;
 		if ('rangeEnd' in v) rangeEnd = v.rangeEnd;
-		step = 'amount';
-	}
-
-	function goBack() {
-		if (step === 'amount') step = period === 'daily' ? 'period' : 'period';
-		else if (step === 'period') step = 'type';
-		else if (step === 'type') step = 'presets';
+		navigate('amount');
 	}
 
 	function selectType(t: GoalType) {
 		goalType = t;
-		// range is always continuous
 		if (t === 'range') {
 			period = 'continuous';
-			step = 'amount';
+			navigate('amount');
 		} else {
 			step = 'period';
 		}
@@ -120,7 +126,7 @@
 
 	function selectPeriod(p: Period) {
 		period = p;
-		step = 'amount';
+		navigate('amount');
 	}
 
 	// Range selectors
@@ -166,14 +172,19 @@
 			rangeStart = data.goal.rangeStart ?? '1:1';
 			rangeEnd = data.goal.rangeEnd ?? '114:6';
 			step = 'amount';
+			stepHistory = [];
 		}
 		showEdit = true;
 	}
 
 	// Wizard progress indicator
 	const WIZARD_STEPS: Step[] = ['presets', 'type', 'period', 'amount'];
-	const stepIdx = $derived(WIZARD_STEPS.indexOf(step));
-	const stepPercent = $derived(((stepIdx + 1) / WIZARD_STEPS.length) * 100);
+	// Use history depth so preset-skipped steps don't show false progress
+	const stepPercent = $derived(
+		step === 'presets' ? 25
+		: step === 'amount' ? 100
+		: ((stepHistory.length + 1) / WIZARD_STEPS.length) * 100
+	);
 </script>
 
 <svelte:head>
@@ -188,7 +199,7 @@
 				aria-label="Back"
 				class="btn btn-ghost btn-sm btn-circle"
 				onclick={() => {
-					if (showEdit) { showEdit = false; step = 'presets'; }
+					if (showEdit) { showEdit = false; step = 'presets'; stepHistory = []; }
 					else if (step !== 'presets') goBack();
 					else history.back();
 				}}
@@ -228,6 +239,7 @@
 				saving = false;
 				showEdit = false;
 				step = 'presets';
+				stepHistory = [];
 			};
 		}}
 	>
