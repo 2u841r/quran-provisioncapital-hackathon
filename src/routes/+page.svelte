@@ -240,30 +240,32 @@
 <main class="mx-auto max-w-5xl px-4 py-8">
 	<!-- Tabs row -->
 	<div class="pb-4">
-		<div role="tablist" class="tabs-bordered tabs">
-			<button
-				role="tab"
-				class="tab {view === 'surah' ? 'tab-active' : ''}"
-				onclick={() => (view = 'surah')}>Surah</button
-			>
-			<button
-				role="tab"
-				class="tab {view === 'juz' ? 'tab-active' : ''}"
-				onclick={() => (view = 'juz')}>Juz</button
-			>
-			<button
-				role="tab"
-				class="tab {view === 'revelation' ? 'tab-active' : ''}"
-				onclick={() => (view = 'revelation')}>Revelation Order</button
-			>
-		</div>
+		<div class="flex items-center justify-between gap-2">
+			<div role="tablist" class="tabs tabs-border">
+				<button
+					role="tab"
+					class="tab {view === 'surah' ? 'tab-active' : ''}"
+					onclick={() => (view = 'surah')}>Surah</button
+				>
+				<button
+					role="tab"
+					class="tab {view === 'juz' ? 'tab-active' : ''}"
+					onclick={() => (view = 'juz')}>Juz</button
+				>
+				<button
+					role="tab"
+					class="tab {view === 'revelation' ? 'tab-active' : ''}"
+					onclick={() => (view = 'revelation')}>
+					<span class="sm:hidden">Revelation</span>
+					<span class="hidden sm:inline">Revelation Order</span>
+				</button
+				>
+			</div>
 
-		<!-- Sorter -->
-		<div class="mt-2 flex items-center justify-end gap-1 text-xs">
-			<span class="text-base-content/50 uppercase">Sort by:</span>
+			<!-- Sorter -->
 			<button
 				onclick={() => (sortAsc = !sortAsc)}
-				class="flex items-center gap-1 font-bold text-base-content uppercase hover:text-primary"
+				class="flex shrink-0 items-center gap-1 text-xs font-bold uppercase text-base-content/50 hover:text-primary"
 			>
 				<span>{sortAsc ? 'Ascending' : 'Descending'}</span>
 				<svg
@@ -284,9 +286,9 @@
 
 		{#if view === 'revelation'}
 			<div
-				class="mt-4 rounded-lg border border-base-300 bg-success/10 p-3 text-xs text-base-content/70"
+				class="mt-4 rounded-lg border border-base-300 bg-base-200/60 p-3 text-xs text-base-content/70"
 			>
-				The chapters are ordered by the order in which they were revealed.
+				Chapters ordered by revelation sequence.
 				<a
 					href="https://tanzil.net/docs/revelation_order"
 					target="_blank"
