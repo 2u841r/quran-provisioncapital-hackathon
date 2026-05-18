@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { readerState } from '$lib/state/reader.svelte';
 	import type { Chapter, Verse, Pagination } from '$lib/types/quran';
 	import VerseCard from './TranslationView/index.svelte';
@@ -6,6 +7,7 @@
 	import ChapterHeader from './ChapterHeader.svelte';
 	import StudyModeModal, { type StudyTab } from './StudyModeModal.svelte';
 	import ChapterControls from './EndOfScrollingControls/ChapterControls.svelte';
+	import PageNavigationButtons from './ReadingView/PageNavigationButtons.svelte';
 
 	interface Props {
 		chapter: Chapter;
@@ -57,6 +59,14 @@
 	function plainText(html: string): string {
 		return html.replace(/<[^>]*>/g, '').trim();
 	}
+
+	function goToTranslationPage(nextPage: number) {
+		const params = new URLSearchParams(window.location.search);
+		if (nextPage <= 1) params.delete('page');
+		else params.set('page', String(nextPage));
+		const query = params.toString();
+		goto(`${baseHref}${query ? `?${query}` : ''}`);
+	}
 </script>
 
 <div class="quran-reader relative">
@@ -66,20 +76,20 @@
 		<!-- Continuous flowing translation text, verse numbers inline -->
 		<div class="translation-view py-4">
 			{#if chapter.bismillahPre}
-				<p class="text-sm text-base-content/50 text-center mb-4 italic">
+				<p class="mb-4 text-center text-sm text-base-content/50 italic">
 					In the Name of Allah — the Most Compassionate, Most Merciful
 				</p>
 			{/if}
-			<p class="text-base leading-[2] text-base-content/80 max-w-prose">
+			<p class="max-w-prose text-base leading-[2] text-base-content/80">
 				{#each verses as verse (verse.verseKey)}
 					{#if verse.translations?.[0]}
 						<span
-							class="inline cursor-pointer rounded hover:bg-primary/10 transition-colors px-0.5"
+							class="inline cursor-pointer rounded px-0.5 transition-colors hover:bg-primary/10"
 							role="button"
 							tabindex="0"
 							data-verse-key={verse.verseKey}
 						>
-							<span class="text-[0.7rem] font-bold text-primary/60 align-super mr-0.5 select-none"
+							<span class="mr-0.5 align-super text-[0.7rem] font-bold text-primary/60 select-none"
 								>{verse.verseNumber}</span
 							>{plainText(verse.translations[0].text)}
 						</span>
@@ -88,31 +98,36 @@
 			</p>
 
 			{#if pagination && pagination.totalPages > 1}
-				<div class="flex justify-center items-center gap-3 pt-8">
+				<div class="flex items-center justify-center gap-3 pt-8">
 					{#if page > 1}
-						<a href="{baseHref}?page={page - 1}" class="btn btn-sm btn-ghost">← Prev</a>
+						<a href="{baseHref}?page={page - 1}" class="btn btn-ghost btn-sm">← Prev</a>
 					{/if}
 					<span class="text-sm text-base-content/50">Page {page} / {pagination.totalPages}</span>
 					{#if pagination.nextPage}
-						<a href="{baseHref}?page={page + 1}" class="btn btn-sm btn-ghost">Next →</a>
+						<a href="{baseHref}?page={page + 1}" class="btn btn-ghost btn-sm">Next →</a>
 					{/if}
 				</div>
+				<PageNavigationButtons
+					onPreviousPage={() => goToTranslationPage(page - 1)}
+					onNextPage={() => goToTranslationPage(page + 1)}
+					canGoPrevious={page > 1}
+					canGoNext={!!pagination.nextPage}
+				/>
 			{/if}
 		</div>
 	{:else}
 		{#if page === 1 && showChapterHeader}
-			<ChapterHeader
-				{chapter}
-				onOpenTranslations={() => onOpenTranslations?.()}
-			/>
+			<ChapterHeader {chapter} onOpenTranslations={() => onOpenTranslations?.()} />
 		{/if}
 
 		<div>
 			{#each verses as verse, i (verse.verseKey)}
 				{#if i > 0 && verse.pageNumber && verses[i - 1].pageNumber && verse.pageNumber !== verses[i - 1].pageNumber}
-					<div class="relative py-3 px-4">
+					<div class="relative px-4 py-3">
 						<div class="absolute inset-x-4 top-1/2 h-px bg-base-300"></div>
-						<span class="relative z-10 mx-auto block w-fit bg-base-100 px-2 text-[0.65rem] text-base-content/30 select-none">
+						<span
+							class="relative z-10 mx-auto block w-fit bg-base-100 px-2 text-[0.65rem] text-base-content/30 select-none"
+						>
 							Page {verse.pageNumber}
 						</span>
 					</div>
@@ -134,15 +149,15 @@
 		{/if}
 
 		{#if pagination && pagination.totalPages > 1}
-			<div class="flex justify-center items-center gap-3 py-8">
+			<div class="flex items-center justify-center gap-3 py-8">
 				{#if page > 1}
-					<a href="{baseHref}?page={page - 1}" class="btn btn-sm btn-ghost">← Prev</a>
+					<a href="{baseHref}?page={page - 1}" class="btn btn-ghost btn-sm">← Prev</a>
 				{/if}
 				<span class="text-sm text-base-content/50">
 					Page {page} / {pagination.totalPages}
 				</span>
 				{#if pagination.nextPage}
-					<a href="{baseHref}?page={page + 1}" class="btn btn-sm btn-ghost">Next →</a>
+					<a href="{baseHref}?page={page + 1}" class="btn btn-ghost btn-sm">Next →</a>
 				{/if}
 			</div>
 		{/if}

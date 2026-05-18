@@ -7,6 +7,7 @@
 	import type { LineWord } from './ReadingView/types';
 	import Page from './ReadingView/Page.svelte';
 	import ChapterControls from './EndOfScrollingControls/ChapterControls.svelte';
+	import PageNavigationButtons from './ReadingView/PageNavigationButtons.svelte';
 
 	interface PageData {
 		pageNumber: number;
@@ -26,6 +27,7 @@
 	let nextPageIdx = $state(0);
 	let loading = $state(false);
 	let error = $state<string | null>(null);
+	let currentPageNumber = $state<number | null>(null);
 
 	// Plain (non-reactive) flag — no $state to avoid effect loops
 	let isSentinelVisible = false;
@@ -180,6 +182,7 @@
 			if (Number(chapter.id) !== fetchChapterId) return;
 
 			if (pageData) loadedPages = [...loadedPages, pageData];
+			currentPageNumber ??= pageNum;
 
 			nextPageIdx = idx + 1;
 		} catch {
@@ -205,6 +208,7 @@
 		untrack(() => {
 			loadedPages = [];
 			nextPageIdx = 0;
+			currentPageNumber = null;
 			pageFetchCache.clear();
 			fontLoadCache.clear();
 			error = null;
@@ -232,20 +236,92 @@
 	}
 
 	const lineCount = $derived(readerState.mushafLines);
+	const currentPageIndex = $derived(
+		Math.max(
+			0,
+			pageNumbers.findIndex((pageNumber) => pageNumber === currentPageNumber)
+		)
+	);
+	const canGoPreviousPage = $derived(currentPageIndex > 0);
+	const canGoNextPage = $derived(
+		currentPageIndex >= 0 && currentPageIndex < pageNumbers.length - 1
+	);
+
+	function pageTracker(el: HTMLElement, pageNumber: number) {
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				if (entry.isIntersecting) currentPageNumber = pageNumber;
+			},
+			{ rootMargin: '-35% 0px -55% 0px', threshold: 0 }
+		);
+		observer.observe(el);
+		return {
+			update(nextPageNumber: number) {
+				pageNumber = nextPageNumber;
+			},
+			destroy() {
+				observer.disconnect();
+			}
+		};
+	}
+
+	async function scrollToPageIndex(pageIndex: number) {
+		if (pageIndex < 0 || pageIndex >= pageNumbers.length) return;
+
+		while (nextPageIdx <= pageIndex && nextPageIdx < pageNumbers.length) {
+			if (loading) {
+				await new Promise((resolve) => {
+					const timer = setInterval(() => {
+						if (!loading) {
+							clearInterval(timer);
+							resolve(undefined);
+						}
+					}, 25);
+				});
+			} else {
+				await loadNextPage();
+			}
+			if (error) return;
+		}
+
+		const pageNumber = pageNumbers[pageIndex];
+		currentPageNumber = pageNumber;
+		await new Promise((resolve) => requestAnimationFrame(resolve));
+		document
+			.querySelector<HTMLElement>(`[data-mushaf-page="${pageNumber}"]`)
+			?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	}
+
+	function scrollToPreviousPage() {
+		void scrollToPageIndex(currentPageIndex - 1);
+	}
+
+	function scrollToNextPage() {
+		void scrollToPageIndex(currentPageIndex + 1);
+	}
 </script>
 
 <div class="mushaf-container select-none">
 	{#each loadedPages as pageData (pageData.pageNumber)}
-		<Page
-			pageNumber={pageData.pageNumber}
-			lineMap={pageData.lineMap}
-			{chapter}
-			showChapterHeader={pageData.showChapterHeader}
-			{lineCount}
-			fontFamily={fontFamily(pageData.pageNumber)}
-			{onOpenTranslations}
-		/>
+		<div data-mushaf-page={pageData.pageNumber} use:pageTracker={pageData.pageNumber}>
+			<Page
+				pageNumber={pageData.pageNumber}
+				lineMap={pageData.lineMap}
+				{chapter}
+				showChapterHeader={pageData.showChapterHeader}
+				{lineCount}
+				fontFamily={fontFamily(pageData.pageNumber)}
+				{onOpenTranslations}
+			/>
+		</div>
 	{/each}
+
+	<PageNavigationButtons
+		onPreviousPage={scrollToPreviousPage}
+		onNextPage={scrollToNextPage}
+		canGoPrevious={canGoPreviousPage}
+		canGoNext={canGoNextPage}
+	/>
 
 	{#if allLoaded && loadedPages.length > 0}
 		<ChapterControls chapterId={Number(chapter.id)} chapterName={chapter.nameSimple} />
