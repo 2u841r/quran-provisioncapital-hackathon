@@ -18,6 +18,7 @@
 	let { children, data }: { children: any; data: LayoutData } = $props();
 
 	const user = $derived(data.user);
+	const isQfUser = $derived(data.isQfUser ?? false);
 	const reciters = $derived((data.reciters ?? []) as Reciter[]);
 
 	let lastScrollY = 0;
@@ -99,7 +100,7 @@
 			{#if user}
 				<div class="dropdown dropdown-end">
 					<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-					<button tabindex="0" class="btn btn-ghost btn-sm btn-circle" aria-label="Profile">
+					<button tabindex="0" class="btn btn-ghost btn-sm btn-circle relative" aria-label="Profile">
 						{#if user.image}
 							<div class="avatar">
 								<div class="w-7 rounded-full">
@@ -113,9 +114,24 @@
 								</div>
 							</div>
 						{/if}
+						{#if isQfUser}
+							<span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-base-100 flex items-center justify-center" title="Connected with Quran.com">
+								<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-success"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+							</span>
+						{/if}
 					</button>
 					<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 					<ul tabindex="0" class="dropdown-content bg-base-100 rounded-xl z-50 w-52 py-1.5 shadow-lg border border-base-200 mt-2">
+						{#if isQfUser}
+							<li class="px-3 py-2 mx-1">
+								<div class="flex items-center gap-2 text-xs text-success font-medium">
+									<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+									Connected with Quran.com
+								</div>
+								<p class="text-xs text-base-content/50 mt-0.5 truncate">{user.name}</p>
+							</li>
+							<li class="border-t border-base-200 mt-1 mb-1"></li>
+						{/if}
 						<li>
 							<a href="/profile" class="flex items-center gap-3 px-3 py-2 text-sm text-base-content/80 hover:bg-base-200 transition-colors rounded-lg mx-1">
 								<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 20 20"><path fill="currentColor" fill-rule="evenodd" stroke="currentColor" d="M10 1.166a4.833 4.833 0 0 0-1.342 9.478c-1.593.194-2.958.757-3.987 1.77C3.362 13.706 2.7 15.627 2.7 18.134a.633.633 0 1 0 1.267 0c0-2.294.604-3.84 1.594-4.816.993-.978 2.475-1.484 4.44-1.484 1.963 0 3.445.506 4.438 1.484.99.976 1.594 2.522 1.594 4.816a.633.633 0 1 0 1.267 0c0-2.507-.663-4.428-1.972-5.718-1.029-1.014-2.394-1.577-3.986-1.771a4.835 4.835 0 0 0-1.342-9.478ZM6.432 5.999a3.567 3.567 0 1 1 7.133 0 3.567 3.567 0 0 1-7.133 0Z" clip-rule="evenodd"/></svg>

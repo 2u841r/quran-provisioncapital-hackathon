@@ -104,7 +104,10 @@ export function refreshAccessToken(refreshToken: string): Promise<TokenResponse>
 
 /**
  * Produce a Better Auth-compatible signed cookie value.
- * Format: encodeURIComponent(`${token}.${base64(HMAC-SHA256(token, secret))}`)
+ * Format: `${token}.${base64(HMAC-SHA256(token, secret))}`
+ * SvelteKit's cookies.set will encodeURIComponent this; better-call's parseCookies
+ * will decodeURIComponent on read — matching the exact flow of better-call's own
+ * serializeSignedCookie / getSignedCookie pair.
  */
 export async function signForBetterAuth(token: string, secret: string): Promise<string> {
 	const key = await crypto.subtle.importKey(
@@ -116,5 +119,5 @@ export async function signForBetterAuth(token: string, secret: string): Promise<
 	);
 	const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(token));
 	const b64 = btoa(String.fromCharCode(...new Uint8Array(sig)));
-	return encodeURIComponent(`${token}.${b64}`);
+	return `${token}.${b64}`;
 }
