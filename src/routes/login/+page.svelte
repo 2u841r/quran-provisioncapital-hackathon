@@ -47,6 +47,21 @@
 		</button>
 	</div>
 
+	<!-- Quran.com OAuth -->
+	<a
+		href="/auth/qf?next={next}"
+		class="w-full flex items-center justify-center gap-2.5 h-11 rounded-full border border-base-300 bg-base-100 text-sm font-medium text-base-content hover:bg-base-200 transition-colors no-underline mb-4"
+	>
+		<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+		Sign in with Quran.com
+	</a>
+
+	<div class="flex items-center gap-3 w-full mb-4">
+		<div class="flex-1 h-px bg-base-300"></div>
+		<span class="text-xs text-base-content/40">or</span>
+		<div class="flex-1 h-px bg-base-300"></div>
+	</div>
+
 	<!-- Form -->
 	<form
 		method="post"
