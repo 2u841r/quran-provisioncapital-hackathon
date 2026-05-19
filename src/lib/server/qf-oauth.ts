@@ -10,6 +10,125 @@ export const QF_USER_API_URL = env.QF_USER_API_URL ?? 'https://apis-prelive.qura
 export const QF_USER_SCOPES =
 	'openid offline_access bookmark reading_session goal activity_day streak note preference';
 
+export const MUSHAF_ID = 2; // HAFS (standard Arabic Quran)
+
+export interface QfPagedResponse<T> {
+	success: boolean;
+	data: T[];
+	pagination: {
+		hasNextPage: boolean;
+		hasPreviousPage: boolean;
+		endCursor: string | null;
+		startCursor: string | null;
+	};
+}
+
+function qfHeaders(accessToken: string): Record<string, string> {
+	return {
+		'x-auth-token': accessToken,
+		'x-client-id': QF_USER_CLIENT_ID
+	};
+}
+
+export async function qfApiFetch<T>(
+	path: string,
+	accessToken: string,
+	params?: Record<string, string | number>
+): Promise<T> {
+	const url = new URL(`${QF_USER_API_URL}/auth/v1/${path}`);
+	if (params) {
+		for (const [k, v] of Object.entries(params)) {
+			url.searchParams.set(k, String(v));
+		}
+	}
+	const res = await fetch(url.toString(), { headers: qfHeaders(accessToken) });
+	if (!res.ok) {
+		const text = await res.text();
+		throw new Error(`QF API ${path} failed ${res.status}: ${text}`);
+	}
+	return res.json();
+}
+
+/** Fetch all pages of a paginated endpoint.
+ *  style 'first-after' (default): uses first=20 + after=cursor  (bookmarks, activity-days)
+ *  style 'limit-cursor': uses limit=20 + cursor=cursor           (notes)
+ */
+export async function qfApiFetchAll<T>(
+	path: string,
+	accessToken: string,
+	params: Record<string, string | number> = {},
+	style: 'first-after' | 'limit-cursor' = 'first-after'
+): Promise<T[]> {
+	const all: T[] = [];
+	let cursor: string | null = null;
+
+	for (let i = 0; i < 50; i++) {
+		const p: Record<string, string | number> = { ...params };
+		if (style === 'limit-cursor') {
+			p.limit = 20;
+			if (cursor) p.cursor = cursor;
+		} else {
+			p.first = 20;
+			if (cursor) p.after = cursor;
+		}
+
+		const page = await qfApiFetch<QfPagedResponse<T>>(path, accessToken, p);
+		all.push(...page.data);
+		if (!page.pagination.hasNextPage || !page.pagination.endCursor) break;
+		cursor = page.pagination.endCursor;
+	}
+
+	return all;
+}
+
+export async function qfApiPost<T>(
+	path: string,
+	accessToken: string,
+	body: unknown,
+	params?: Record<string, string | number>
+): Promise<T> {
+	const url = new URL(`${QF_USER_API_URL}/auth/v1/${path}`);
+	if (params) {
+		for (const [k, v] of Object.entries(params)) {
+			url.searchParams.set(k, String(v));
+		}
+	}
+	const res = await fetch(url.toString(), {
+		method: 'POST',
+		headers: { ...qfHeaders(accessToken), 'Content-Type': 'application/json' },
+		body: JSON.stringify(body)
+	});
+	if (!res.ok) {
+		const text = await res.text();
+		throw new Error(`QF API POST ${path} failed ${res.status}: ${text}`);
+	}
+	return res.json();
+}
+
+export async function qfApiPatch<T>(path: string, accessToken: string, body: unknown): Promise<T> {
+	const res = await fetch(`${QF_USER_API_URL}/auth/v1/${path}`, {
+		method: 'PATCH',
+		headers: { ...qfHeaders(accessToken), 'Content-Type': 'application/json' },
+		body: JSON.stringify(body)
+	});
+	if (!res.ok) {
+		const text = await res.text();
+		throw new Error(`QF API PATCH ${path} failed ${res.status}: ${text}`);
+	}
+	return res.json();
+}
+
+export async function qfApiDelete(path: string, accessToken: string): Promise<void> {
+	const res = await fetch(`${QF_USER_API_URL}/auth/v1/${path}`, {
+		method: 'DELETE',
+		headers: qfHeaders(accessToken)
+	});
+	if (!res.ok) {
+		const text = await res.text();
+		throw new Error(`QF API DELETE ${path} failed ${res.status}: ${text}`);
+	}
+}
+
 function toBase64Url(input: ArrayBuffer | Uint8Array): string {
 	const bytes = input instanceof Uint8Array ? input : new Uint8Array(input);
 	let str = '';
