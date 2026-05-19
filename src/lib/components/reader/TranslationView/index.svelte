@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { audioState } from '$lib/state/audio.svelte';
 	import { readerState, fontFamilyMap } from '$lib/state/reader.svelte';
 	import type { Verse } from '$lib/types/quran';
@@ -40,10 +41,10 @@
 		fetchVerseTabCounts(fetch, key).then((c) => { tabCounts = c; }).catch(() => {});
 	});
 
-	// Reading history: record verse after 3s of continuous visibility
+	// Reading history: record verse after 3s of continuous visibility (logged-in only)
 	let cardEl = $state<HTMLElement | null>(null);
 	$effect(() => {
-		if (!cardEl) return;
+		if (!cardEl || !page.data.user) return;
 		let timer: ReturnType<typeof setTimeout> | null = null;
 		let recorded = false;
 		const observer = new IntersectionObserver(
