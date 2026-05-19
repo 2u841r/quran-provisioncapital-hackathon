@@ -145,10 +145,10 @@ const FONT_MUSHAF: Record<QuranFont, number> = {
 	tajweed_v4: 19,     // QCFTajweedV4
 	text_uthmani: 4,    // UthmaniHafs
 	text_uthmani_simple: 4,
-	text_indopak: 3     // Indopak
+	text_indopak: 6     // Indopak15Lines (3=generic rejected by API; use 6=15lines or 7=16lines)
 };
 
-function verseParams(font: QuranFont, translations: number[], wordByWord = false, _mushafLines: 15 | 16 = 15) {
+function verseParams(font: QuranFont, translations: number[], wordByWord = false, mushafLines: 15 | 16 = 15) {
 	// tajweed_v4 uses same glyph codes as code_v2
 	const wordFont = font === 'tajweed_v4' ? 'code_v2' : font;
 	const fields = [...new Set([font, 'text_uthmani', 'text_indopak', 'text_imlaei_simple', 'chapter_id', 'page_number', 'juz_number', 'hizb_number'])].join(',');
@@ -165,13 +165,17 @@ function verseParams(font: QuranFont, translations: number[], wordByWord = false
 		...(wordFont !== 'code_v2' && !['text_indopak', 'text_uthmani', 'text', 'text_imlaei_simple'].includes(wordFont) ? [wordFont] : []),
 		'translation,transliteration'
 	].filter(Boolean).join(',');
+	// IndoPak uses mushaf 6 (15 lines) or 7 (16 lines); other fonts use fixed IDs
+	const mushaf = font === 'text_indopak'
+		? (mushafLines === 16 ? 7 : 6)
+		: (FONT_MUSHAF[font] ?? 4);
 	return {
 		translations: translations,
 		translation_fields: 'resource_name,language_id',
 		fields,
 		words: true,
 		word_fields: wordFields,
-		mushaf: FONT_MUSHAF[font] ?? 4
+		mushaf
 	};
 }
 
