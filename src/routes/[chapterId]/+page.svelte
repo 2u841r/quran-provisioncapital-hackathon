@@ -56,6 +56,10 @@
 	$effect(() => {
 		if (typeof window === 'undefined') return;
 		const urlFont = page.url.searchParams.get('font');
+		// Server defaults to text_indopak when no font param — only re-fetch if
+		// the server actually fetched with the wrong font.
+		const serverFetchedFont = urlFont ?? 'text_indopak';
+		const needsRefetch = serverFetchedFont !== readerState.quranFont;
 		if (urlFont !== readerState.quranFont) {
 			const params = new URLSearchParams(page.url.searchParams);
 			params.set('font', readerState.quranFont);
@@ -63,7 +67,7 @@
 			if (!params.get('translations')) {
 				params.set('translations', readerState.selectedTranslations.join(','));
 			}
-			goto(`?${params.toString()}`, { invalidateAll: true, replaceState: true });
+			goto(`?${params.toString()}`, { invalidateAll: needsRefetch, replaceState: true, noScroll: true });
 		}
 	});
 

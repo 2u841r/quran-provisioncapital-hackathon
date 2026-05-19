@@ -114,7 +114,7 @@
 				isSentinelVisible = entry.isIntersecting;
 				if (entry.isIntersecting) void loadMore();
 			},
-			{ rootMargin: '1200px 0px' }
+			{ rootMargin: '400px 0px' }
 		);
 		observer.observe(el);
 		return { destroy() { observer.disconnect(); } };
