@@ -8,6 +8,7 @@
 	import ReciterSelectionBody from '$lib/components/panels/settings/ReciterSelectionBody.svelte';
 	import { navbarState } from '$lib/state/navbar.svelte';
 	import MainNavDrawer from '$lib/components/MainNavDrawer.svelte';
+	import AnnouncementBanner from '$lib/components/AnnouncementBanner.svelte';
 	import type { Reciter } from '$lib/types/quran';
 
 	let searchOpen = $state(false);
@@ -48,17 +49,8 @@
 </svelte:head>
 
 <div class="min-h-screen bg-base-100 text-base-content flex flex-col">
-	<!-- Announcement banner -->
-	<div class="sticky top-0 z-40 flex items-center justify-center gap-3 bg-secondary px-4 py-2 text-xs font-medium text-secondary-content sm:text-sm">
-		<span class="text-center leading-snug">Participating in the Quran Foundation Hackathon.</span>
-		<a
-			href="https://launch.provisioncapital.com/quran-hackathon"
-			target="_blank"
-			rel="noreferrer"
-			class="shrink-0 rounded-full bg-secondary-content/20 px-3 py-0.5 text-xs font-semibold text-secondary-content hover:bg-secondary-content/30 transition-colors"
-		>Learn more</a>
-	</div>
-	<nav class="flex items-center h-12 bg-base-200 border-b border-base-300 px-4 sticky top-8 z-30 transition-transform duration-300 {navbarState.visible ? 'translate-y-0' : '-translate-y-full'}">
+	<AnnouncementBanner />
+	<nav class="flex items-center h-12 bg-base-200 border-b border-base-300 px-4 sticky z-30 transition-transform duration-300 {navbarState.visible ? 'translate-y-0' : '-translate-y-full'}" style="top: {navbarState.navbarTop * 4}px">
 		<!-- Left: logo -->
 		<div class="flex-1">
 			<a href="/" class="text-base-content hover:opacity-75 transition-opacity" style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.1rem; letter-spacing: -0.01em;">

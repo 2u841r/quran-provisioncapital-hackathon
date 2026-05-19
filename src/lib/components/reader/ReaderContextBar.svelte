@@ -55,7 +55,7 @@
 	}
 </script>
 
-<div class="sticky z-20 bg-base-100 border-b border-base-200 shadow-sm transition-[top] duration-300 {navbarState.visible ? 'top-20' : 'top-0'}">
+<div class="sticky z-20 bg-base-100 border-b border-base-200 shadow-sm transition-[top] duration-300" style="top: {navbarState.contextBarTop * 4}px">
 	<div class="px-6">
 
 		<!-- ── Desktop: 3 columns ────────────────────────────────────── -->
