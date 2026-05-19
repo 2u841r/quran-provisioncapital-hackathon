@@ -111,7 +111,7 @@
 </svelte:head>
 
 <!-- Hero (HomePageHero_outerContainer) -->
-<div class="hero-outer relative isolate">
+<div class="hero-outer relative isolate z-10">
 	<!-- Background image -->
 	<div
 		class="hero-bg absolute inset-0 z-0 overflow-hidden bg-base-200"
