@@ -175,17 +175,7 @@
 
 		<div>
 			{#each allVerses as verse, i (verse.verseKey)}
-				{#if i > 0 && verse.pageNumber && allVerses[i - 1].pageNumber && verse.pageNumber !== allVerses[i - 1].pageNumber}
-					<div class="relative px-4 py-3">
-						<div class="absolute inset-x-4 top-1/2 h-px bg-base-300"></div>
-						<span
-							class="relative z-10 mx-auto block w-fit bg-base-100 px-2 text-[0.65rem] text-base-content/30 select-none"
-						>
-							Page {verse.pageNumber}
-						</span>
-					</div>
-				{/if}
-				<VerseCard
+					<VerseCard
 					{verse}
 					chapterId={Number(chapter.id)}
 					chapterName={chapter.nameSimple}
