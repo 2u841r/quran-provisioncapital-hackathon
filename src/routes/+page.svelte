@@ -2,6 +2,7 @@
 	import type { PageData } from './$types';
 	import { fetchSearch } from '$lib/api/quran';
 	import type { SearchResult } from '$lib/types/quran';
+	import VoiceSearch from '$lib/components/VoiceSearch.svelte';
 	// @ts-expect-error -- Vite raw import
 	import backgroundSvg from '$lib/assets/background.svg?raw';
 	// @ts-expect-error -- Vite raw import
@@ -66,6 +67,15 @@
 			)
 			.slice(0, 5);
 	});
+
+	let homeInputEl = $state<HTMLInputElement | null>(null);
+
+	function setQuery(q: string) {
+		query = q;
+		if (homeInputEl) homeInputEl.value = q;
+		open = true;
+		onInput({ target: { value: q } } as unknown as Event);
+	}
 
 	function onInput(e: Event) {
 		query = (e.target as HTMLInputElement).value;
@@ -141,6 +151,7 @@
 						<path d="m21 21-4.3-4.3" />
 					</svg>
 					<input
+						bind:this={homeInputEl}
 						type="search"
 						placeholder="Search the Quran"
 						class="grow bg-transparent outline-none"
@@ -151,6 +162,7 @@
 					{#if loading}
 						<span class="loading loading-xs loading-spinner"></span>
 					{/if}
+					<VoiceSearch onTranscript={setQuery} />
 				</label>
 
 				{#if open && (loading || results.length > 0 || chapterMatches.length > 0 || query.trim())}

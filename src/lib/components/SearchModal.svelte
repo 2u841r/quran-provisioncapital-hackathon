@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { fetchSearch, getChaptersData } from '$lib/api/quran';
 	import type { SearchResult } from '$lib/types/quran';
+	import VoiceSearch from '$lib/components/VoiceSearch.svelte';
 
 	interface Props {
 		open: boolean;
@@ -74,6 +75,12 @@
 		}
 	});
 
+	function setQuery(q: string) {
+		query = q;
+		if (inputEl) inputEl.value = q;
+		onInput({ target: { value: q } } as unknown as Event);
+	}
+
 	function onInput(e: Event) {
 		query = (e.target as HTMLInputElement).value;
 		if (debounceTimer) clearTimeout(debounceTimer);
@@ -136,6 +143,7 @@
 					value={query}
 					oninput={onInput}
 				/>
+				<VoiceSearch onTranscript={setQuery} />
 				{#if loading}
 					<span class="loading loading-spinner loading-xs"></span>
 				{/if}
