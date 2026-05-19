@@ -91,7 +91,7 @@
 		debounceTimer = setTimeout(async () => {
 			try {
 				const data = await fetchSearch(fetch, q);
-				results = data.search?.results ?? [];
+				results = data.result?.navigation ?? [];
 			} catch {
 				results = [];
 			} finally {
@@ -102,6 +102,21 @@
 
 	function stripHtml(s: string): string {
 		return s.replace(/<[^>]+>/g, '');
+	}
+
+	const MARK_OPEN = `<mark style="background:color-mix(in oklch,var(--color-primary) 20%,transparent);color:var(--color-primary);border-radius:0.2rem;padding:0 0.15rem;font-style:normal;">`;
+
+	function highlightEm(s: string): string {
+		return s
+			.replace(/<em>/g, MARK_OPEN)
+			.replace(/<\/em>/g, '</mark>')
+			.replace(/<(?!mark|\/mark)[^>]+>/g, '');
+	}
+
+	function highlight(text: string, q: string): string {
+		if (!q.trim()) return text;
+		const escaped = q.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+		return text.replace(new RegExp(`(${escaped})`, 'gi'), `${MARK_OPEN}$1</mark>`);
 	}
 </script>
 
@@ -186,10 +201,10 @@
 									>
 									<div class="min-w-0 flex-1">
 										<div class="truncate text-sm font-semibold text-base-content">
-											{ch.nameSimple}
+											{@html highlight(ch.nameSimple, query)}
 										</div>
 										<div class="truncate text-xs text-base-content/60">
-											{ch.translatedName.name} · {ch.versesCount} verses
+											{@html highlight(ch.translatedName.name, query)} · {ch.versesCount} verses
 										</div>
 									</div>
 									<span
@@ -211,25 +226,29 @@
 							>
 								Verses
 							</div>
-							{#each results as r (r.verseKey)}
+							{#each results.filter(r => r.resultType === 'ayah') as r (r.key)}
+								{@const verseKey = String(r.key)}
+								{@const [chId, vNum] = verseKey.split(':')}
 								<a
-									href="/{r.verseKey.split(':')[0]}?startingVerse={r.verseKey.split(':')[1]}"
+									href="/{chId}?startingVerse={vNum}"
 									class="block border-b border-base-200 px-4 py-3 no-underline last:border-b-0 hover:bg-base-200"
 								>
 									<div class="mb-1 flex items-center justify-between">
-										<span class="font-mono text-xs text-primary">{r.verseKey}</span>
+										<span class="font-mono text-xs text-primary">{verseKey}</span>
 									</div>
-									<p
-										class="mb-1 text-right text-sm leading-relaxed"
-										dir="rtl"
-										lang="ar"
-										style="font-family: 'UthmanicHafs', serif;"
-									>
-										{stripHtml(r.text)}
-									</p>
-									{#if r.translations?.[0]}
+									{#if r.arabic}
+										<p
+											class="mb-1 text-right text-sm leading-relaxed"
+											dir="rtl"
+											lang="ar"
+											style="font-family: 'UthmanicHafs', serif;"
+										>
+											{@html highlightEm(r.arabic)}
+										</p>
+									{/if}
+									{#if r.name}
 										<p class="text-xs leading-snug text-base-content/70">
-											{stripHtml(r.translations[0].text)}
+											{@html highlightEm(r.name)}
 										</p>
 									{/if}
 								</a>

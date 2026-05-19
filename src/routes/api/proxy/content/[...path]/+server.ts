@@ -45,13 +45,16 @@ function resolveTarget(path: string): string {
 	if (path.startsWith('auth/')) {
 		return `${gateway}/${path}`;
 	}
+	if (path.startsWith('search/')) {
+		return `${gateway}/${path}`;
+	}
 	return `${QF_API_BASE}/${path}`;
 }
 
 export const GET: RequestHandler = async ({ params, url }) => {
 	const path = params.path ?? '';
 	const target = `${resolveTarget(path)}${url.search}`;
-	const isGateway = path.startsWith('gateway/') || path.startsWith('quran-reflect/') || path.startsWith('auth/');
+	const isGateway = path.startsWith('gateway/') || path.startsWith('quran-reflect/') || path.startsWith('auth/') || path.startsWith('search/');
 
 	const headers: Record<string, string> = {
 		'Content-Type': 'application/json'

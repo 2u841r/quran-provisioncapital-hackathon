@@ -112,21 +112,25 @@ export interface ChapterInfo {
 	source: string;
 }
 
+// QF gateway search result (navigation item)
 export interface SearchResult {
-	verseKey: string;
-	verseId: number;
-	text: string;
-	words: Word[];
-	translations?: Translation[];
+	resultType: string;
+	key: string | number;
+	name: string;       // translation text, may contain <em> highlights
+	arabic?: string;    // Arabic text, may contain <em> highlights
+	isArabic?: boolean;
+	isTransliteration?: boolean;
 }
 
 export interface SearchResponse {
-	search: {
-		query: string;
-		totalResults: number;
+	result: {
+		navigation: SearchResult[];
+		verses: SearchResult[];
+	};
+	pagination: {
+		totalRecords: number;
 		currentPage: number;
 		totalPages: number;
-		results: SearchResult[];
 	};
 }
 
