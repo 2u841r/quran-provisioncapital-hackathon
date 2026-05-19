@@ -44,9 +44,12 @@
 		recognition.continuous = false;
 
 		recognition.onresult = (e: any) => {
-			const last = e.results[e.results.length - 1];
-			const transcript = cleanTranscript(last[0].transcript);
-			if (transcript) onTranscript(transcript);
+			let transcript = '';
+			for (let i = 0; i < e.results.length; i++) {
+				transcript += e.results[i][0].transcript;
+			}
+			const cleaned = cleanTranscript(transcript);
+			if (cleaned) onTranscript(cleaned);
 		};
 
 		recognition.onend = () => {
