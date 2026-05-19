@@ -497,48 +497,55 @@ export interface VerseTabCounts {
 }
 
 const tabCountCache = new Map<string, VerseTabCounts>();
+const tabCountPending = new Map<string, Promise<VerseTabCounts>>();
 
 export async function fetchVerseTabCounts(
 	fetchFn: typeof fetch,
 	verseKey: string
 ): Promise<VerseTabCounts> {
 	if (tabCountCache.has(verseKey)) return tabCountCache.get(verseKey)!;
+	if (tabCountPending.has(verseKey)) return tabCountPending.get(verseKey)!;
 
-	const count = async (path: string, params: Record<string, string>) => {
-		try {
-			const res = await fetchFn(buildUrl(PROXY_API, path, { ...params, from: verseKey, to: verseKey }));
-			if (!res.ok) return 0;
-			const json = await res.json();
-			const c = camelizeKeys(json) as Record<string, unknown>;
-			return Number(c.count ?? c.total ?? 0);
-		} catch { return 0; }
-	};
+	const promise = (async () => {
+		const count = async (path: string, params: Record<string, string>) => {
+			try {
+				const res = await fetchFn(buildUrl(PROXY_API, path, { ...params, from: verseKey, to: verseKey }));
+				if (!res.ok) return 0;
+				const json = await res.json();
+				const c = camelizeKeys(json) as Record<string, unknown>;
+				return Number(c.count ?? c.total ?? 0);
+			} catch { return 0; }
+		};
 
-	const relatedCount = async () => {
-		try {
-			const res = await fetchFn(buildUrl(PROXY_API, `/gateway/related_verses/by_key/${verseKey}`, { language: 'en', page: 1 }));
-			if (!res.ok) return 0;
-			const json = camelizeKeys(await res.json()) as { pagination?: { totalRecords?: number }; relatedVerses?: unknown[] };
-			return Number(json.pagination?.totalRecords ?? json.relatedVerses?.length ?? 0);
-		} catch { return 0; }
-	};
+		const relatedCount = async () => {
+			try {
+				const res = await fetchFn(buildUrl(PROXY_API, `/gateway/related_verses/by_key/${verseKey}`, { language: 'en', page: 1 }));
+				if (!res.ok) return 0;
+				const json = camelizeKeys(await res.json()) as { pagination?: { totalRecords?: number }; relatedVerses?: unknown[] };
+				return Number(json.pagination?.totalRecords ?? json.relatedVerses?.length ?? 0);
+			} catch { return 0; }
+		};
 
-	const [layers, answers, qiraat, hadith, related] = await Promise.all([
-		count('/gateway/layered_translations/count_within_range', { language: 'en' }),
-		count('/auth/questions/count-within-range', { language: 'en' }),
-		count('/gateway/qiraat/matrix/count_within_range', {}),
-		count('/gateway/hadith_references/count_within_range', { language: 'en' }),
-		relatedCount(),
-	]);
+		const [layers, qiraat, hadith, related] = await Promise.all([
+			count('/gateway/layered_translations/count_within_range', { language: 'en' }),
+			count('/gateway/qiraat/matrix/count_within_range', {}),
+			count('/gateway/hadith_references/count_within_range', { language: 'en' }),
+			relatedCount(),
+		]);
 
-	const result: VerseTabCounts = {
-		hasLayers: layers > 0,
-		hasAnswers: answers > 0,
-		hasQiraat: qiraat > 0,
-		hasHadith: hadith > 0,
-		hasRelatedVerses: related > 0,
-	};
+		const result: VerseTabCounts = {
+			hasLayers: layers > 0,
+			hasAnswers: false,
+			hasQiraat: qiraat > 0,
+			hasHadith: hadith > 0,
+			hasRelatedVerses: related > 0,
+		};
 
-	tabCountCache.set(verseKey, result);
-	return result;
+		tabCountCache.set(verseKey, result);
+		tabCountPending.delete(verseKey);
+		return result;
+	})();
+
+	tabCountPending.set(verseKey, promise);
+	return promise;
 }
