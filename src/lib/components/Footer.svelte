@@ -58,10 +58,10 @@
 		<div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
 			<div class="md:col-span-1">
 				<div class="flex items-center gap-3 mb-3">
-					<img src="/icons/quran-text-logo.svg" alt="Quran.com" class="h-10" />
+					<span style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.5rem; letter-spacing: -0.01em;">Quran.bid</span>
 				</div>
 				<p class="text-sm text-base-content/70 leading-relaxed">
-					Quran.com (also known as The Noble Quran, Al Quran, Holy Quran) is a Sadaqah Jariyah by the
+					Quran.bid (also known as The Noble Quran, Al Quran, Holy Quran) is a Sadaqah Jariyah by the
 					<a href="https://quran.foundation" target="_blank" rel="noreferrer" class="underline hover:text-primary">Quran Foundation</a>.
 				</p>
 			</div>
@@ -97,7 +97,7 @@
 					<a href="/terms" class="text-base-content/70 hover:text-primary no-underline">Terms and Conditions</a>
 				</div>
 				<div class="text-xs text-base-content/60">
-					&copy; {year} <a href="https://quran.com" class="text-primary hover:underline">Quran.com</a>. All rights reserved.
+					&copy; {year} <a href="https://quran.bid" class="text-primary hover:underline">Quran.bid</a>. All rights reserved.
 				</div>
 			</div>
 			<div class="flex flex-col items-center md:items-end gap-1">

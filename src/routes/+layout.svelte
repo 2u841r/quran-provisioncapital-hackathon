@@ -51,8 +51,8 @@
 	<nav class="flex items-center h-12 bg-base-200 border-b border-base-300 px-4 sticky top-0 z-30 transition-transform duration-300 {navbarState.visible ? 'translate-y-0' : '-translate-y-full'}">
 		<!-- Left: logo -->
 		<div class="flex-1">
-			<a href="/" class="font-semibold text-base-content hover:opacity-75 transition-opacity">
-				Quran
+			<a href="/" class="text-base-content hover:opacity-75 transition-opacity" style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.1rem; letter-spacing: -0.01em;">
+				Quran.bid
 			</a>
 		</div>
 
