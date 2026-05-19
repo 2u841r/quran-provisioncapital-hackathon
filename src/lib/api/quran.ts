@@ -333,6 +333,29 @@ export async function fetchSearch(
 	});
 }
 
+export async function fetchAdvancedSearch(
+	fetchFn: typeof fetch,
+	query: string,
+	page = 1,
+	size = 10,
+	translationIds: number[] = [131]
+): Promise<GatewaySearchResponse> {
+	const url = buildUrl(PROXY_API, '/search/v1/search', {
+		mode: 'advanced',
+		query,
+		get_text: 1,
+		highlight: 1,
+		size,
+		page,
+		exact_matches_only: 0,
+		translation_ids: translationIds.join(',')
+	});
+	const res = await fetchFn(url);
+	if (!res.ok) throw new Error(`Search error ${res.status}`);
+	const json = await res.json();
+	return camelizeKeys(json) as GatewaySearchResponse;
+}
+
 // ─── Gateway proxy fetch (hadiths, answers, reflections) ────────────────────────
 
 async function apiFetchProxy<T>(

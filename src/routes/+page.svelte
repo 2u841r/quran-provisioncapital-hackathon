@@ -219,12 +219,17 @@
 
 						{#if results.length > 0}
 							<div
-								class="px-4 pt-3 pb-1 text-[0.65rem] font-semibold tracking-wide text-base-content/40 uppercase {chapterMatches.length >
-								0
-									? 'border-t border-base-200'
-									: ''}"
+								class="flex items-center justify-between px-4 pt-3 pb-1 {chapterMatches.length > 0 ? 'border-t border-base-200' : ''}"
 							>
-								Verses
+								<span class="text-[0.65rem] font-semibold tracking-wide text-base-content/40 uppercase">Verses</span>
+								<a
+									href="/search?query={encodeURIComponent(query)}&page=1"
+									class="flex items-center gap-1 text-[0.65rem] font-semibold text-primary no-underline hover:underline"
+									onclick={() => (open = false)}
+								>
+									More results
+									<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+								</a>
 							</div>
 							{#each results.filter(r => r.resultType === 'ayah') as r (r.key)}
 								{@const verseKey = String(r.key)}
