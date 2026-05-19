@@ -2,6 +2,7 @@
 	import { audioState } from '$lib/state/audio.svelte';
 	import { readerState, fontFamilyMap } from '$lib/state/reader.svelte';
 	import type { Verse } from '$lib/types/quran';
+	import { fetchVerseTabCounts, type VerseTabCounts } from '$lib/api/quran';
 	import type { StudyTab } from '../StudyModeModal.svelte';
 	import ActionButtons from './ActionButtons.svelte';
 	import BottomActions from './BottomActions.svelte';
@@ -32,6 +33,12 @@
 		onOpenTranslations,
 		onOpenSettings
 	}: Props = $props();
+
+	let tabCounts = $state<VerseTabCounts | null>(null);
+	$effect(() => {
+		const key = verse.verseKey;
+		fetchVerseTabCounts(fetch, key).then((c) => { tabCounts = c; }).catch(() => {});
+	});
 
 	// Reading history: record verse after 3s of continuous visibility
 	let cardEl = $state<HTMLElement | null>(null);
@@ -222,7 +229,7 @@
 		/>
 	</div>
 
-	<BottomActions verseKey={verse.verseKey} onTabClick={(tab) => onStudyMode?.(verse.verseKey, tab)} />
+	<BottomActions verseKey={verse.verseKey} counts={tabCounts} onTabClick={(tab) => onStudyMode?.(verse.verseKey, tab)} />
 </div>
 
 <ShareVerseModal {verse} {arabicText} open={shareOpen} onClose={() => (shareOpen = false)} />

@@ -237,3 +237,68 @@ export interface QuestionsResponse {
 	questions: Question[];
 	totalCount: number;
 }
+
+// ─── Layered Translations ───────────────────────────────────────────────────────
+
+export interface LayersToken {
+	type: 'text' | 'alt_group';
+	html?: string;
+	groupKey?: string;
+}
+
+export interface LayersOption {
+	optionKey: string;
+	collapsedHtml: string;
+	expandedHtml: string;
+}
+
+export interface LayersGroup {
+	groupKey: string;
+	defaultOptionKey: string;
+	explanationHtml: string | null;
+	options: LayersOption[];
+}
+
+export interface LayersResponse {
+	resource: { name: string; description?: string };
+	collapsedTokens: LayersToken[];
+	expandedTokens: LayersToken[];
+	groups: LayersGroup[];
+}
+
+// ─── Qiraat ─────────────────────────────────────────────────────────────────────
+
+export interface QiraatReading {
+	id: number;
+	position: number;
+	text: string;
+	textUthmani: string;
+	color: string;
+	translation: string | null;
+	explanation: { text: string } | null;
+}
+
+export interface QiraatJuncture {
+	id: number;
+	position: number;
+	text: string;
+	readings: QiraatReading[];
+}
+
+export interface QiraatResponse {
+	junctures: QiraatJuncture[];
+}
+
+// ─── Related Verses ──────────────────────────────────────────────────────────────
+
+export interface RelatedVerse {
+	id: number;
+	verseKey: string;
+	relation: string;
+	chapterName: string;
+}
+
+export interface RelatedVersesResponse {
+	relatedVerses: RelatedVerse[];
+	pagination: { nextPage: number | null; totalRecords: number };
+}

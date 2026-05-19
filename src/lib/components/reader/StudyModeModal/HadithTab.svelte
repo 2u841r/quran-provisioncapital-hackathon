@@ -49,21 +49,21 @@
 		description="No related hadiths found in our database"
 	/>
 {:else}
-	<div class="border-b border-info/10 bg-info/5 px-4 py-3">
+	<div class="border-b border-base-200 bg-base-200/40 px-4 py-3">
 		<p class="text-xs leading-relaxed text-base-content/50">
 			Hadiths are from
 			<a
 				href="https://sunnah.com/bukhari"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="text-info underline underline-offset-2">Sahih al-Bukhari</a
+				class="text-primary underline underline-offset-2">Sahih al-Bukhari</a
 			>
 			and
 			<a
 				href="https://sunnah.com/muslim"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="text-info underline underline-offset-2">Sahih Muslim</a
+				class="text-primary underline underline-offset-2">Sahih Muslim</a
 			>
 			via sunnah.com
 		</p>

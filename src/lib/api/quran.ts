@@ -14,7 +14,10 @@ import type {
 	TafsirContent,
 	TafsirInfo,
 	Verse,
-	VersesResponse
+	VersesResponse,
+	LayersResponse,
+	QiraatResponse,
+	RelatedVersesResponse
 } from '$lib/types/quran';
 import type { QuranFont } from '$lib/state/reader.svelte';
 import chaptersJson from '$lib/data/chapters.json';
@@ -377,4 +380,119 @@ export async function fetchReflections(
 			'filter[verifiedOnly]': true
 		}
 	);
+}
+
+// ─── nullable proxy fetch (404 = no data, not error) ─────────────────────────
+
+async function apiFetchProxyNullable<T>(
+	fetchFn: typeof fetch,
+	path: string,
+	params: Record<string, string | number | boolean | number[]> = {}
+): Promise<T | null> {
+	const url = buildUrl(PROXY_API, path, params);
+	const res = await fetchFn(url);
+	if (res.status === 404) return null;
+	if (!res.ok) throw new Error(`API error ${res.status}`);
+	const json = await res.json();
+	return camelizeKeys(json) as T;
+}
+
+// ─── Layered Translations ───────────────────────────────────────────────────────
+
+export async function fetchLayeredTranslations(
+	fetchFn: typeof fetch,
+	verseKey: string,
+	language: string = 'en'
+): Promise<LayersResponse | null> {
+	return apiFetchProxyNullable<LayersResponse>(
+		fetchFn,
+		`/gateway/layered_translations/by_verse/${verseKey}`,
+		{ language }
+	);
+}
+
+// ─── Qiraat ─────────────────────────────────────────────────────────────────────
+
+export async function fetchQiraat(
+	fetchFn: typeof fetch,
+	verseKey: string,
+	language: string = 'en'
+): Promise<QiraatResponse | null> {
+	return apiFetchProxyNullable<QiraatResponse>(
+		fetchFn,
+		`/gateway/qiraat/matrix/by_verse/${verseKey}`,
+		{ language }
+	);
+}
+
+// ─── Related Verses ──────────────────────────────────────────────────────────────
+
+export async function fetchRelatedVerses(
+	fetchFn: typeof fetch,
+	verseKey: string,
+	language: string = 'en',
+	page: number = 1
+): Promise<RelatedVersesResponse | null> {
+	return apiFetchProxyNullable<RelatedVersesResponse>(
+		fetchFn,
+		`/gateway/related_verses/by_key/${verseKey}`,
+		{ language, page }
+	);
+}
+
+// ─── Verse tab availability (count checks) ───────────────────────────────────
+
+export interface VerseTabCounts {
+	hasLayers: boolean;
+	hasAnswers: boolean;
+	hasQiraat: boolean;
+	hasHadith: boolean;
+	hasRelatedVerses: boolean;
+}
+
+const tabCountCache = new Map<string, VerseTabCounts>();
+
+export async function fetchVerseTabCounts(
+	fetchFn: typeof fetch,
+	verseKey: string
+): Promise<VerseTabCounts> {
+	if (tabCountCache.has(verseKey)) return tabCountCache.get(verseKey)!;
+
+	const count = async (path: string, params: Record<string, string>) => {
+		try {
+			const res = await fetchFn(buildUrl(PROXY_API, path, { ...params, from: verseKey, to: verseKey }));
+			if (!res.ok) return 0;
+			const json = await res.json();
+			const c = camelizeKeys(json) as Record<string, unknown>;
+			return Number(c.count ?? c.total ?? 0);
+		} catch { return 0; }
+	};
+
+	const relatedCount = async () => {
+		try {
+			const res = await fetchFn(buildUrl(PROXY_API, `/gateway/related_verses/by_key/${verseKey}`, { language: 'en', page: 1 }));
+			if (!res.ok) return 0;
+			const json = camelizeKeys(await res.json()) as { pagination?: { totalRecords?: number }; relatedVerses?: unknown[] };
+			return Number(json.pagination?.totalRecords ?? json.relatedVerses?.length ?? 0);
+		} catch { return 0; }
+	};
+
+	const [layers, answers, qiraat, hadith, related] = await Promise.all([
+		count('/gateway/layered_translations/count_within_range', { language: 'en' }),
+		count('/auth/questions/count-within-range', { language: 'en' }),
+		count('/gateway/qiraat/matrix/count_within_range', {}),
+		count('/gateway/hadith_references/count_within_range', { language: 'en' }),
+		relatedCount(),
+	]);
+
+	const result: VerseTabCounts = {
+		hasLayers: layers > 0,
+		hasAnswers: answers > 0,
+		hasQiraat: qiraat > 0,
+		hasHadith: hadith > 0,
+		hasRelatedVerses: related > 0,
+	};
+
+	tabCountCache.set(verseKey, result);
+	return result;
 }

@@ -8,7 +8,10 @@
 		QuestionsResponse,
 		ReflectionsResponse,
 		TafsirContent,
-		TafsirInfo
+		TafsirInfo,
+		LayersResponse,
+		QiraatResponse,
+		RelatedVerse
 	} from '$lib/types/quran';
 	import { readerState } from '$lib/state/reader.svelte';
 	import {
@@ -16,11 +19,18 @@
 		fetchAvailableTafsirs,
 		fetchHadithsByAyah,
 		fetchAnswersByAyah,
-		fetchReflections
+		fetchReflections,
+		fetchLayeredTranslations,
+		fetchQiraat,
+		fetchRelatedVerses
 	} from '$lib/api/quran';
 	import ReflectionsList from './ReflectionsList.svelte';
 	import AnswersTab from './StudyModeModal/AnswersTab.svelte';
+	import EmptyState from './StudyModeModal/EmptyState.svelte';
 	import HadithTab from './StudyModeModal/HadithTab.svelte';
+	import LayersTab from './StudyModeModal/LayersTab.svelte';
+	import QiraatTab from './StudyModeModal/QiraatTab.svelte';
+	import RelatedVersesTab from './StudyModeModal/RelatedVersesTab.svelte';
 	import Header from './StudyModeModal/Header.svelte';
 	import TabBar from './StudyModeModal/TabBar.svelte';
 	import TafsirTab from './StudyModeModal/TafsirTab.svelte';
@@ -242,6 +252,57 @@
 	let expandedReflection = $state<Set<number>>(new Set());
 	let expandedLessons = $state<Set<number>>(new Set());
 
+	// ─── Layers ──────────────────────────────────────────────────────────────────
+	let layersData = $state<LayersResponse | null>(null);
+	let layersLoading = $state(false);
+	let layersError = $state<string | null>(null);
+
+	$effect(() => {
+		if (!open || tab !== 'layers') return;
+		const key = verseKey;
+		layersData = null;
+		layersError = null;
+		layersLoading = true;
+		fetchLayeredTranslations(fetch, key)
+			.then((d) => { layersData = d ?? null; })
+			.catch(() => { layersError = 'Failed to load layered translations.'; })
+			.finally(() => { layersLoading = false; });
+	});
+
+	// ─── Qiraat ──────────────────────────────────────────────────────────────────
+	let qiraatData = $state<QiraatResponse | null>(null);
+	let qiraatLoading = $state(false);
+	let qiraatError = $state<string | null>(null);
+
+	$effect(() => {
+		if (!open || tab !== 'qiraat') return;
+		const key = verseKey;
+		qiraatData = null;
+		qiraatError = null;
+		qiraatLoading = true;
+		fetchQiraat(fetch, key)
+			.then((d) => { qiraatData = d ?? null; })
+			.catch(() => { qiraatError = 'Failed to load Qiraat.'; })
+			.finally(() => { qiraatLoading = false; });
+	});
+
+	// ─── Related Verses ──────────────────────────────────────────────────────────
+	let relatedVersesItems = $state<RelatedVerse[]>([]);
+	let relatedVersesLoading = $state(false);
+	let relatedVersesError = $state<string | null>(null);
+
+	$effect(() => {
+		if (!open || tab !== 'related-verses') return;
+		const key = verseKey;
+		relatedVersesItems = [];
+		relatedVersesError = null;
+		relatedVersesLoading = true;
+		fetchRelatedVerses(fetch, key)
+			.then((d) => { relatedVersesItems = d?.relatedVerses ?? []; })
+			.catch(() => { relatedVersesError = 'Failed to load related verses.'; })
+			.finally(() => { relatedVersesLoading = false; });
+	});
+
 	function toggleAnswer(id: string) {
 		expandedAnswer = expandedAnswer === id ? null : id;
 	}
@@ -321,6 +382,28 @@
 					error={answersError}
 					{expandedAnswer}
 					onToggleAnswer={toggleAnswer}
+				/>
+			{:else if tab === 'layers'}
+				<LayersTab
+					data={layersData}
+					loading={layersLoading}
+					error={layersError}
+					onRetry={() => { layersData = null; layersError = null; layersLoading = true; fetchLayeredTranslations(fetch, verseKey).then(d => { layersData = d ?? null; }).catch(() => { layersError = 'Failed to load layered translations.'; }).finally(() => { layersLoading = false; }); }}
+				/>
+			{:else if tab === 'qiraat'}
+				<QiraatTab
+					data={qiraatData}
+					loading={qiraatLoading}
+					error={qiraatError}
+					onRetry={() => { qiraatData = null; qiraatError = null; qiraatLoading = true; fetchQiraat(fetch, verseKey).then(d => { qiraatData = d ?? null; }).catch(() => { qiraatError = 'Failed to load Qiraat.'; }).finally(() => { qiraatLoading = false; }); }}
+				/>
+			{:else if tab === 'related-verses'}
+				<RelatedVersesTab
+					items={relatedVersesItems}
+					loading={relatedVersesLoading}
+					error={relatedVersesError}
+					onRetry={() => { relatedVersesItems = []; relatedVersesError = null; relatedVersesLoading = true; fetchRelatedVerses(fetch, verseKey).then(d => { relatedVersesItems = d?.relatedVerses ?? []; }).catch(() => { relatedVersesError = 'Failed to load related verses.'; }).finally(() => { relatedVersesLoading = false; }); }}
+					onNavigate={onClose}
 				/>
 			{/if}
 		</div>
