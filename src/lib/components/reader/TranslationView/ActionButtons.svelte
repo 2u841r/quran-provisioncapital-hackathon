@@ -69,8 +69,8 @@
 
 	let overflowOpen = $state(false);
 
-	const [chId] = verseKey.split(':');
-	const hrefChapterId = chapterId ?? chId;
+	const chId = $derived(verseKey.split(':')[0]);
+	const hrefChapterId = $derived(chapterId ?? chId);
 </script>
 
 <div class="flex items-center justify-between px-4 pt-4 pb-2">

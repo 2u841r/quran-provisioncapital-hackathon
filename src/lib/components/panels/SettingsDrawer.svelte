@@ -16,7 +16,7 @@
 	const { translations, reciters, tafsirs, onClose, initialView = 'body', onTranslationChange }: Props = $props();
 
 	type SettingsView = 'body' | 'reciter' | 'translation';
-	let view = $state<SettingsView>(initialView);
+	let view = $state<SettingsView>('body');
 
 	$effect(() => { view = initialView; });
 

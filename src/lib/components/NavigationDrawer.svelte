@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import type { Chapter } from '$lib/types/quran';
 	import { scrollCurrentIntoView } from '$lib/util/reader';
 
@@ -45,7 +46,7 @@
 		);
 	});
 
-	let verseChapter = $state(currentChapterId ?? 1);
+	let verseChapter = $state(untrack(() => currentChapterId ?? 1));
 
 	// On open, sync verseChapter to current chapter
 	$effect(() => {

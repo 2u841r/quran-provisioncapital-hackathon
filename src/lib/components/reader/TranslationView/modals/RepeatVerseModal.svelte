@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import { audioState } from '$lib/state/audio.svelte';
 
   interface Props {
@@ -12,8 +13,8 @@
   let { verse, chapterName, chapterId, open, onClose }: Props = $props();
 
   let repeatMode = $state<'single' | 'range' | 'chapter'>('single');
-  let repeatFromVerse = $state(verse.verseNumber);
-  let repeatToVerse = $state(verse.verseNumber);
+  let repeatFromVerse = $state(untrack(() => verse.verseNumber));
+  let repeatToVerse = $state(untrack(() => verse.verseNumber));
   let repeatEachVerse = $state(2);
   let repeatRange = $state(2);
   let repeatDelay = $state(1);

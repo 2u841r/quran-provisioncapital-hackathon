@@ -18,7 +18,7 @@
 <!-- Header navigation -->
 <div class="sticky top-[3.5rem] z-20 bg-base-100 border-b border-base-200">
 	<div class="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-		<a href="/" class="btn btn-ghost btn-sm btn-circle">
+		<a href="/" class="btn btn-ghost btn-sm btn-circle" aria-label="Go back">
 			<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
 				<path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
 			</svg>

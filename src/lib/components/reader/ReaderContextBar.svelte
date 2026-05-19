@@ -3,6 +3,7 @@
 	import { navbarState } from '$lib/state/navbar.svelte';
 	import { getChaptersData } from '$lib/api/quran';
 	import NavigationDrawer from '$lib/components/NavigationDrawer.svelte';
+	import { untrack } from 'svelte';
 	import { detectActiveLocation } from '$lib/util/reader';
 	import type { Chapter, Verse } from '$lib/types/quran';
 
@@ -23,9 +24,9 @@
 
 	let navOpen = $state(false);
 	let activeVerseNumber = $state<number | null>(null);
-	let activePageNumber = $state<number | null>(firstVerse?.pageNumber ?? null);
-	let activeJuzNumber = $state<number | null>(firstVerse?.juzNumber ?? null);
-	let activeHizbNumber = $state<number | null>(firstVerse?.hizbNumber ?? null);
+	let activePageNumber = $state<number | null>(untrack(() => firstVerse?.pageNumber ?? null));
+	let activeJuzNumber = $state<number | null>(untrack(() => firstVerse?.juzNumber ?? null));
+	let activeHizbNumber = $state<number | null>(untrack(() => firstVerse?.hizbNumber ?? null));
 
 	function updateActiveLocation() {
 		const loc = detectActiveLocation();
