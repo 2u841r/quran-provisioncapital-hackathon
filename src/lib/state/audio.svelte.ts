@@ -14,6 +14,9 @@ interface ChapterAudioFile {
 	verseTimings: VerseTiming[];
 }
 
+import { getChaptersData } from '$lib/api/quran';
+const chaptersData = getChaptersData();
+
 const QDC_BASE = 'https://api.qurancdn.com/api/qdc';
 
 async function fetchChapterAudio(reciterId: number, chapterId: number): Promise<ChapterAudioFile> {
@@ -68,6 +71,10 @@ function createAudioState() {
 		verseTimings.length && loadedChapterId
 			? `${loadedChapterId}:${currentVerseNumber}`
 			: null
+	);
+
+	const currentSurahName = $derived(
+		loadedChapterId ? (chaptersData[loadedChapterId]?.nameSimple ?? '') : ''
 	);
 
 	function cleanup() {
@@ -228,6 +235,7 @@ function createAudioState() {
 		get isActive() { return status !== 'idle'; },
 		get currentVerseNumber() { return currentVerseNumber; },
 		get currentVerseKey() { return currentVerseKey; },
+		get currentSurahName() { return currentSurahName; },
 		get volume() { return volume; },
 		get playbackRate() { return playbackRate; },
 		get audioUrl() { return audioUrl; },

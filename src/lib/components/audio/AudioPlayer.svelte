@@ -39,7 +39,11 @@
 			<div class="flex h-14 items-center gap-2 px-4 md:h-12">
 				<div class="min-w-0 flex-1">
 					<p class="truncate text-xs font-semibold text-base-content leading-tight">{audioState.radioStationTitle}</p>
-					{#if audioState.radioStationSubtitle}
+					{#if audioState.currentSurahName}
+						<p class="truncate text-[0.65rem] text-base-content/60 leading-tight">
+							{audioState.currentSurahName}{audioState.currentVerseKey ? ` · ${audioState.currentVerseKey}` : ''}
+						</p>
+					{:else if audioState.radioStationSubtitle}
 						<p class="truncate text-[0.65rem] text-base-content/70 leading-tight">{audioState.radioStationSubtitle}</p>
 					{/if}
 				</div>
