@@ -157,12 +157,12 @@
 		<!-- ── Mobile: Page info bar (slides in when navbar hides) ── -->
 		{#if activePageNumber}
 			<div class="flex md:hidden items-center justify-between border-b border-base-200 overflow-hidden transition-all duration-300 {navbarState.visible ? 'max-h-0 border-transparent opacity-0' : 'max-h-11 opacity-100'}" style="height: {navbarState.visible ? '0' : '44px'}">
-				<div class="flex items-center gap-1.5 text-xs text-base-content/70">
+				<div class="flex items-center gap-1.5 text-xs font-semibold text-base-content">
 					<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" d="M3.5 1.75h9v10.5l-4.5-3.375L3.5 12.25zm.75-1.5a1.5 1.5 0 0 0-1.5 1.5v12.5a.75.75 0 0 0 1.2.6l4.05-3.038 4.05 3.038a.75.75 0 0 0 1.2-.6V1.75a1.5 1.5 0 0 0-1.5-1.5z" clip-rule="evenodd"/></svg>
 					Page {activePageNumber}
 				</div>
 				{#if activeJuzNumber}
-					<div class="text-xs text-base-content/50">
+					<div class="text-xs font-medium text-base-content/70">
 						Juz {activeJuzNumber}{activeHizbNumber ? ` / Hizb ${activeHizbNumber}` : ''}
 					</div>
 				{/if}
