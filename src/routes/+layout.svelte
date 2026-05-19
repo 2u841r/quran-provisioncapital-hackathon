@@ -47,7 +47,7 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<div class="min-h-screen bg-base-100 text-base-content">
+<div class="min-h-screen bg-base-100 text-base-content flex flex-col">
 	<nav class="flex items-center h-12 bg-base-200 border-b border-base-300 px-4 sticky top-0 z-30 transition-transform duration-300 {navbarState.visible ? 'translate-y-0' : '-translate-y-full'}">
 		<!-- Left: logo -->
 		<div class="flex-1">
@@ -160,7 +160,7 @@
 		</div>
 	</nav>
 
-	<div class="pb-14">
+	<div class="flex-1 pb-14">
 		{@render children()}
 	</div>
 
