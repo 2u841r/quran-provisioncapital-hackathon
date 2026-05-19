@@ -112,20 +112,38 @@ export interface ChapterInfo {
 	source: string;
 }
 
-// QF gateway search result (navigation item)
+// Public API search result
 export interface SearchResult {
+	verseKey: string;
+	verseId: number;
+	text: string;
+	translations?: { text: string; resourceId: number }[];
+}
+
+export interface SearchResponse {
+	search: {
+		query: string;
+		totalResults: number;
+		currentPage: number;
+		totalPages: number;
+		results: SearchResult[];
+	};
+}
+
+// QF gateway search result (navigation item) — used when USE_GATEWAY_SEARCH = true
+export interface GatewaySearchResult {
 	resultType: string;
 	key: string | number;
-	name: string;       // translation text, may contain <em> highlights
-	arabic?: string;    // Arabic text, may contain <em> highlights
+	name: string;
+	arabic?: string;
 	isArabic?: boolean;
 	isTransliteration?: boolean;
 }
 
-export interface SearchResponse {
+export interface GatewaySearchResponse {
 	result: {
-		navigation: SearchResult[];
-		verses: SearchResult[];
+		navigation: GatewaySearchResult[];
+		verses: GatewaySearchResult[];
 	};
 	pagination: {
 		totalRecords: number;

@@ -91,7 +91,7 @@
 		debounceTimer = setTimeout(async () => {
 			try {
 				const data = await fetchSearch(fetch, q);
-				results = data.result?.navigation ?? [];
+				results = data.search?.results ?? [];
 			} catch {
 				results = [];
 			} finally {
@@ -104,7 +104,7 @@
 		return s.replace(/<[^>]+>/g, '');
 	}
 
-	const MARK_OPEN = `<mark style="background:color-mix(in oklch,var(--color-primary) 20%,transparent);color:var(--color-primary);border-radius:0.2rem;padding:0 0.15rem;font-style:normal;">`;
+	const MARK_OPEN = `<mark style="background:none;font-weight:700;color:var(--color-primary);font-style:normal;">`;
 
 	function highlightEm(s: string): string {
 		return s
@@ -226,29 +226,28 @@
 							>
 								Verses
 							</div>
-							{#each results.filter(r => r.resultType === 'ayah') as r (r.key)}
-								{@const verseKey = String(r.key)}
-								{@const [chId, vNum] = verseKey.split(':')}
+							{#each results as r (r.verseKey)}
+								{@const [chId, vNum] = r.verseKey.split(':')}
 								<a
 									href="/{chId}?startingVerse={vNum}"
 									class="block border-b border-base-200 px-4 py-3 no-underline last:border-b-0 hover:bg-base-200"
 								>
 									<div class="mb-1 flex items-center justify-between">
-										<span class="font-mono text-xs text-primary">{verseKey}</span>
+										<span class="font-mono text-xs text-primary">{r.verseKey}</span>
 									</div>
-									{#if r.arabic}
+									{#if r.text}
 										<p
 											class="mb-1 text-right text-sm leading-relaxed"
 											dir="rtl"
 											lang="ar"
 											style="font-family: 'UthmanicHafs', serif;"
 										>
-											{@html highlightEm(r.arabic)}
+											{r.text}
 										</p>
 									{/if}
-									{#if r.name}
+									{#if r.translations?.[0]}
 										<p class="text-xs leading-snug text-base-content/70">
-											{@html highlightEm(r.name)}
+											{@html highlightEm(r.translations[0].text)}
 										</p>
 									{/if}
 								</a>

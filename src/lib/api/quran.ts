@@ -300,26 +300,36 @@ export async function fetchTafsirContent(
 
 // ─── Search ──────────────────────────────────────────────────────────────────
 
+// Switch to true once QF OAuth token has the `search` scope granted
+const USE_GATEWAY_SEARCH = false;
+
 export async function fetchSearch(
 	fetchFn: typeof fetch,
 	query: string,
 	page = 1,
 	translationIds: number[] = [131]
 ): Promise<SearchResponse> {
-	// QF search service — separate from QDC content gateway, proxied via search/ prefix
-	const url = buildUrl(PROXY_API, '/search/v1/search', {
-		mode: 'quick',
-		query,
-		get_text: 1,
-		highlight: 1,
-		per_page: 10,
+	if (USE_GATEWAY_SEARCH) {
+		const url = buildUrl(PROXY_API, '/search/v1/search', {
+			mode: 'quick',
+			query,
+			get_text: 1,
+			highlight: 1,
+			per_page: 10,
+			page,
+			translation_ids: translationIds.join(',')
+		});
+		const res = await fetchFn(url);
+		if (!res.ok) throw new Error(`Search error ${res.status}`);
+		const json = await res.json();
+		return camelizeKeys(json) as SearchResponse;
+	}
+	return apiFetch<SearchResponse>(fetchFn, '/search', {
+		q: query,
+		size: 10,
 		page,
-		translation_ids: translationIds.join(',')
+		translations: translationIds.join(',')
 	});
-	const res = await fetchFn(url);
-	if (!res.ok) throw new Error(`Search error ${res.status}`);
-	const json = await res.json();
-	return camelizeKeys(json) as SearchResponse;
 }
 
 // ─── Gateway proxy fetch (hadiths, answers, reflections) ────────────────────────
