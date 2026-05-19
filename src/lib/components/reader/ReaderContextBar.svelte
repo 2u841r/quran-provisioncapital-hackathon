@@ -23,14 +23,26 @@
 
 	let navOpen = $state(false);
 	let activeVerseNumber = $state<number | null>(null);
-	let activePageNumber = $state<number | null>(null);
-	let activeJuzNumber = $state<number | null>(null);
+	let activePageNumber = $state<number | null>(firstVerse?.pageNumber ?? null);
+	let activeJuzNumber = $state<number | null>(firstVerse?.juzNumber ?? null);
+	let activeHizbNumber = $state<number | null>(firstVerse?.hizbNumber ?? null);
 
-	function openNavDrawer() {
+	function updateActiveLocation() {
 		const loc = detectActiveLocation();
 		activeVerseNumber = loc.verseNumber ?? firstVerse?.verseNumber ?? null;
 		activePageNumber = loc.pageNumber ?? firstVerse?.pageNumber ?? null;
 		activeJuzNumber = loc.juzNumber ?? firstVerse?.juzNumber ?? null;
+		activeHizbNumber = loc.hizbNumber ?? firstVerse?.hizbNumber ?? null;
+	}
+
+	$effect(() => {
+		updateActiveLocation();
+		window.addEventListener('scroll', updateActiveLocation, { passive: true });
+		return () => window.removeEventListener('scroll', updateActiveLocation);
+	});
+
+	function openNavDrawer() {
+		updateActiveLocation();
 		navOpen = true;
 	}
 
@@ -64,12 +76,12 @@
 
 			<!-- Center: Page / Juz / Hizb -->
 			<div class="flex justify-center">
-				{#if firstVerse?.pageNumber}
+				{#if activePageNumber}
 					<div class="text-center">
-						<div class="text-xs font-medium text-base-content/70">Page {firstVerse.pageNumber}</div>
-						{#if firstVerse.juzNumber}
+						<div class="text-xs font-medium text-base-content/70">Page {activePageNumber}</div>
+						{#if activeJuzNumber}
 							<div class="text-[0.6rem] text-base-content/40">
-								Juz {firstVerse.juzNumber}{firstVerse.hizbNumber ? ` / Hizb ${firstVerse.hizbNumber}` : ''}
+								Juz {activeJuzNumber}{activeHizbNumber ? ` / Hizb ${activeHizbNumber}` : ''}
 							</div>
 						{/if}
 					</div>
@@ -143,15 +155,15 @@
 		</div>
 
 		<!-- ── Mobile: Page info bar (slides in when navbar hides) ── -->
-		{#if firstVerse?.pageNumber}
+		{#if activePageNumber}
 			<div class="flex md:hidden items-center justify-between border-b border-base-200 overflow-hidden transition-all duration-300 {navbarState.visible ? 'max-h-0 border-transparent opacity-0' : 'max-h-11 opacity-100'}" style="height: {navbarState.visible ? '0' : '44px'}">
 				<div class="flex items-center gap-1.5 text-xs text-base-content/70">
 					<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" d="M3.5 1.75h9v10.5l-4.5-3.375L3.5 12.25zm.75-1.5a1.5 1.5 0 0 0-1.5 1.5v12.5a.75.75 0 0 0 1.2.6l4.05-3.038 4.05 3.038a.75.75 0 0 0 1.2-.6V1.75a1.5 1.5 0 0 0-1.5-1.5z" clip-rule="evenodd"/></svg>
-					Page {firstVerse.pageNumber}
+					Page {activePageNumber}
 				</div>
-				{#if firstVerse.juzNumber}
+				{#if activeJuzNumber}
 					<div class="text-xs text-base-content/50">
-						Juz {firstVerse.juzNumber}{firstVerse.hizbNumber ? ` / Hizb ${firstVerse.hizbNumber}` : ''}
+						Juz {activeJuzNumber}{activeHizbNumber ? ` / Hizb ${activeHizbNumber}` : ''}
 					</div>
 				{/if}
 			</div>
