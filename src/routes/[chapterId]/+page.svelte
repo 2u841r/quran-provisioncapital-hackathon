@@ -37,6 +37,20 @@
 	let settingsOpen = $state(false);
 	let settingsInitialView = $state<'body' | 'translation' | 'reciter'>('body');
 
+	// Scroll to top when chapter changes. The font $effect fires goto() with
+	// noScroll:true which overrides SvelteKit's default scroll reset; tracking
+	// chapter.id here fires synchronously on the first render of a new chapter,
+	// before the font effect's secondary goto can suppress the scroll.
+	let _prevChapterId: number | null = null;
+	$effect(() => {
+		if (typeof window === 'undefined') return;
+		const id = Number(chapter.id);
+		if (_prevChapterId !== null && _prevChapterId !== id) {
+			window.scrollTo(0, 0);
+		}
+		_prevChapterId = id;
+	});
+
 	$effect(() => {
 		if (typeof window === 'undefined') return;
 		if (page.url.searchParams.get('openReciter') === '1') {
