@@ -151,7 +151,7 @@ const FONT_MUSHAF: Record<QuranFont, number> = {
 function verseParams(font: QuranFont, translations: number[], wordByWord = false, _mushafLines: 15 | 16 = 15) {
 	// tajweed_v4 uses same glyph codes as code_v2
 	const wordFont = font === 'tajweed_v4' ? 'code_v2' : font;
-	const fields = [font, 'text_uthmani', 'text_indopak', 'text_imlaei_simple', 'chapter_id', 'page_number', 'juz_number', 'hizb_number'].join(',');
+	const fields = [...new Set([font, 'text_uthmani', 'text_indopak', 'text_imlaei_simple', 'chapter_id', 'page_number', 'juz_number', 'hizb_number'])].join(',');
 	// Always fetch all text variants so client-side font switching works without a re-fetch
 	const wordFields = [
 		'verse_key',
