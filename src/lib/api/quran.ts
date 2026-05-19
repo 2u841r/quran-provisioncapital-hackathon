@@ -38,6 +38,18 @@ function buildUrl(
 	return `${base}${path}?${search.toString()}`;
 }
 
+// Verse endpoints need QDC gateway (auth required for translation data).
+// gateway/ prefix is routed by our proxy to apis.quran.foundation/content/api/qdc/.
+// All other resources (chapters, reciters, etc.) use the public API directly.
+function verseBase(): string {
+	return PROXY_API;
+}
+
+function versePath(path: string): string {
+	// Strip leading slash then prepend gateway/ so the proxy routes to QDC
+	return `/gateway/${path.replace(/^\//, '')}`;
+}
+
 async function apiFetch<T>(
 	fetchFn: typeof fetch,
 	path: string,
@@ -45,6 +57,19 @@ async function apiFetch<T>(
 ): Promise<T> {
 	const base = typeof window === 'undefined' ? PROXY_API : PUBLIC_API;
 	const url = buildUrl(base, path, params);
+	const res = await fetchFn(url);
+	if (!res.ok) throw new Error(`API error ${res.status} — ${url}`);
+	const json = await res.json();
+	return camelizeKeys(json) as T;
+}
+
+// Routes through our proxy → QDC gateway with auth (needed for translation data in verse responses)
+async function gatewayFetch<T>(
+	fetchFn: typeof fetch,
+	path: string,
+	params: Record<string, string | number | boolean | number[]> = {}
+): Promise<T> {
+	const url = buildUrl(verseBase(), versePath(path), params);
 	const res = await fetchFn(url);
 	if (!res.ok) throw new Error(`API error ${res.status} — ${url}`);
 	const json = await res.json();
@@ -159,7 +184,7 @@ export async function fetchChapterVerses(
 	perPage = 50,
 	mushafLines: 15 | 16 = 15
 ): Promise<VersesResponse> {
-	return apiFetch<VersesResponse>(fetchFn, `/verses/by_chapter/${chapterId}`, {
+	return gatewayFetch<VersesResponse>(fetchFn, `/verses/by_chapter/${chapterId}`, {
 		...verseParams(font, translations, wordByWord, mushafLines),
 		page,
 		per_page: perPage
@@ -173,7 +198,7 @@ export async function fetchVerse(
 	font: QuranFont,
 	translations: number[]
 ): Promise<Verse> {
-	const data = await apiFetch<{ verse: Verse }>(
+	const data = await gatewayFetch<{ verse: Verse }>(
 		fetchFn,
 		`/verses/by_key/${chapterId}:${verseNumber}`,
 		verseParams(font, translations, true)
@@ -189,7 +214,7 @@ export async function fetchVerseRange(
 	font: QuranFont,
 	translations: number[]
 ): Promise<VersesResponse> {
-	return apiFetch<VersesResponse>(fetchFn, `/verses/by_chapter/${chapterId}`, {
+	return gatewayFetch<VersesResponse>(fetchFn, `/verses/by_chapter/${chapterId}`, {
 		...verseParams(font, translations),
 		from: `${chapterId}:${from}`,
 		to: `${chapterId}:${to}`,
@@ -205,7 +230,7 @@ export async function fetchJuzVerses(
 	page = 1,
 	perPage = 50
 ): Promise<VersesResponse> {
-	return apiFetch<VersesResponse>(fetchFn, `/verses/by_juz/${juzId}`, {
+	return gatewayFetch<VersesResponse>(fetchFn, `/verses/by_juz/${juzId}`, {
 		...verseParams(font, translations),
 		page,
 		per_page: perPage
@@ -216,7 +241,7 @@ export async function fetchMushafPage(
 	fetchFn: typeof fetch,
 	pageId: number | string
 ): Promise<VersesResponse> {
-	return apiFetch<VersesResponse>(fetchFn, `/verses/by_page/${pageId}`, {
+	return gatewayFetch<VersesResponse>(fetchFn, `/verses/by_page/${pageId}`, {
 		words: true,
 		word_fields: 'code_v2,line_number,page_number,position,char_type_name',
 		fields: 'verse_key,chapter_id,page_number',
@@ -230,7 +255,7 @@ export async function fetchPageVerses(
 	font: QuranFont,
 	translations: number[]
 ): Promise<VersesResponse> {
-	return apiFetch<VersesResponse>(fetchFn, `/verses/by_page/${pageId}`, {
+	return gatewayFetch<VersesResponse>(fetchFn, `/verses/by_page/${pageId}`, {
 		...verseParams(font, translations),
 		per_page: 50
 	});

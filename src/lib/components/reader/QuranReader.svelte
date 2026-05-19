@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { untrack } from 'svelte';
 	import { readerState } from '$lib/state/reader.svelte';
+	import { fetchChapterVerses } from '$lib/api/quran';
 	import type { Chapter, Verse, Pagination } from '$lib/types/quran';
 	import VerseCard from './TranslationView/index.svelte';
 	import MushafPage from './MushafPage.svelte';
 	import ChapterHeader from './ChapterHeader.svelte';
 	import StudyModeModal, { type StudyTab } from './StudyModeModal.svelte';
 	import ChapterControls from './EndOfScrollingControls/ChapterControls.svelte';
-	import PageNavigationButtons from './ReadingView/PageNavigationButtons.svelte';
 
 	interface Props {
 		chapter: Chapter;
@@ -51,29 +51,97 @@
 
 	const initialPage = $derived(verses[0]?.pageNumber ?? 1);
 
-	const isLastPage = $derived(!pagination || !pagination.nextPage);
-	const lastVerse = $derived(verses[verses.length - 1] ?? null);
-	const showEndOfSurah = $derived(
-		isLastPage && lastVerse !== null && lastVerse.verseNumber === chapter.versesCount
-	);
-	function plainText(html: string): string {
-		return html.replace(/<[^>]*>/g, '').trim();
+	// ─── Infinite scroll state (verse-by-verse mode) ─────────────────────────────
+	let allVerses = $state<Verse[]>([]);
+	let currentPage = $state(1);
+	let hasMore = $state(false);
+	let loadingMore = $state(false);
+	let isSentinelVisible = false;
+
+	// Reset when chapter changes — capture all prop deps outside untrack so they
+	// are tracked as reactive dependencies but applied atomically inside untrack.
+	$effect(() => {
+		const _verses = verses;
+		const _page = page;
+		// hasMore: pagination says next page exists, OR last verse isn't end of chapter (e.g. single-verse URL)
+		const _hasMore =
+			!!pagination?.nextPage ||
+			(_verses.length > 0 && (_verses[_verses.length - 1]?.verseNumber ?? 0) < chapter.versesCount);
+		// When no pagination (single verse fetch), start at page 0 so loadMore fetches page 1
+		const _currentPage = pagination ? _page : 0;
+		untrack(() => {
+			allVerses = [..._verses];
+			currentPage = _currentPage;
+			hasMore = _hasMore;
+			loadingMore = false;
+		});
+	});
+
+	async function loadMore() {
+		if (loadingMore || !hasMore) return;
+		loadingMore = true;
+		try {
+			const nextPg = currentPage + 1;
+			const res = await fetchChapterVerses(
+				fetch,
+				chapter.id ?? 1,
+				readerState.quranFont,
+				readerState.selectedTranslations,
+				false,
+				nextPg,
+				50
+			);
+			// Deduplicate in case initial SSR verse overlaps with fetched page
+			const existingKeys = new Set(allVerses.map((v) => v.verseKey));
+			const newVerses = res.verses.filter((v) => !existingKeys.has(v.verseKey));
+			allVerses = [...allVerses, ...newVerses];
+			currentPage = nextPg;
+			hasMore =
+				!!res.pagination?.nextPage ||
+				(allVerses.length > 0 &&
+					(allVerses[allVerses.length - 1]?.verseNumber ?? 0) < chapter.versesCount);
+		} catch (e) {
+			console.error('Failed to load more verses', e);
+		} finally {
+			loadingMore = false;
+			if (isSentinelVisible && hasMore) void loadMore();
+		}
 	}
 
-	function goToTranslationPage(nextPage: number) {
-		const params = new URLSearchParams(window.location.search);
-		if (nextPage <= 1) params.delete('page');
-		else params.set('page', String(nextPage));
-		const query = params.toString();
-		goto(`${baseHref}${query ? `?${query}` : ''}`);
+	function sentinel(el: HTMLElement) {
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				isSentinelVisible = entry.isIntersecting;
+				if (entry.isIntersecting) void loadMore();
+			},
+			{ rootMargin: '1200px 0px' }
+		);
+		observer.observe(el);
+		return { destroy() { observer.disconnect(); } };
+	}
+
+	const showEndOfSurah = $derived(
+		!hasMore && !loadingMore &&
+		allVerses.length > 0 &&
+		allVerses[allVerses.length - 1]?.verseNumber === chapter.versesCount
+	);
+
+	function plainText(html: string): string {
+		return html.replace(/<[^>]*>/g, '').trim();
 	}
 </script>
 
 <div class="quran-reader relative">
-	{#if mushafMode}
+	<!-- Arabic mushaf: keep mounted so page cache survives mode switches -->
+	<div class={mushafMode ? '' : 'hidden'}>
 		<MushafPage {initialPage} {chapter} onOpenTranslations={() => onOpenTranslations?.()} />
-	{:else if translationPageMode}
-		<!-- Continuous flowing translation text, verse numbers inline -->
+	</div>
+
+	<!-- Reading: flowing translation text -->
+	<div class={translationPageMode ? '' : 'hidden'}>
+		{#if showChapterHeader}
+			<ChapterHeader {chapter} onOpenTranslations={() => onOpenTranslations?.()} />
+		{/if}
 		<div class="translation-view py-4">
 			{#if chapter.bismillahPre}
 				<p class="mb-4 text-center text-sm text-base-content/50 italic">
@@ -96,33 +164,18 @@
 					{/if}
 				{/each}
 			</p>
-
-			{#if pagination && pagination.totalPages > 1}
-				<div class="flex items-center justify-center gap-3 pt-8">
-					{#if page > 1}
-						<a href="{baseHref}?page={page - 1}" class="btn btn-ghost btn-sm">← Prev</a>
-					{/if}
-					<span class="text-sm text-base-content/50">Page {page} / {pagination.totalPages}</span>
-					{#if pagination.nextPage}
-						<a href="{baseHref}?page={page + 1}" class="btn btn-ghost btn-sm">Next →</a>
-					{/if}
-				</div>
-				<PageNavigationButtons
-					onPreviousPage={() => goToTranslationPage(page - 1)}
-					onNextPage={() => goToTranslationPage(page + 1)}
-					canGoPrevious={page > 1}
-					canGoNext={!!pagination.nextPage}
-				/>
-			{/if}
 		</div>
-	{:else}
+	</div>
+
+	<!-- Verse-by-verse (default) -->
+	<div class={!mushafMode && !translationPageMode ? '' : 'hidden'}>
 		{#if page === 1 && showChapterHeader}
 			<ChapterHeader {chapter} onOpenTranslations={() => onOpenTranslations?.()} />
 		{/if}
 
 		<div>
-			{#each verses as verse, i (verse.verseKey)}
-				{#if i > 0 && verse.pageNumber && verses[i - 1].pageNumber && verse.pageNumber !== verses[i - 1].pageNumber}
+			{#each allVerses as verse, i (verse.verseKey)}
+				{#if i > 0 && verse.pageNumber && allVerses[i - 1].pageNumber && verse.pageNumber !== allVerses[i - 1].pageNumber}
 					<div class="relative px-4 py-3">
 						<div class="absolute inset-x-4 top-1/2 h-px bg-base-300"></div>
 						<span
@@ -144,24 +197,25 @@
 			{/each}
 		</div>
 
+		{#if hasMore || loadingMore}
+			<div use:sentinel class="h-1 w-full" aria-hidden="true"></div>
+			{#if loadingMore}
+				<div class="flex flex-col gap-4 px-4 py-6">
+					{#each { length: 3 } as _}
+						<div class="flex flex-col gap-3">
+							<div class="skeleton h-4 w-full"></div>
+							<div class="skeleton h-4 w-5/6"></div>
+							<div class="skeleton h-4 w-4/6"></div>
+						</div>
+					{/each}
+				</div>
+			{/if}
+		{/if}
+
 		{#if showEndOfSurah}
 			<ChapterControls chapterId={Number(chapter.id)} chapterName={chapter.nameSimple} />
 		{/if}
-
-		{#if pagination && pagination.totalPages > 1}
-			<div class="flex items-center justify-center gap-3 py-8">
-				{#if page > 1}
-					<a href="{baseHref}?page={page - 1}" class="btn btn-ghost btn-sm">← Prev</a>
-				{/if}
-				<span class="text-sm text-base-content/50">
-					Page {page} / {pagination.totalPages}
-				</span>
-				{#if pagination.nextPage}
-					<a href="{baseHref}?page={page + 1}" class="btn btn-ghost btn-sm">Next →</a>
-				{/if}
-			</div>
-		{/if}
-	{/if}
+	</div>
 </div>
 
 <StudyModeModal

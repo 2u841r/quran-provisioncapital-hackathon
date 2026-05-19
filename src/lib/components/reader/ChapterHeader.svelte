@@ -16,10 +16,8 @@
 
 	const translationLabel = $derived(
 		readerState.selectedTranslations.length === 0
-			? 'None selected'
-			: readerState.selectedTranslations.length === 1
-				? '1 translation'
-				: `${readerState.selectedTranslations.length} translations`
+			? 'None'
+			: `${readerState.selectedTranslations.length} selected`
 	);
 
 	function listen() {
@@ -45,7 +43,7 @@
 			onclick={() => onOpenTranslations?.()}
 			aria-label="Choose translations"
 		>
-			<span class="truncate">Translation: {translationLabel}</span>
+			<span class="truncate">Translations: {translationLabel}</span>
 			<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 15 15" fill="currentColor" class="shrink-0"><path fill-rule="evenodd" d="M3.135 6.158a.5.5 0 0 1 .707-.023L7.5 9.565l3.658-3.43a.5.5 0 0 1 .684.73l-4 3.75a.5.5 0 0 1-.684 0l-4-3.75a.5.5 0 0 1-.023-.707" clip-rule="evenodd"/></svg>
 		</button>
 	</div>
