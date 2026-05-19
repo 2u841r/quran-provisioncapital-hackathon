@@ -22,7 +22,7 @@ async function getToken(): Promise<{ token: string; clientId: string } | null> {
 				'Content-Type': 'application/x-www-form-urlencoded',
 				Authorization: `Basic ${credentials}`
 			},
-			body: 'grant_type=client_credentials&scope=content post.read'
+			body: 'grant_type=client_credentials&scope=content post.read search'
 		});
 		if (!res.ok) return null;
 		const data = await res.json() as { access_token?: string };

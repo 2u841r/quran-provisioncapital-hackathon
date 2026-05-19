@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { fetchSearch } from '$lib/api/quran';
-	import type { SearchResult } from '$lib/types/quran';
+	import type { GatewaySearchResult } from '$lib/types/quran';
 	import VoiceSearch from '$lib/components/VoiceSearch.svelte';
 	// @ts-expect-error -- Vite raw import
 	import backgroundSvg from '$lib/assets/background.svg?raw';
@@ -48,7 +48,7 @@
 	});
 
 	let query = $state('');
-	let results = $state<SearchResult[]>([]);
+	let results = $state<GatewaySearchResult[]>([]);
 	let loading = $state(false);
 	let open = $state(false);
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -91,7 +91,7 @@
 		debounceTimer = setTimeout(async () => {
 			try {
 				const data = await fetchSearch(fetch, q);
-				results = data.search?.results ?? [];
+				results = data.result?.navigation ?? [];
 			} catch {
 				results = [];
 			} finally {
@@ -226,29 +226,41 @@
 							>
 								Verses
 							</div>
-							{#each results as r (r.verseKey)}
-								{@const [chId, vNum] = r.verseKey.split(':')}
+							{#each results.filter(r => r.resultType === 'ayah') as r (r.key)}
+								{@const verseKey = String(r.key)}
+								{@const [chId, vNum] = verseKey.split(':')}
 								<a
 									href="/{chId}?startingVerse={vNum}"
 									class="block border-b border-base-200 px-4 py-3 no-underline last:border-b-0 hover:bg-base-200"
 								>
 									<div class="mb-1 flex items-center justify-between">
-										<span class="font-mono text-xs text-primary">{r.verseKey}</span>
+										<span class="font-mono text-xs text-primary">{verseKey}</span>
 									</div>
-									{#if r.text}
+									{#if r.isArabic}
 										<p
-											class="mb-1 text-right text-sm leading-relaxed"
+											class="text-right text-sm leading-relaxed"
 											dir="rtl"
 											lang="ar"
 											style="font-family: 'UthmanicHafs', serif;"
 										>
-											{r.text}
+											{@html highlightEm(r.name)}
 										</p>
-									{/if}
-									{#if r.translations?.[0]}
-										<p class="text-xs leading-snug text-base-content/70">
-											{@html highlightEm(r.translations[0].text)}
-										</p>
+									{:else}
+										{#if r.arabic}
+											<p
+												class="mb-1 text-right text-sm leading-relaxed"
+												dir="rtl"
+												lang="ar"
+												style="font-family: 'UthmanicHafs', serif;"
+											>
+												{r.arabic}
+											</p>
+										{/if}
+										{#if r.name}
+											<p class="text-xs leading-snug text-base-content/70">
+												{@html highlightEm(r.name)}
+											</p>
+										{/if}
 									{/if}
 								</a>
 							{/each}

@@ -11,6 +11,7 @@ import type {
 	Reciter,
 	ReflectionsResponse,
 	SearchResponse,
+	GatewaySearchResponse,
 	TafsirContent,
 	TafsirInfo,
 	Verse,
@@ -301,14 +302,14 @@ export async function fetchTafsirContent(
 // ─── Search ──────────────────────────────────────────────────────────────────
 
 // Switch to true once QF OAuth token has the `search` scope granted
-const USE_GATEWAY_SEARCH = false;
+const USE_GATEWAY_SEARCH = true;
 
 export async function fetchSearch(
 	fetchFn: typeof fetch,
 	query: string,
 	page = 1,
 	translationIds: number[] = [131]
-): Promise<SearchResponse> {
+): Promise<GatewaySearchResponse | SearchResponse> {
 	if (USE_GATEWAY_SEARCH) {
 		const url = buildUrl(PROXY_API, '/search/v1/search', {
 			mode: 'quick',
@@ -322,7 +323,7 @@ export async function fetchSearch(
 		const res = await fetchFn(url);
 		if (!res.ok) throw new Error(`Search error ${res.status}`);
 		const json = await res.json();
-		return camelizeKeys(json) as SearchResponse;
+		return camelizeKeys(json) as GatewaySearchResponse;
 	}
 	return apiFetch<SearchResponse>(fetchFn, '/search', {
 		q: query,
