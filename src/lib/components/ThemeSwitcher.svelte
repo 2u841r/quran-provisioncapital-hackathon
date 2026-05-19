@@ -1,4 +1,7 @@
 <script lang="ts">
+	interface Props { dropup?: boolean; }
+	const { dropup = false }: Props = $props();
+
 	const themes = [
 		{ name: 'caramellatte', label: 'Peach' },
 		{ name: 'valentine', label: 'Pink' },
@@ -25,14 +28,14 @@
 	}
 </script>
 
-<div class="dropdown dropdown-end">
+<div class="dropdown dropdown-end group {dropup ? 'dropdown-top' : ''}">
 	<div tabindex="0" role="button" class="btn btn-ghost btn-sm gap-1">
 		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 			<circle cx="12" cy="12" r="4"/>
 			<path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
 		</svg>
 		<span class="hidden sm:inline text-sm">{themes.find(t => t.name === current)?.label ?? 'Theme'}</span>
-		<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+		<svg class="transition-transform {dropup ? 'rotate-180 group-focus-within:rotate-0' : 'group-focus-within:rotate-180'}" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
 	</div>
 	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 	<ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box border border-base-200 shadow-lg w-36 p-1 z-50">

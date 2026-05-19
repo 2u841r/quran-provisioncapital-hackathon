@@ -7,9 +7,11 @@
 	import SearchModal from '$lib/components/SearchModal.svelte';
 	import ReciterSelectionBody from '$lib/components/panels/settings/ReciterSelectionBody.svelte';
 	import { navbarState } from '$lib/state/navbar.svelte';
+	import MainNavDrawer from '$lib/components/MainNavDrawer.svelte';
 	import type { Reciter } from '$lib/types/quran';
 
 	let searchOpen = $state(false);
+	let navDrawerOpen = $state(false);
 
 	import type { LayoutData } from './$types';
 	let { children, data }: { children: any; data: LayoutData } = $props();
@@ -85,6 +87,11 @@
 			</button>
 
 			<ThemeSwitcher />
+
+			<!-- Hamburger: opens main nav drawer -->
+			<button class="btn btn-ghost btn-sm btn-circle" aria-label="Open Navigation Drawer" onclick={() => (navDrawerOpen = true)}>
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M0 19.5h23.25v-2.584H0zm0-6.459h23.25V10.46H0zM0 4v2.584h23.25V4z"/></svg>
+			</button>
 
 			<!-- Profile / Login -->
 			{#if user}
@@ -178,5 +185,7 @@
 		</div>
 	</div>
 {/if}
+
+<MainNavDrawer open={navDrawerOpen} onClose={() => (navDrawerOpen = false)} />
 
 <SearchModal open={searchOpen} onClose={() => (searchOpen = false)} />
