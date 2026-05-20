@@ -3,6 +3,12 @@
   themes: caramellatte --default, light, dark, valentine, abyss, cyberpunk, aqua, coffee, luxury, lemonade;
 }
 
+/* Thin, modern scrollbar */
+:root {
+  scrollbar-color: color-mix(in oklch, currentColor 35%, #0000) #0000;
+  scrollbar-width: thin;
+}
+
 /* Allow full page interaction during driver.js tour */
 body.driver-active * {
   pointer-events: auto !important;
