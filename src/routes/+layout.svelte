@@ -10,12 +10,32 @@
 	import MainNavDrawer from '$lib/components/MainNavDrawer.svelte';
 	import AnnouncementBanner from '$lib/components/AnnouncementBanner.svelte';
 	import type { Reciter } from '$lib/types/quran';
+	import { shortcut } from '@svelte-put/shortcut';
+	import { goto } from '$app/navigation';
 
 	let searchOpen = $state(false);
 	let navDrawerOpen = $state(false);
 
 	import type { LayoutData } from './$types';
 	let { children, data }: { children: any; data: LayoutData } = $props();
+
+	const THEMES = ['caramellatte','valentine','lemonade','aqua','cyberpunk','light','dark','coffee','luxury','abyss'];
+
+	function cycleTheme() {
+		const current = localStorage.getItem('theme') ?? 'caramellatte';
+		const next = THEMES[(THEMES.indexOf(current) + 1) % THEMES.length];
+		document.documentElement.setAttribute('data-theme', next);
+		localStorage.setItem('theme', next);
+	}
+
+	function scrollToFooter() {
+		document.querySelector('footer')?.scrollIntoView({ behavior: 'smooth' });
+	}
+
+	function isTyping() {
+		const el = document.activeElement;
+		return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement || (el instanceof HTMLElement && el.isContentEditable);
+	}
 
 	const user = $derived(data.user);
 	const isQfUser = $derived(data.isQfUser ?? false);
@@ -43,7 +63,20 @@
 	}
 </script>
 
-<svelte:window onscroll={onScroll} />
+<svelte:window
+	onscroll={onScroll}
+	use:shortcut={{
+		trigger: [
+			{ key: 'k', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); searchOpen = !searchOpen; } } },
+			{ key: 'm', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); navDrawerOpen = !navDrawerOpen; } } },
+			{ key: 'n', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); goto('/'); } } },
+			{ key: 'a', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); goto('/radio'); } } },
+			{ key: 't', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); cycleTheme(); } } },
+			{ key: 'f', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); scrollToFooter(); } } },
+		]
+	}}
+/>
+
 
 <svelte:head>
 	<link rel="icon" href={favicon} />

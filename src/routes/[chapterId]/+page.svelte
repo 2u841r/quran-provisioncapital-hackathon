@@ -5,6 +5,7 @@
 	import QuranReader from '$lib/components/reader/QuranReader.svelte';
 	import ReaderContextBar from '$lib/components/reader/ReaderContextBar.svelte';
 	import SettingsDrawer from '$lib/components/panels/SettingsDrawer.svelte';
+	import { shortcut } from '@svelte-put/shortcut';
 	import type { PageData } from './$types';
 
 	interface Props {
@@ -108,6 +109,18 @@
 <svelte:head>
 	<title>Surah {chapter.nameSimple} - Quran</title>
 </svelte:head>
+
+<svelte:window
+	use:shortcut={{
+		trigger: [
+			{ key: 's', callback: ({ originalEvent: e }) => {
+				const el = document.activeElement;
+				const typing = el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || (el instanceof HTMLElement && el.isContentEditable);
+				if (!typing) { e.preventDefault(); settingsOpen = !settingsOpen; }
+			}}
+		]
+	}}
+/>
 
 <div class="drawer drawer-end">
 	<input
