@@ -63,4 +63,22 @@ export const readingGoal = pgTable('reading_goal', {
 	updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 
+export const gameScores = pgTable(
+	'game_scores',
+	{
+		id: text('id').primaryKey(),
+		gameId: text('game_id').notNull(),
+		playerName: text('player_name').notNull(),
+		userId: text('user_id').references(() => user.id, { onDelete: 'set null' }),
+		score: integer('score').notNull(),
+		juzStart: integer('juz_start').notNull(),
+		juzEnd: integer('juz_end').notNull(),
+		createdAt: timestamp('created_at').defaultNow().notNull()
+	},
+	(t) => [
+		index('game_scores_game_id_idx').on(t.gameId),
+		index('game_scores_score_idx').on(t.gameId, t.score)
+	]
+);
+
 export * from './auth.schema';

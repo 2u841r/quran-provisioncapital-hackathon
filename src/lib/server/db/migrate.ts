@@ -42,7 +42,7 @@ for (const file of files) {
 		} catch (e: any) {
 			const code = e?.cause?.code ?? e?.code ?? '';
 			const msg = e?.cause?.message ?? e?.message ?? '';
-			if (code === '42P07' || code === '42701' || msg.includes('already exists')) {
+			if (code === '42P07' || code === '42701' || code === '42703' || msg.includes('already exists') || msg.includes('does not exist')) {
 				skipped++;
 			} else {
 				console.error(`Failed in ${file}:\n${statement}\n`);

@@ -58,6 +58,11 @@
 			href: '/reading-history',
 			icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0"/></svg>`
 		},
+		{
+			title: 'Games',
+			href: '/games',
+			icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M7.97 16L5 19c-.67.67-1.41.43-1.41.43C2.54 19 2 18.2 2 17.27V15c0-1.1.9-2 2-2h3a2 2 0 0 1 2 2v.17L7.97 16zM22 17.27c0 .93-.54 1.73-1.59 1.73 0 0-.74.24-1.41-.43L16 16l-1-1V15a2 2 0 0 1 2-2h3c1.1 0 2 .9 2 2v2.27zM11 11V7c0-1.1-.9-2-2-2H7C5.9 5 5 5.9 5 7v4c0 1.1.9 2 2 2h2c1.1 0 2-.9 2-2zm6 0V7c0-1.1-.9-2-2-2h-2c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h2c1.1 0 2-.9 2-2zm-2-3h-2V6h2v2zm-6 0H7V6h2v2z"/></svg>`
+		},
 	] as const;
 </script>
 
