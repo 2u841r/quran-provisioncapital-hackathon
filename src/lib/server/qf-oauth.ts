@@ -4,8 +4,8 @@ import { env } from '$env/dynamic/private';
 export const QF_USER_CLIENT_ID = env.QF_USER_CLIENT_ID ?? '';
 export const QF_USER_CLIENT_SECRET = env.QF_USER_CLIENT_SECRET ?? '';
 export const QF_USER_OAUTH_URL =
-	env.QF_USER_OAUTH_URL ?? 'https://prelive-oauth2.quran.foundation';
-export const QF_USER_API_URL = env.QF_USER_API_URL ?? 'https://apis-prelive.quran.foundation';
+	env.QF_USER_OAUTH_URL ?? 'https://oauth2.quran.foundation';
+export const QF_USER_API_URL = env.QF_USER_API_URL ?? 'https://apis.quran.foundation';
 
 export const QF_USER_SCOPES =
 	'openid offline_access bookmark reading_session goal activity_day streak note preference';
