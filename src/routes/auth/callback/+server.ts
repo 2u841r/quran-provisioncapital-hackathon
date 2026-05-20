@@ -103,10 +103,12 @@ export const GET = async ({ url, cookies }: RequestEvent) => {
 
 	const signedToken = await signForBetterAuth(sessionToken, env.BETTER_AUTH_SECRET ?? '');
 
-	cookies.set('better-auth.session_token', signedToken, {
+	const secure = !dev;
+	const cookieName = secure ? '__Secure-better-auth.session_token' : 'better-auth.session_token';
+	cookies.set(cookieName, signedToken, {
 		path: '/',
 		httpOnly: true,
-		secure: !dev,
+		secure,
 		sameSite: 'lax',
 		expires: expiresAt,
 	});
