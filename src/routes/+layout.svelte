@@ -11,10 +11,14 @@
 	import AnnouncementBanner from '$lib/components/AnnouncementBanner.svelte';
 	import type { Reciter } from '$lib/types/quran';
 	import { shortcut } from '@svelte-put/shortcut';
-	import { goto } from '$app/navigation';
+	import { goto, afterNavigate } from '$app/navigation';
+	import { driver } from 'driver.js';
+	import type { Driver } from 'driver.js';
+	import 'driver.js/dist/driver.css';
 
 	let searchOpen = $state(false);
 	let navDrawerOpen = $state(false);
+	let activeTour: Driver | null = null;
 
 	import type { LayoutData } from './$types';
 	let { children, data }: { children: any; data: LayoutData } = $props();
@@ -31,6 +35,72 @@
 	function scrollToFooter() {
 		document.querySelector('footer')?.scrollIntoView({ behavior: 'smooth' });
 	}
+
+	function startTour() {
+		activeTour?.destroy();
+		const currentTheme = typeof localStorage !== 'undefined' ? (localStorage.getItem('theme') ?? 'caramellatte') : 'caramellatte';
+		activeTour = driver({
+			showProgress: true,
+			overlayOpacity: 0,
+			onDestroyed: () => { activeTour = null; },
+			steps: [
+				{
+					element: '#nav-theme',
+					popover: {
+						title: 'Theme <kbd>T</kbd>',
+						description: `Current theme: <strong>${currentTheme}</strong><br>Press <kbd>T</kbd> to cycle through 10 themes. Click to pick a specific one.`,
+						side: 'bottom',
+					}
+				},
+				{
+					popover: {
+						title: 'Menu <kbd>M</kbd>',
+						description: 'Press <kbd>M</kbd> to open the navigation drawer.',
+					}
+				},
+				{
+					popover: {
+						title: 'Footer <kbd>F</kbd>',
+						description: 'Press <kbd>F</kbd> to jump to the footer.',
+					}
+				},
+				{
+					popover: {
+						title: 'Radio <kbd>R</kbd>',
+						description: 'Press <kbd>R</kbd> to go to the Quran radio page.',
+					}
+				},
+				{
+					popover: {
+						title: 'Search <kbd>K</kbd>',
+						description: 'Press <kbd>K</kbd> anywhere to search surahs, verses, or topics.',
+					}
+				},
+				{
+					onHighlightStarted: () => { goto('/1'); },
+					popover: {
+						title: 'Reader Settings <kbd>S</kbd>',
+						description: 'On any surah page, press <kbd>S</kbd> to open font, translation, and reciter settings.',
+					}
+				},
+				{
+					popover: {
+						title: '🎉 You\'re all set!',
+						description: `All shortcuts:<br><br>
+<kbd>T</kbd> cycle theme &nbsp; <kbd>M</kbd> menu<br>
+<kbd>F</kbd> jump to footer &nbsp; <kbd>R</kbd> radio<br>
+<kbd>K</kbd> search &nbsp; <kbd>S</kbd> reader settings<br><br>
+Press <kbd>?</kbd> anytime to see this tour again.`,
+					}
+				},
+			]
+		});
+		activeTour.drive();
+	}
+
+	afterNavigate(() => {
+		activeTour?.refresh();
+	});
 
 	function isTyping() {
 		const el = document.activeElement;
@@ -70,7 +140,7 @@
 			{ key: 'k', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); searchOpen = !searchOpen; } } },
 			{ key: 'm', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); navDrawerOpen = !navDrawerOpen; } } },
 			{ key: 'n', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); goto('/'); } } },
-			{ key: 'a', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); goto('/radio'); } } },
+			{ key: 'r', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); goto('/radio'); } } },
 			{ key: 't', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); cycleTheme(); } } },
 			{ key: 'f', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); scrollToFooter(); } } },
 		]
@@ -115,17 +185,21 @@
 			</div>
 
 			<!-- Search shortcut -->
-			<button class="btn btn-ghost btn-sm btn-circle" aria-label="Search" onclick={() => (searchOpen = true)}>
+			<button id="nav-search" class="btn btn-ghost btn-sm btn-circle" aria-label="Search" onclick={() => (searchOpen = true)}>
 				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<circle cx="11" cy="11" r="8"/>
 					<path d="m21 21-4.3-4.3"/>
 				</svg>
 			</button>
 
-			<ThemeSwitcher />
+			<button class="btn btn-ghost btn-sm btn-circle" aria-label="Keyboard shortcuts tour" onclick={startTour} title="Keyboard shortcuts">
+				<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+			</button>
+
+			<div id="nav-theme"><ThemeSwitcher /></div>
 
 			<!-- Hamburger: opens main nav drawer -->
-			<button class="btn btn-ghost btn-sm btn-circle" aria-label="Open Navigation Drawer" onclick={() => (navDrawerOpen = true)}>
+			<button id="nav-menu" class="btn btn-ghost btn-sm btn-circle" aria-label="Open Navigation Drawer" onclick={() => (navDrawerOpen = true)}>
 				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M0 19.5h23.25v-2.584H0zm0-6.459h23.25V10.46H0zM0 4v2.584h23.25V4z"/></svg>
 			</button>
 
@@ -240,3 +314,4 @@
 <MainNavDrawer open={navDrawerOpen} onClose={() => (navDrawerOpen = false)} />
 
 <SearchModal open={searchOpen} onClose={() => (searchOpen = false)} />
+

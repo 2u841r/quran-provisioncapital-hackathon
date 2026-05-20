@@ -59,6 +59,7 @@
 		"@svelte-put/shortcut": "^4.1.0",
 		"aws4fetch": "^1.0.20",
 		"daisyui": "^5.5.19",
+		"driver.js": "^1.4.0",
 		"humps": "^2.0.1"
 	}
 }
