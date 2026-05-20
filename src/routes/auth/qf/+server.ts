@@ -20,6 +20,6 @@ export const GET = async ({ url, cookies }: RequestEvent) => {
 		maxAge: 600,
 	});
 
-	const origin = env.ORIGIN ?? 'http://localhost:5173';
+	const origin = (env.ORIGIN ?? 'http://localhost:5173').replace(/\/$/, '');
 	redirect(302, buildAuthorizeUrl({ state, nonce, challenge, redirectUri: `${origin}/auth/callback` }));
 };

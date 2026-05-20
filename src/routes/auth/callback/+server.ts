@@ -27,7 +27,7 @@ export const GET = async ({ url, cookies }: RequestEvent) => {
 
 	if (state !== oauthState.state) redirect(302, '/login?error=state_mismatch');
 
-	const origin = env.ORIGIN ?? 'http://localhost:5173';
+	const origin = (env.ORIGIN ?? 'http://localhost:5173').replace(/\/$/, '');
 	const redirectUri = `${origin}/auth/callback`;
 
 	let tokens: Awaited<ReturnType<typeof exchangeCode>>;
