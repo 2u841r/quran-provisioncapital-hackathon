@@ -3,6 +3,25 @@ import type { RequestEvent } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { readingGoal, readingHistory } from '$lib/server/db/schema';
 import { eq, and, gte } from 'drizzle-orm';
+import { qfApiFetch, qfApiFetchAll, qfGetMushafId, QF_USER_API_URL, QF_USER_CLIENT_ID } from '$lib/server/qf-oauth';
+
+
+interface QfActivityDay {
+	id: string;
+	date: string;
+	ranges: string[];
+	versesRead: number;
+	pagesRead: number;
+	secondsRead: number;
+	dailyTargetSeconds?: number;
+	dailyTargetPages?: number;
+	dailyTargetRanges?: string[];
+	progress: number;
+}
+
+function qfHasGoal(day: QfActivityDay) {
+	return (day.dailyTargetSeconds ?? 0) > 0 || (day.dailyTargetPages ?? 0) > 0 || (day.dailyTargetRanges?.length ?? 0) > 0;
+}
 
 // ~10.3 verses per Quran page (604 pages / 6236 verses)
 const VERSES_PER_PAGE = 10.3;
@@ -73,6 +92,17 @@ function buildWeekData(readDates: Date[], today: Date) {
 
 export const load = async ({ locals }: RequestEvent) => {
 	if (!locals.user) redirect(302, '/login?next=/reading-goal');
+
+	if (locals.qfAccessToken) {
+		const [goalStatus, days] = await Promise.all([
+			qfApiFetch<{ success: boolean; data: unknown }>('goal/status', locals.qfAccessToken, { type: 'QURAN' }).catch(() => null),
+			qfApiFetchAll<QfActivityDay>('activity-days', locals.qfAccessToken, { first: 1 }).catch(() => [] as QfActivityDay[]),
+		]);
+		const hasGoal = goalStatus?.data != null || (days.length > 0 && qfHasGoal(days[0]));
+		if (hasGoal) redirect(302, '/reading-goal/progress');
+
+		return { goal: null, streak: 0, weekData: [], todayProgress: null, isQfData: true };
+	}
 
 	const today = new Date();
 	const todayStart = startOfDay(today);
@@ -196,7 +226,7 @@ export const load = async ({ locals }: RequestEvent) => {
 };
 
 export const actions = {
-	save: async ({ locals, request }: RequestEvent) => {
+	save: async ({ locals, request, cookies }: RequestEvent) => {
 		if (!locals.user) return fail(401, { error: 'Unauthorized' });
 
 		const formData = await request.formData();
@@ -227,6 +257,36 @@ export const actions = {
 			return fail(400, { error: 'Enter a duration in days' });
 		}
 
+		if (locals.qfAccessToken) {
+			const qfTypeMap = { time: 'QURAN_TIME', pages: 'QURAN_PAGES', range: 'QURAN_RANGE' } as const;
+			const qfType = qfTypeMap[type as keyof typeof qfTypeMap];
+			let amount: string | number;
+			if (type === 'pages') amount = Number(dailyPages) || 1;
+			else if (type === 'time') amount = Number(dailySeconds) || 600;
+			else amount = `${rangeStart}-${rangeEnd}`;
+			const qfBody: Record<string, unknown> = { type: qfType, amount };
+			if (period === 'continuous' && duration) qfBody.duration = Number(duration);
+
+			qfBody.category = 'QURAN';
+			const mushafId = await qfGetMushafId(locals.qfAccessToken);
+			const createUrl = new URL(`${QF_USER_API_URL}/auth/v1/goals`);
+			createUrl.searchParams.set('mushafId', String(mushafId));
+			const createRes = await fetch(createUrl.toString(), {
+				method: 'POST',
+				headers: { 'x-auth-token': locals.qfAccessToken, 'x-client-id': QF_USER_CLIENT_ID, 'Content-Type': 'application/json' },
+				body: JSON.stringify(qfBody),
+			});
+			const createText = await createRes.text();
+			if (!createRes.ok) {
+				return fail(500, { error: `QF create failed ${createRes.status}: ${createText}` });
+			}
+			try {
+				const goalId = (JSON.parse(createText) as { data?: { id?: string } })?.data?.id;
+				if (goalId) cookies.set('qf_goal_id', goalId, { path: '/', httpOnly: true, sameSite: 'lax', maxAge: 60 * 60 * 24 * 365 });
+			} catch {}
+			redirect(302, '/reading-goal/progress');
+		}
+
 		const values = {
 			type,
 			period,
@@ -248,6 +308,7 @@ export const actions = {
 
 	delete: async ({ locals }: RequestEvent) => {
 		if (!locals.user) return fail(401, { error: 'Unauthorized' });
+		if (locals.qfAccessToken) return fail(400, { error: 'Manage your goal on Quran.com.' });
 		await db.delete(readingGoal).where(eq(readingGoal.userId, locals.user.id));
 		return { success: true };
 	}

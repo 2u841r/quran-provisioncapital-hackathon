@@ -12,6 +12,35 @@ export const QF_USER_SCOPES =
 
 export const MUSHAF_ID = 2; // HAFS (standard Arabic Quran)
 
+const FONT_TO_MUSHAF_ID: Record<string, number> = {
+	code_v1: 2,
+	code_v2: 1,
+	tajweed_v4: 19,
+	text_uthmani: 4,
+	text_indopak: 3,
+	qpc_uthmani_hafs: 5,
+	tajweed: 11,
+};
+
+export async function qfGetMushafId(accessToken: string): Promise<number> {
+	try {
+		const prefs = await qfApiFetch<Record<string, Record<string, string>>>(
+			'preferences',
+			accessToken
+		);
+		const styles = prefs?.quranReaderStyles ?? {};
+		const font = styles.quranFont ?? 'qpc_uthmani_hafs';
+		const lines = styles.mushafLines ?? '';
+		if (font === 'text_indopak') {
+			if (lines === '15_lines') return 6;
+			if (lines === '16_lines') return 7;
+		}
+		return FONT_TO_MUSHAF_ID[font] ?? 5;
+	} catch {
+		return 5;
+	}
+}
+
 export interface QfPagedResponse<T> {
 	success: boolean;
 	data: T[];
@@ -105,8 +134,17 @@ export async function qfApiPost<T>(
 	return res.json();
 }
 
-export async function qfApiPatch<T>(path: string, accessToken: string, body: unknown): Promise<T> {
-	const res = await fetch(`${QF_USER_API_URL}/auth/v1/${path}`, {
+export async function qfApiPatch<T>(
+	path: string,
+	accessToken: string,
+	body: unknown,
+	params?: Record<string, string | number>
+): Promise<T> {
+	const url = new URL(`${QF_USER_API_URL}/auth/v1/${path}`);
+	if (params) {
+		for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v));
+	}
+	const res = await fetch(url.toString(), {
 		method: 'PATCH',
 		headers: { ...qfHeaders(accessToken), 'Content-Type': 'application/json' },
 		body: JSON.stringify(body)
@@ -118,8 +156,16 @@ export async function qfApiPatch<T>(path: string, accessToken: string, body: unk
 	return res.json();
 }
 
-export async function qfApiDelete(path: string, accessToken: string): Promise<void> {
-	const res = await fetch(`${QF_USER_API_URL}/auth/v1/${path}`, {
+export async function qfApiDelete(
+	path: string,
+	accessToken: string,
+	params?: Record<string, string | number>
+): Promise<void> {
+	const url = new URL(`${QF_USER_API_URL}/auth/v1/${path}`);
+	if (params) {
+		for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v));
+	}
+	const res = await fetch(url.toString(), {
 		method: 'DELETE',
 		headers: qfHeaders(accessToken)
 	});
