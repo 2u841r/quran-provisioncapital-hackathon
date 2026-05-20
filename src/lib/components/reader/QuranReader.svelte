@@ -89,7 +89,7 @@
 				readerState.selectedTranslations,
 				false,
 				nextPg,
-				50
+				10
 			);
 			// Deduplicate in case initial SSR verse overlaps with fetched page
 			const existingKeys = new Set(allVerses.map((v) => v.verseKey));
@@ -190,7 +190,7 @@
 		{#if hasMore || loadingMore}
 			<div use:sentinel class="h-1 w-full" aria-hidden="true"></div>
 			{#if loadingMore}
-				<div class="flex flex-col gap-4 px-4 py-6">
+				<div class="flex flex-col gap-4 px-4 py-6" dir="rtl">
 					{#each { length: 3 } as _}
 						<div class="flex flex-col gap-3">
 							<div class="skeleton h-4 w-full"></div>

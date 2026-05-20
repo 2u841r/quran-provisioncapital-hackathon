@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 		error(404, 'Chapter not found');
 	}
 
-	const PER_PAGE = 50;
+	const PER_PAGE = 10;
 	const startingVerse = Number(url.searchParams.get('startingVerse') ?? '0') || 0;
 	const pageFromQuery = Number(url.searchParams.get('page') ?? '0') || 0;
 	const page = pageFromQuery > 0

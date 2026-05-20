@@ -107,7 +107,7 @@
 						{#if ch}
 							{@const firstVerse = String(verseRange).split('-')[0]}
 							<a
-								href="/{chId}?startingVerse={firstVerse}"
+								href="/{chId}"
 								class="flex items-center justify-between gap-3 rounded px-2 py-2 no-underline hover:bg-base-200"
 							>
 								<div class="flex min-w-0 items-center gap-3">

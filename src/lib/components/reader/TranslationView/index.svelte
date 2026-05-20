@@ -36,10 +36,12 @@
 	}: Props = $props();
 
 	let tabCounts = $state<VerseTabCounts | null>(null);
-	$effect(() => {
-		const key = verse.verseKey;
-		fetchVerseTabCounts(fetch, key).then((c) => { tabCounts = c; }).catch(() => {});
-	});
+	let tabCountsFetched = false;
+	function fetchTabCountsOnce() {
+		if (tabCountsFetched) return;
+		tabCountsFetched = true;
+		fetchVerseTabCounts(fetch, verse.verseKey).then((c) => { tabCounts = c; }).catch(() => {});
+	}
 
 	// Reading history: record verse after 3s of continuous visibility (logged-in only)
 	let cardEl = $state<HTMLElement | null>(null);
@@ -230,7 +232,9 @@
 		/>
 	</div>
 
-	<BottomActions verseKey={verse.verseKey} counts={tabCounts} onTabClick={(tab) => onStudyMode?.(verse.verseKey, tab)} />
+	<div onpointerenter={fetchTabCountsOnce}>
+		<BottomActions verseKey={verse.verseKey} counts={tabCounts} onTabClick={(tab) => onStudyMode?.(verse.verseKey, tab)} />
+	</div>
 </div>
 
 <ShareVerseModal {verse} {arabicText} open={shareOpen} onClose={() => (shareOpen = false)} />
