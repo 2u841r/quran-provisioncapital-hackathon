@@ -46,7 +46,7 @@
 	$effect(() => {
 		if (typeof window === 'undefined') return;
 		const id = Number(chapter.id);
-		if (_prevChapterId !== null && _prevChapterId !== id) {
+		if (_prevChapterId !== id) {
 			window.scrollTo(0, 0);
 		}
 		_prevChapterId = id;
