@@ -247,13 +247,21 @@ export async function fetchJuzVerses(
 
 export async function fetchMushafPage(
 	fetchFn: typeof fetch,
-	pageId: number | string
+	pageId: number | string,
+	font: QuranFont = 'code_v2',
+	mushafLines: 15 | 16 = 15
 ): Promise<VersesResponse> {
+	const isIndoPak = font === 'text_indopak';
+	const mushafId = isIndoPak ? (mushafLines === 16 ? 7 : 6) : undefined;
+	const wordFields = isIndoPak
+		? 'text_indopak,line_number,page_number,position,char_type_name'
+		: 'code_v2,line_number,page_number,position,char_type_name';
 	return gatewayFetch<VersesResponse>(fetchFn, `/verses/by_page/${pageId}`, {
 		words: true,
-		word_fields: 'code_v2,line_number,page_number,position,char_type_name',
+		word_fields: wordFields,
 		fields: 'verse_key,chapter_id,page_number',
-		per_page: 50
+		per_page: 50,
+		...(mushafId ? { mushaf: mushafId } : {})
 	});
 }
 

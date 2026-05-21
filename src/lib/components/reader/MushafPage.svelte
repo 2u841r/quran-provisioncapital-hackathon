@@ -45,6 +45,8 @@
 	});
 	const allLoaded = $derived(nextPageIdx >= pageNumbers.length);
 
+	const isIndoPak = $derived(readerState.quranFont === 'text_indopak');
+
 	function fontUrl(pageNum: number): string {
 		return readerState.quranFont === 'tajweed_v4'
 			? `/fonts/quran/hafs/v4/colrv1/woff2/p${pageNum}.woff2`
@@ -52,6 +54,7 @@
 	}
 
 	function fontFamily(pageNum: number): string {
+		if (isIndoPak) return "'IndoPak', serif";
 		return readerState.quranFont === 'tajweed_v4' ? `p${pageNum}-v4` : `p${pageNum}-v2`;
 	}
 
@@ -115,7 +118,8 @@
 	function buildPageData(
 		res: Awaited<ReturnType<typeof fetchMushafPage>>,
 		pageNum: number,
-		fetchChapterId: number
+		fetchChapterId: number,
+		useIndoPak = false
 	): PageData | null {
 		const temp: Record<number, LineWord[]> = {};
 		for (const verse of res.verses) {
@@ -125,7 +129,7 @@
 				const ln = word.lineNumber;
 				if (!ln) continue;
 				(temp[ln] ??= []).push({
-					text: word.codeV2 ?? word.text ?? '',
+					text: useIndoPak ? (word.textIndopak ?? word.text ?? '') : (word.codeV2 ?? word.text ?? ''),
 					lineNumber: ln,
 					verseKey: verse.verseKey,
 					charTypeName: word.charTypeName,
@@ -154,10 +158,13 @@
 
 	function preloadPage(pageNum: number, fetchChapterId = Number(chapter.id)) {
 		if (pageFetchCache.has(pageNum)) return;
+		const indoPak = isIndoPak;
+		const lines = readerState.mushafLines;
+		const fontPromise = indoPak ? Promise.resolve() : preloadFont(pageNum);
 		pageFetchCache.set(
 			pageNum,
-			Promise.all([fetchMushafPage(fetch, pageNum), preloadFont(pageNum)]).then(([res]) =>
-				buildPageData(res, pageNum, fetchChapterId)
+			Promise.all([fetchMushafPage(fetch, pageNum, indoPak ? 'text_indopak' : 'code_v2', lines), fontPromise]).then(([res]) =>
+				buildPageData(res, pageNum, fetchChapterId, indoPak)
 			)
 		);
 	}
@@ -199,12 +206,15 @@
 		}
 	}
 
-	// Reset and kick off first load when chapter changes.
+	// Reset and kick off first load when chapter or font changes.
 	// untrack prevents nextPageIdx/loading reads inside loadNextPage from
 	// becoming dependencies of this effect — otherwise each page load
 	// would re-trigger the reset, causing an infinite loop.
 	$effect(() => {
-		const _id = chapter.id;
+		// Track these so the effect re-runs when font/lines change
+		void chapter.id;
+		void readerState.quranFont;
+		void readerState.mushafLines;
 		untrack(() => {
 			loadedPages = [];
 			nextPageIdx = 0;
@@ -311,6 +321,7 @@
 				showChapterHeader={pageData.showChapterHeader}
 				{lineCount}
 				fontFamily={fontFamily(pageData.pageNumber)}
+				{isIndoPak}
 				{onOpenTranslations}
 			/>
 		</div>
