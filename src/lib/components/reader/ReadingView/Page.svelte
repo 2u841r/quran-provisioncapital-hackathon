@@ -36,7 +36,9 @@
 		onOpenTranslations
 	}: Props = $props();
 
-	const fontSize = $derived(lineCount === 15 ? '1.5rem' : '1.4rem');
+	// clamp keeps font legible on desktop but shrinks on narrow mobile screens
+	// so QCF justify-between doesn't overflow left edge
+	const fontSize = $derived(lineCount === 15 ? 'clamp(0.95rem, 4.2vw, 1.5rem)' : 'clamp(0.9rem, 3.9vw, 1.4rem)');
 	const lineHeight = $derived(lineCount === 15 ? 2.4 : 2.2);
 	const lines = $derived([...lineMap.entries()]);
 
@@ -47,7 +49,7 @@
 	}
 </script>
 
-<div class="mushaf-page-container relative mx-auto py-6 px-4" style="max-width: 560px;">
+<div class="mushaf-page-container relative mx-auto py-6 px-2 overflow-x-hidden" style="max-width: 560px;">
 	{#if showChapterHeader}
 		<ChapterHeader {chapter} {onOpenTranslations} />
 	{/if}
