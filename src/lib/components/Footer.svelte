@@ -35,7 +35,7 @@
 				{ text: 'Legacy.Quran.com', url: 'https://legacy.quran.com', external: true },
 				{ text: 'Corpus.Quran.com', url: 'https://corpus.quran.com', external: true }
 			],
-			description: 'Funded by the Quran Foundation.'
+			description: ''
 		},
 		{
 			title: 'Popular Links',
@@ -61,8 +61,7 @@
 					<span style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.5rem; letter-spacing: -0.01em;">Quran.bid</span>
 				</div>
 				<p class="text-sm text-base-content/70 leading-relaxed">
-					Quran.bid (also known as The Noble Quran, Al Quran, Holy Quran) is a Sadaqah Jariyah by the
-					<a href="https://quran.foundation" target="_blank" rel="noreferrer" class="underline hover:text-primary">Quran Foundation</a>.
+					A SvelteKit rewrite of <a href="https://quran.com" target="_blank" rel="noreferrer" class="underline hover:text-primary">Quran.com</a>, built for the web.
 				</p>
 			</div>
 
