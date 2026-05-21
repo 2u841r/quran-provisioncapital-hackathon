@@ -146,7 +146,11 @@
 		for (const k of lineNumbers.sort((a, b) => a - b)) {
 			lineMap.set(
 				k,
-				temp[k].sort((a, b) => a.position - b.position)
+				temp[k].sort((a, b) => {
+					const av = Number(a.verseKey.split(':')[1] ?? 0);
+					const bv = Number(b.verseKey.split(':')[1] ?? 0);
+					return av !== bv ? av - bv : a.position - b.position;
+				})
 			);
 		}
 
