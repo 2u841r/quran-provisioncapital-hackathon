@@ -10,13 +10,28 @@
 
 	const { reciters, onOpenReciterView }: Props = $props();
 
-	const fontTypes = [
-		{ value: 'code_v2' as QuranFont, label: 'Uthmani' },
-		{ value: 'text_indopak' as QuranFont, label: 'IndoPak' },
-		{ value: 'tajweed_v4' as QuranFont, label: 'Tajweed' }
+	type FontGroup = 'uthmani' | 'indopak' | 'tajweed';
+
+	const fontGroups: { id: FontGroup; label: string }[] = [
+		{ id: 'uthmani', label: 'Uthmani' },
+		{ id: 'indopak', label: 'IndoPak' },
+		{ id: 'tajweed', label: 'Tajweed' }
 	];
 
-	const selectedIdx = $derived(fontTypes.findIndex((f) => f.value === readerState.quranFont));
+	const uthmaniVariants: { value: QuranFont; label: string }[] = [
+		{ value: 'code_v2', label: 'King Fahad Complex V2' },
+		{ value: 'code_v1', label: 'King Fahad Complex V1' },
+		{ value: 'text_uthmani', label: 'QPC Uthmani Hafs' }
+	];
+
+	const UTHMANI_FONTS = new Set<QuranFont>(['code_v2', 'code_v1', 'text_uthmani', 'text_uthmani_simple']);
+
+	const activeGroup = $derived<FontGroup>(
+		readerState.quranFont === 'text_indopak' ? 'indopak'
+		: readerState.quranFont === 'tajweed_v4' ? 'tajweed'
+		: 'uthmani'
+	);
+	const groupIdx = $derived(fontGroups.findIndex((g) => g.id === activeGroup));
 
 	const NON_QCF_FAMILIES: Partial<Record<QuranFont, string>> = {
 		text_indopak: 'IndoPak',
@@ -31,27 +46,55 @@
 		}
 		readerState.setFont(value);
 	}
+
+	function selectGroup(group: FontGroup) {
+		if (group === 'uthmani') selectFont('code_v2');
+		else if (group === 'indopak') selectFont('text_indopak');
+		else selectFont('tajweed_v4');
+	}
 </script>
 
 <div id="quran-font-section" class="space-y-5">
 
-	<!-- Font type switcher -->
+	<!-- Font group switcher -->
 	<div class="relative flex bg-base-200 rounded-lg p-0.5">
 		<div
 			class="absolute top-0.5 bottom-0.5 rounded-md bg-base-100 shadow-sm transition-transform duration-200 pointer-events-none"
-			style="width: {100 / fontTypes.length}%; transform: translateX({(selectedIdx >= 0 ? selectedIdx : 0) * 100}%)"
+			style="width: {100 / fontGroups.length}%; transform: translateX({groupIdx * 100}%)"
 		></div>
-		{#each fontTypes as { value, label } (value)}
+		{#each fontGroups as { id, label } (id)}
 			<button
-				class="flex-1 relative z-10 py-1.5 text-xs font-medium rounded-md transition-colors {readerState.quranFont === value ? 'text-base-content' : 'text-base-content/50 hover:text-base-content'}"
-				onclick={() => selectFont(value)}
+				class="flex-1 relative z-10 py-1.5 text-xs font-medium rounded-md transition-colors {activeGroup === id ? 'text-base-content' : 'text-base-content/50 hover:text-base-content'}"
+				onclick={() => selectGroup(id)}
 			>
 				{label}
 			</button>
 		{/each}
 	</div>
 
-	<!-- Lines (only for IndoPak / QCF modes) -->
+	<!-- Uthmani: variant sub-select -->
+	{#if activeGroup === 'uthmani'}
+	<div class="flex items-center justify-between">
+		<span class="text-xs font-medium text-base-content/50">Style</span>
+		<div class="relative">
+			<select
+				class="appearance-none bg-base-200 rounded-lg pl-3 pr-7 py-1.5 text-xs text-base-content focus:outline-none focus:ring-1 focus:ring-primary"
+				value={UTHMANI_FONTS.has(readerState.quranFont) ? readerState.quranFont : 'code_v2'}
+				onchange={(e) => selectFont((e.target as HTMLSelectElement).value as QuranFont)}
+			>
+				{#each uthmaniVariants as v (v.value)}
+					<option value={v.value}>{v.label}</option>
+				{/each}
+			</select>
+			<svg class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-base-content/50" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+				<path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+			</svg>
+		</div>
+	</div>
+	{/if}
+
+	<!-- IndoPak: lines only -->
+	{#if activeGroup === 'indopak'}
 	<div class="flex items-center justify-between">
 		<span class="text-xs font-medium text-base-content/50">Lines</span>
 		<div class="relative">
@@ -68,6 +111,7 @@
 			</svg>
 		</div>
 	</div>
+	{/if}
 
 	<!-- Font size counter -->
 	<div id="font-size-section" class="flex items-center justify-between">

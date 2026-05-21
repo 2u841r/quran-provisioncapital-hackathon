@@ -218,14 +218,13 @@
 	});
 
 	// Reset and kick off first load when chapter or font changes.
-	// untrack prevents nextPageIdx/loading reads inside loadNextPage from
-	// becoming dependencies of this effect — otherwise each page load
-	// would re-trigger the reset, causing an infinite loop.
+	// lastResetKey guards against Svelte 5 dev-mode double-running the effect
+	// for the same combination of inputs.
+	let lastResetKey = '';
 	$effect(() => {
-		// Track these so the effect re-runs when font/lines change
-		void chapter.id;
-		void readerState.quranFont;
-		void readerState.mushafLines;
+		const key = `${chapter.id}:${readerState.quranFont}:${readerState.mushafLines}`;
+		if (key === lastResetKey) return;
+		lastResetKey = key;
 		untrack(() => {
 			loadedPages = [];
 			nextPageIdx = 0;
