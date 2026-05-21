@@ -19,9 +19,10 @@
 		initialPage?: number;
 		chapter: Chapter;
 		onOpenTranslations?: () => void;
+		showExternalHeader?: boolean;
 	}
 
-	const { chapter, onOpenTranslations }: Props = $props();
+	const { chapter, onOpenTranslations, showExternalHeader = false }: Props = $props();
 
 	let loadedPages = $state<PageData[]>([]);
 	let nextPageIdx = $state(0);
@@ -311,14 +312,14 @@
 	}
 </script>
 
-<div class="mushaf-container select-none">
+<div class="mushaf-container select-none" class:min-h-screen={loadedPages.length === 0}>
 	{#each loadedPages as pageData (pageData.pageNumber)}
 		<div data-mushaf-page={pageData.pageNumber} use:pageTracker={pageData.pageNumber}>
 			<Page
 				pageNumber={pageData.pageNumber}
 				lineMap={pageData.lineMap}
 				{chapter}
-				showChapterHeader={pageData.showChapterHeader}
+				showChapterHeader={pageData.showChapterHeader && !showExternalHeader}
 				{lineCount}
 				fontFamily={fontFamily(pageData.pageNumber)}
 				{isIndoPak}
@@ -344,9 +345,12 @@
 
 	{#if !allLoaded}
 		<div use:sentinel class="h-1 w-full" aria-hidden="true"></div>
-		{#if loading}
-			<div class="flex justify-center py-8">
-				<span class="loading loading-md loading-spinner text-primary"></span>
+		{#if loading && loadedPages.length === 0}
+			<div class="mx-auto py-6 px-4" style="max-width: 560px;">
+				<!-- Mushaf lines skeleton -->
+				{#each { length: 15 } as _}
+					<div class="skeleton mb-3 rounded" style="height: 1.4rem; width: 100%;"></div>
+				{/each}
 			</div>
 		{/if}
 	{/if}

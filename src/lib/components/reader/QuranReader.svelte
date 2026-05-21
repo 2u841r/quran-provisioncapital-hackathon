@@ -135,22 +135,19 @@
 </script>
 
 <div class="quran-reader relative">
+	<!-- Shared chapter header — shown once for all reading modes -->
+	{#if showChapterHeader}
+		<ChapterHeader {chapter} onOpenTranslations={() => onOpenTranslations?.()} />
+	{/if}
+
 	<!-- Arabic mushaf: keep mounted so page cache survives mode switches -->
 	<div class={mushafMode ? '' : 'hidden'}>
-		<MushafPage {initialPage} {chapter} onOpenTranslations={() => onOpenTranslations?.()} />
+		<MushafPage {initialPage} {chapter} showExternalHeader={showChapterHeader} onOpenTranslations={() => onOpenTranslations?.()} />
 	</div>
 
 	<!-- Reading: flowing translation text -->
 	<div class={translationPageMode ? '' : 'hidden'}>
-		{#if showChapterHeader}
-			<ChapterHeader {chapter} onOpenTranslations={() => onOpenTranslations?.()} />
-		{/if}
 		<div class="translation-view py-4">
-			{#if chapter.bismillahPre}
-				<p class="mb-4 text-center text-sm text-base-content/50 italic">
-					In the Name of Allah — the Most Compassionate, Most Merciful
-				</p>
-			{/if}
 			<p class="max-w-prose text-base leading-[2] text-base-content/80">
 				{#each allVerses as verse (verse.verseKey)}
 					{#if verse.translations?.[0]}
@@ -180,10 +177,6 @@
 
 	<!-- Verse-by-verse (default) -->
 	<div class={!mushafMode && !translationPageMode ? '' : 'hidden'}>
-		{#if page === 1 && showChapterHeader}
-			<ChapterHeader {chapter} onOpenTranslations={() => onOpenTranslations?.()} />
-		{/if}
-
 		<div>
 			{#each allVerses as verse, i (verse.verseKey)}
 					<VerseCard
