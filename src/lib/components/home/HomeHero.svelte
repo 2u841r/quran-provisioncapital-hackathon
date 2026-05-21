@@ -1,6 +1,5 @@
 <script lang="ts">
 	import backgroundSvg from '$lib/assets/background.svg?raw';
-	import logoSvg from '$lib/assets/logo_main.svg?raw';
 	import type { Chapter } from '$lib/types/quran';
 	import SearchInput from './SearchInput.svelte';
 	import HeroButtons from './HeroButtons/index.svelte';
@@ -26,9 +25,7 @@
 	<div class="relative z-10">
 		<div class="mx-auto flex max-w-3xl flex-col items-center px-2 py-5 md:py-[30px]">
 			<div class="hidden pb-5 md:block">
-				<div class="logo-main" aria-label="Quran.com" style="color: var(--color-primary);">
-					{@html logoSvg}
-				</div>
+				<span style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 2.5rem; letter-spacing: -0.01em; color: var(--color-primary);">Quran.bid</span>
 			</div>
 
 			<SearchInput {surahs} />
@@ -42,11 +39,6 @@
 	.hero-svg :global(svg) {
 		width: 100%;
 		height: auto;
-		display: block;
-	}
-	.logo-main :global(svg) {
-		height: 3rem;
-		width: auto;
 		display: block;
 	}
 </style>

@@ -19,14 +19,11 @@
 
 <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center flex-col px-4 py-8 mx-auto w-full max-w-[370px] box-border">
 
-	<div class="w-full flex flex-col items-center mb-8">
+	<div class="w-full flex flex-col items-center mb-4">
 		<h1 class="text-xl font-normal text-base-content text-center leading-relaxed m-0">
 			Your <span class="font-bold">Quran</span> Journey<br/>Starts Here
 		</h1>
-		<div class="flex flex-col items-center gap-1.5 mt-8 mb-5 w-full">
-			<p class="text-xs text-base-content/70 text-center m-0 font-normal">Sign in to sync your progress</p>
-			<span style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.3rem; letter-spacing: -0.01em;" class="text-base-content mt-1">Quran.bid</span>
-		</div>
+		<p class="text-xs text-base-content/70 text-center mt-3 mb-0 font-normal">Sign in to sync your progress</p>
 	</div>
 
 	{#if error}
@@ -37,7 +34,7 @@
 
 	<a
 		href="/auth/qf?next={next}"
-		class="w-full flex items-center justify-center gap-2.5 h-11 rounded-full border border-base-300 bg-base-100 text-sm font-medium text-base-content hover:bg-base-200 transition-colors no-underline"
+		class="w-4/5 flex items-center justify-center gap-2.5 h-12 rounded-full bg-primary text-primary-content text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all no-underline shadow-sm"
 	>
 		<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
 		Sign in with Quran.com
