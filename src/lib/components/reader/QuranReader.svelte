@@ -152,7 +152,7 @@
 				</p>
 			{/if}
 			<p class="max-w-prose text-base leading-[2] text-base-content/80">
-				{#each verses as verse (verse.verseKey)}
+				{#each allVerses as verse (verse.verseKey)}
 					{#if verse.translations?.[0]}
 						<span
 							class="inline cursor-pointer rounded px-0.5 transition-colors hover:bg-primary/10"
@@ -168,6 +168,14 @@
 				{/each}
 			</p>
 		</div>
+		{#if hasMore || loadingMore}
+			<div use:sentinel class="h-1 w-full" aria-hidden="true"></div>
+			{#if loadingMore}
+				<div class="flex justify-center py-4">
+					<span class="loading loading-spinner loading-sm text-primary"></span>
+				</div>
+			{/if}
+		{/if}
 	</div>
 
 	<!-- Verse-by-verse (default) -->
