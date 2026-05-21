@@ -20,12 +20,6 @@
 	const isLoading = $derived(audioState.status === 'loading');
 	let repeatOpen = $state(false);
 
-	$effect(() => {
-		const key = audioState.currentVerseKey;
-		if (!key || !readerState.autoScroll || !audioState.isActive) return;
-		const el = document.querySelector(`[data-verse-key="${key}"]`);
-		if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-	});
 	const seekPct = $derived(
 		audioState.duration > 0 ? (audioState.currentTime / audioState.duration) * 100 : 0
 	);

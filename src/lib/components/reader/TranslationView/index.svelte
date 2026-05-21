@@ -114,6 +114,13 @@
 	const isCurrentVerse = $derived(audioState.currentVerseKey === verse.verseKey);
 	const isPlaying = $derived(isCurrentVerse && audioState.isPlaying);
 	const isAudioLoading = $derived(isCurrentVerse && audioState.status === 'loading');
+
+	$effect(() => {
+		if (isCurrentVerse && audioState.isActive && readerState.autoScroll && cardEl) {
+			cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		}
+	});
+
 	function togglePlay() {
 		if (isCurrentVerse && audioState.isActive) {
 			audioState.togglePlay();
