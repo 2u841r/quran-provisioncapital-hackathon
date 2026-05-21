@@ -11,10 +11,10 @@
 	let { verseKey, counts = null, onTabClick }: Props = $props();
 
 	const ALL_TABS: { id: StudyTab; label: string; always?: boolean }[] = [
-		{ id: 'tafsir', label: 'Tafsirs', always: true },
+		{ id: 'tafsir', label: 'Tafsir', always: true },
 		{ id: 'layers', label: 'Layers' },
-		{ id: 'lessons', label: 'Lessons', always: true },
 		{ id: 'reflections', label: 'Reflections', always: true },
+		{ id: 'lessons', label: 'Lessons', always: true },
 		{ id: 'answers', label: 'Answers' },
 		{ id: 'qiraat', label: 'Qiraat' },
 		{ id: 'hadith', label: 'Hadith' },
