@@ -403,6 +403,26 @@ export async function fetchAnswersByAyah(
 	return camelizeKeys(await res.json()) as QuestionsResponse;
 }
 
+// Batched answers count — mirrors batchCount but uses qf-auth proxy.
+// Response: { "verseKey": { types: {...}, total: N } } or 404 if none in range.
+const answersBatchPending = new Map<string, Promise<Record<string, { total?: number }>>>();
+
+async function batchCountAnswers(fetchFn: typeof fetch, verseKey: string): Promise<number> {
+	const { from, to, rangeKey } = batchRangeFor(verseKey);
+	if (!answersBatchPending.has(rangeKey)) {
+		answersBatchPending.set(rangeKey, (async () => {
+			try {
+				const url = buildUrl(QF_AUTH_PROXY, `/questions/count-within-range`, { from, to, language: 'en' });
+				const res = await fetchFn(url);
+				if (!res.ok) return {};
+				return camelizeKeys(await res.json()) as Record<string, { total?: number }>;
+			} catch { return {}; }
+		})());
+	}
+	const data = await answersBatchPending.get(rangeKey)!;
+	return Number(data[verseKey]?.total ?? 0);
+}
+
 export async function fetchAnswersCount(
 	fetchFn: typeof fetch,
 	verseKey: string,
@@ -501,7 +521,9 @@ export async function fetchRelatedVerses(
 	);
 }
 
-// ─── Verse tab availability (count checks) ───────────────────────────────────
+// ─── Verse tab availability (batched count checks) ───────────────────────────
+// Mirrors Next.js useBatchedCount* hooks: fetch 20 verses per request so
+// 10 visible verses = 3 requests instead of 30.
 
 export interface VerseTabCounts {
 	hasLayers: boolean;
@@ -511,6 +533,44 @@ export interface VerseTabCounts {
 	hasRelatedVerses: boolean;
 }
 
+const BATCH_SIZE = 20;
+
+function batchRangeFor(verseKey: string): { from: string; to: string; rangeKey: string } {
+	const [chapterId, verseNumStr] = verseKey.split(':');
+	const verseNum = Number(verseNumStr);
+	const start = Math.floor((verseNum - 1) / BATCH_SIZE) * BATCH_SIZE + 1;
+	const end = start + BATCH_SIZE - 1;
+	const from = `${chapterId}:${start}`;
+	const to = `${chapterId}:${end}`;
+	return { from, to, rangeKey: `${from}..${to}` };
+}
+
+// One pending-promise cache per endpoint path (keyed by rangeKey)
+const batchPending = new Map<string, Map<string, Promise<Record<string, number>>>>();
+
+async function batchCount(
+	fetchFn: typeof fetch,
+	endpoint: string,
+	params: Record<string, string>,
+	verseKey: string
+): Promise<number> {
+	const { from, to, rangeKey } = batchRangeFor(verseKey);
+	if (!batchPending.has(endpoint)) batchPending.set(endpoint, new Map());
+	const cache = batchPending.get(endpoint)!;
+	if (!cache.has(rangeKey)) {
+		cache.set(rangeKey, (async () => {
+			try {
+				const res = await fetchFn(buildUrl(PROXY_API, endpoint, { ...params, from, to }));
+				if (!res.ok) return {};
+				return await res.json() as Record<string, number>;
+			} catch { return {}; }
+		})());
+	}
+	const data = await cache.get(rangeKey)!;
+	return Number(data[verseKey] ?? 0);
+}
+
+// Per-verse assembled result cache
 const tabCountCache = new Map<string, VerseTabCounts>();
 const tabCountPending = new Map<string, Promise<VerseTabCounts>>();
 
@@ -522,22 +582,6 @@ export async function fetchVerseTabCounts(
 	if (tabCountPending.has(verseKey)) return tabCountPending.get(verseKey)!;
 
 	const promise = (async () => {
-		const count = async (path: string, params: Record<string, string>) => {
-			try {
-				const res = await fetchFn(buildUrl(PROXY_API, path, { ...params, from: verseKey, to: verseKey }));
-				if (!res.ok) return 0;
-				const json = await res.json() as Record<string, unknown>;
-				// Response is a map { "verseKey": count, ... } — sum all values
-				const values = Object.values(json);
-				if (values.length > 0 && values.every((v) => typeof v === 'number')) {
-					return values.reduce((acc, v) => acc + (v as number), 0);
-				}
-				// Fallback: single-count shape { count: N } or { total: N }
-				const c = camelizeKeys(json) as Record<string, unknown>;
-				return Number(c.count ?? c.total ?? 0);
-			} catch { return 0; }
-		};
-
 		const relatedCount = async () => {
 			try {
 				const res = await fetchFn(buildUrl(PROXY_API, `/gateway/related_verses/by_key/${verseKey}`, { language: 'en', page: 1 }));
@@ -548,11 +592,11 @@ export async function fetchVerseTabCounts(
 		};
 
 		const [layers, qiraat, hadith, related, answers] = await Promise.all([
-			count('/gateway/layered_translations/count_within_range', { language: 'en' }),
-			count('/gateway/qiraat/matrix/count_within_range', {}),
-			count('/gateway/hadith_references/count_within_range', { language: 'en' }),
+			batchCount(fetchFn, '/gateway/layered_translations/count_within_range', { language: 'en' }, verseKey),
+			batchCount(fetchFn, '/gateway/qiraat/matrix/count_within_range', {}, verseKey),
+			batchCount(fetchFn, '/gateway/hadith_references/count_within_range', { language: 'en' }, verseKey),
 			relatedCount(),
-			fetchAnswersCount(fetchFn, verseKey),
+			batchCountAnswers(fetchFn, verseKey),
 		]);
 
 		const result: VerseTabCounts = {
