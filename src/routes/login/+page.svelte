@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import logo from '$lib/assets/logo_main.svg';
 
 	const next = $derived($page.url.searchParams.get('next') ?? '/');
 	const error = $derived($page.url.searchParams.get('error'));
@@ -26,7 +25,7 @@
 		</h1>
 		<div class="flex flex-col items-center gap-1.5 mt-8 mb-5 w-full">
 			<p class="text-xs text-base-content/70 text-center m-0 font-normal">Sign in to sync your progress</p>
-			<img src={logo} alt="Quran" class="h-[18px] w-auto mt-1" />
+			<span style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.3rem; letter-spacing: -0.01em;" class="text-base-content mt-1">Quran.bid</span>
 		</div>
 	</div>
 
