@@ -207,6 +207,16 @@
 		}
 	}
 
+	// Scroll to top when the first page of a new chapter loads.
+	let _prevFirstPageNum: number | null = null;
+	$effect(() => {
+		const first = loadedPages[0]?.pageNumber ?? null;
+		if (first !== null && first !== _prevFirstPageNum) {
+			_prevFirstPageNum = first;
+			if (typeof window !== 'undefined') window.scrollTo(0, 0);
+		}
+	});
+
 	// Reset and kick off first load when chapter or font changes.
 	// untrack prevents nextPageIdx/loading reads inside loadNextPage from
 	// becoming dependencies of this effect — otherwise each page load
@@ -220,6 +230,7 @@
 			loadedPages = [];
 			nextPageIdx = 0;
 			currentPageNumber = null;
+			isSentinelVisible = false;
 			pageFetchCache.clear();
 			fontLoadCache.clear();
 			error = null;
@@ -228,20 +239,28 @@
 		});
 	});
 
-	// Svelte action for the sentinel div — receives the element directly,
-	// no bind:this or $state needed, no extra $effect.
+	// Svelte action for the sentinel div.
+	// Falls back to a scroll listener for mobile browsers (iOS Safari ignores rootMargin).
 	function sentinel(el: HTMLElement) {
 		const observer = new IntersectionObserver(
 			([entry]) => {
 				isSentinelVisible = entry.isIntersecting;
 				if (entry.isIntersecting) void loadNextPage();
 			},
-			{ rootMargin: '1200px 0px' }
+			{ rootMargin: '800px 0px' }
 		);
 		observer.observe(el);
+
+		function onScroll() {
+			const remaining = el.getBoundingClientRect().top - window.innerHeight;
+			if (remaining < 1200) void loadNextPage();
+		}
+		window.addEventListener('scroll', onScroll, { passive: true });
+
 		return {
 			destroy() {
 				observer.disconnect();
+				window.removeEventListener('scroll', onScroll);
 			}
 		};
 	}
