@@ -35,6 +35,7 @@
 	import TabBar from './StudyModeModal/TabBar.svelte';
 	import TafsirTab from './StudyModeModal/TafsirTab.svelte';
 	import { STUDY_TABS, type StudyTab } from './StudyModeModal/types';
+	import { fetchVerseTabCounts, type VerseTabCounts } from '$lib/api/quran';
 
 	interface Props {
 		verseKey: string;
@@ -42,9 +43,38 @@
 		open: boolean;
 		onClose: () => void;
 		onTabChange: (tab: StudyTab) => void;
+		tabCounts?: VerseTabCounts | null;
 	}
 
-	const { verseKey, tab, open, onClose, onTabChange }: Props = $props();
+	const { verseKey, tab, open, onClose, onTabChange, tabCounts: tabCountsProp = null }: Props = $props();
+
+	let tabCountsFetched = $state<VerseTabCounts | null>(null);
+	let tabCountsFetchKey = '';
+
+	$effect(() => {
+		if (!open) return;
+		const key = verseKey;
+		if (tabCountsFetchKey === key) return;
+		tabCountsFetchKey = key;
+		tabCountsFetched = null;
+		fetchVerseTabCounts(fetch, key).then((c) => { tabCountsFetched = c; }).catch(() => {});
+	});
+
+	const resolvedCounts = $derived(tabCountsProp ?? tabCountsFetched);
+
+	const visibleTabs = $derived(
+		resolvedCounts === null
+			? STUDY_TABS
+			: STUDY_TABS.filter((t) => {
+					if (t.id === 'tafsir' || t.id === 'reflections' || t.id === 'lessons') return true;
+					if (t.id === 'layers') return resolvedCounts.hasLayers;
+					if (t.id === 'answers') return resolvedCounts.hasAnswers;
+					if (t.id === 'qiraat') return resolvedCounts.hasQiraat;
+					if (t.id === 'hadith') return resolvedCounts.hasHadith;
+					if (t.id === 'related-verses') return resolvedCounts.hasRelatedVerses;
+					return false;
+			  })
+	);
 
 	const DEFAULT_TAFSIR_ID = 169;
 	const HADITH_PAGE_SIZE = 10;
@@ -327,7 +357,7 @@
 		class="modal-box flex h-[95dvh] w-full max-w-none flex-col overflow-hidden rounded-t-2xl bg-base-100 p-0 sm:h-[82dvh] sm:max-w-[min(80vw,1310px)] sm:rounded-2xl"
 	>
 		<Header {verseKey} {onClose} />
-		<TabBar tabs={STUDY_TABS} activeTab={tab} {onTabChange} />
+		<TabBar tabs={visibleTabs} activeTab={tab} {onTabChange} />
 
 		<div class="min-h-0 flex-1 overflow-y-auto" bind:this={contentEl}>
 			{#if tab === 'tafsir'}

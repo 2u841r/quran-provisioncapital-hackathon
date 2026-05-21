@@ -7,6 +7,7 @@
 	import MushafPage from './MushafPage.svelte';
 	import ChapterHeader from './ChapterHeader.svelte';
 	import StudyModeModal, { type StudyTab } from './StudyModeModal.svelte';
+	import type { VerseTabCounts } from '$lib/api/quran';
 	import ChapterControls from './EndOfScrollingControls/ChapterControls.svelte';
 
 	interface Props {
@@ -35,10 +36,12 @@
 
 	let studyVerseKey = $state<string | null>(null);
 	let studyTab = $state<StudyTab>('tafsir');
+	let studyTabCounts = $state<VerseTabCounts | null>(null);
 
-	function openStudyMode(verseKey: string, tab: StudyTab) {
+	function openStudyMode(verseKey: string, tab: StudyTab, counts?: VerseTabCounts | null) {
 		studyVerseKey = verseKey;
 		studyTab = tab;
+		studyTabCounts = counts ?? null;
 	}
 
 	const mushafMode = $derived(
@@ -214,4 +217,5 @@
 	open={!!studyVerseKey}
 	onClose={() => (studyVerseKey = null)}
 	onTabChange={(t) => (studyTab = t)}
+	tabCounts={studyTabCounts}
 />

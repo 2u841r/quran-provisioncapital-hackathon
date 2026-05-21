@@ -20,7 +20,7 @@
 		chapterName?: string;
 		chapterId?: number;
 		highlight?: boolean;
-		onStudyMode?: (verseKey: string, tab: StudyTab) => void;
+		onStudyMode?: (verseKey: string, tab: StudyTab, counts?: VerseTabCounts | null) => void;
 		onOpenTranslations?: () => void;
 		onOpenSettings?: () => void;
 	}
@@ -43,31 +43,40 @@
 		fetchVerseTabCounts(fetch, verse.verseKey).then((c) => { tabCounts = c; }).catch(() => {});
 	}
 
-	// Reading history: record verse after 3s of continuous visibility (logged-in only)
+	// Reading history + tab counts: share one IntersectionObserver on the card element
 	let cardEl = $state<HTMLElement | null>(null);
 	$effect(() => {
-		if (!cardEl || !page.data.user) return;
-		let timer: ReturnType<typeof setTimeout> | null = null;
+		if (!cardEl) return;
+		let historyTimer: ReturnType<typeof setTimeout> | null = null;
+		let tabTimer: ReturnType<typeof setTimeout> | null = null;
 		let recorded = false;
+		const user = page.data.user;
 		const observer = new IntersectionObserver(
 			([entry]) => {
-				if (entry.isIntersecting && !recorded) {
-					timer = setTimeout(() => {
-						recorded = true;
-						fetch('/api/reading-history', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({ verseKey: verse.verseKey })
-						}).catch(() => {});
-					}, 3000);
+				if (entry.isIntersecting) {
+					// Fetch tab counts after 800ms of visibility (avoids fetching while scrolling past)
+					if (!tabCountsFetched && !tabTimer) {
+						tabTimer = setTimeout(() => { fetchTabCountsOnce(); }, 800);
+					}
+					if (user && !recorded && !historyTimer) {
+						historyTimer = setTimeout(() => {
+							recorded = true;
+							fetch('/api/reading-history', {
+								method: 'POST',
+								headers: { 'Content-Type': 'application/json' },
+								body: JSON.stringify({ verseKey: verse.verseKey })
+							}).catch(() => {});
+						}, 3000);
+					}
 				} else {
-					if (timer) { clearTimeout(timer); timer = null; }
+					if (tabTimer) { clearTimeout(tabTimer); tabTimer = null; }
+					if (historyTimer) { clearTimeout(historyTimer); historyTimer = null; }
 				}
 			},
-			{ threshold: 0.6 }
+			{ threshold: 0.1 }
 		);
 		observer.observe(cardEl);
-		return () => { observer.disconnect(); if (timer) clearTimeout(timer); };
+		return () => { observer.disconnect(); if (historyTimer) clearTimeout(historyTimer); if (tabTimer) clearTimeout(tabTimer); };
 	});
 
 	// Bookmark
@@ -208,7 +217,7 @@
 		onToggleBookmark={toggleBookmark}
 		onCopyVerse={copyVerse}
 		onShare={() => (shareOpen = true)}
-		onNote={() => onStudyMode?.(verse.verseKey, 'reflections')}
+		onNote={() => onStudyMode?.(verse.verseKey, 'reflections', tabCounts)}
 		onWbw={() => (wbwOpen = true)}
 		onAdvCopy={() => (advCopyOpen = true)}
 		onRepeat={() => (repeatOpen = true)}
@@ -233,7 +242,10 @@
 	</div>
 
 	<div onpointerenter={fetchTabCountsOnce}>
-		<BottomActions verseKey={verse.verseKey} counts={tabCounts} onTabClick={(tab) => onStudyMode?.(verse.verseKey, tab)} />
+		<BottomActions verseKey={verse.verseKey} counts={tabCounts} onTabClick={(tab) => {
+			fetchTabCountsOnce();
+			onStudyMode?.(verse.verseKey, tab, tabCounts);
+		}} />
 	</div>
 </div>
 

@@ -388,6 +388,8 @@ export async function fetchHadithsByAyah(
 
 // ─── Answers ────────────────────────────────────────────────────────────────────
 
+const QF_AUTH_PROXY = '/api/proxy/qf-auth';
+
 export async function fetchAnswersByAyah(
 	fetchFn: typeof fetch,
 	verseKey: string,
@@ -395,11 +397,24 @@ export async function fetchAnswersByAyah(
 	page: number = 1,
 	pageSize: number = 10
 ): Promise<QuestionsResponse> {
-	return apiFetchProxy<QuestionsResponse>(
-		fetchFn,
-		`/auth/questions/by-verse/${verseKey}`,
-		{ language, page, pageSize }
-	);
+	const url = buildUrl(QF_AUTH_PROXY, `/questions/by-verse/${verseKey}`, { language, page, pageSize });
+	const res = await fetchFn(url);
+	if (!res.ok) throw new Error(`API error ${res.status}`);
+	return camelizeKeys(await res.json()) as QuestionsResponse;
+}
+
+export async function fetchAnswersCount(
+	fetchFn: typeof fetch,
+	verseKey: string,
+	language: string = 'en'
+): Promise<number> {
+	try {
+		const url = buildUrl(QF_AUTH_PROXY, `/questions/by-verse/${verseKey}`, { language, page: 1, pageSize: 1 });
+		const res = await fetchFn(url);
+		if (!res.ok) return 0;
+		const json = camelizeKeys(await res.json()) as { totalCount?: number; questions?: unknown[] };
+		return Number(json.totalCount ?? json.questions?.length ?? 0);
+	} catch { return 0; }
 }
 
 // ─── Reflections / Lessons ──────────────────────────────────────────────────────
@@ -511,7 +526,13 @@ export async function fetchVerseTabCounts(
 			try {
 				const res = await fetchFn(buildUrl(PROXY_API, path, { ...params, from: verseKey, to: verseKey }));
 				if (!res.ok) return 0;
-				const json = await res.json();
+				const json = await res.json() as Record<string, unknown>;
+				// Response is a map { "verseKey": count, ... } — sum all values
+				const values = Object.values(json);
+				if (values.length > 0 && values.every((v) => typeof v === 'number')) {
+					return values.reduce((acc, v) => acc + (v as number), 0);
+				}
+				// Fallback: single-count shape { count: N } or { total: N }
 				const c = camelizeKeys(json) as Record<string, unknown>;
 				return Number(c.count ?? c.total ?? 0);
 			} catch { return 0; }
@@ -526,16 +547,17 @@ export async function fetchVerseTabCounts(
 			} catch { return 0; }
 		};
 
-		const [layers, qiraat, hadith, related] = await Promise.all([
+		const [layers, qiraat, hadith, related, answers] = await Promise.all([
 			count('/gateway/layered_translations/count_within_range', { language: 'en' }),
 			count('/gateway/qiraat/matrix/count_within_range', {}),
 			count('/gateway/hadith_references/count_within_range', { language: 'en' }),
 			relatedCount(),
+			fetchAnswersCount(fetchFn, verseKey),
 		]);
 
 		const result: VerseTabCounts = {
 			hasLayers: layers > 0,
-			hasAnswers: false,
+			hasAnswers: answers > 0,
 			hasQiraat: qiraat > 0,
 			hasHadith: hadith > 0,
 			hasRelatedVerses: related > 0,
