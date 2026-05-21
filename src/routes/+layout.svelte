@@ -36,61 +36,138 @@
 		document.querySelector('footer')?.scrollIntoView({ behavior: 'smooth' });
 	}
 
-	function startTour() {
-		activeTour?.destroy();
-		const currentTheme = typeof localStorage !== 'undefined' ? (localStorage.getItem('theme') ?? 'caramellatte') : 'caramellatte';
+	let overlayObserver: MutationObserver | null = null;
+	let tourThemePresses = 0;
+
+	function runTour() {
+		overlayObserver?.disconnect();
+		overlayObserver = new MutationObserver(() => {
+			document.querySelector('.driver-overlay')?.remove();
+		});
+		overlayObserver.observe(document.body, { childList: true });
+
+		tourThemePresses = 0;
+
 		activeTour = driver({
 			showProgress: true,
 			overlayOpacity: 0,
-			onDestroyed: () => { activeTour = null; },
+			allowClose: false,
+			keyboardControl: true,
+			showButtons: [],
+			onDestroyed: () => {
+				activeTour = null;
+				tourThemePresses = 0;
+				overlayObserver?.disconnect();
+				overlayObserver = null;
+			},
 			steps: [
+				// 0 — Theme
 				{
 					element: '#nav-theme',
 					popover: {
 						title: 'Theme <kbd>T</kbd>',
-						description: `Current theme: <strong>${currentTheme}</strong><br>Press <kbd>T</kbd> to cycle through 10 themes. Click to pick a specific one.`,
+						description: 'Press <kbd>T</kbd> to cycle through all 10 themes — 0/10 done.',
 						side: 'bottom',
 					}
 				},
+				// 1 — Menu open
 				{
 					popover: {
 						title: 'Menu <kbd>M</kbd>',
 						description: 'Press <kbd>M</kbd> to open the navigation drawer.',
 					}
 				},
+				// 2 — Menu close
 				{
 					popover: {
-						title: 'Footer <kbd>F</kbd>',
-						description: 'Press <kbd>F</kbd> to jump to the footer.',
+						title: 'Menu <kbd>M</kbd>',
+						description: 'Drawer is open! Press <kbd>M</kbd> again to close it.',
 					}
 				},
-				{
-					popover: {
-						title: 'Radio <kbd>R</kbd>',
-						description: 'Press <kbd>R</kbd> to go to the Quran radio page.',
-					}
-				},
+				// 3 — Search open
 				{
 					popover: {
 						title: 'Search <kbd>K</kbd>',
-						description: 'Press <kbd>K</kbd> anywhere to search surahs, verses, or topics.',
+						description: 'Press <kbd>K</kbd> to open search.',
 					}
 				},
+				// 4 — Search close (cheeky)
 				{
-					onHighlightStarted: () => { goto('/1'); },
+					popover: {
+						title: 'Search <kbd>K</kbd>',
+						description: 'You already know how to close it, right? <kbd>K</kbd> again.',
+					}
+				},
+				// 5 — Reader settings
+				{
 					popover: {
 						title: 'Reader Settings <kbd>S</kbd>',
-						description: 'On any surah page, press <kbd>S</kbd> to open font, translation, and reciter settings.',
+						description: 'Press <kbd>S</kbd> to open font, translation, and reciter settings.',
 					}
 				},
+				// 6 — Footer
 				{
 					popover: {
-						title: '🎉 You\'re all set!',
-						description: `All shortcuts:<br><br>
+						title: 'Footer <kbd>F</kbd>',
+						description: 'Press <kbd>F</kbd> to jump to the footer from anywhere.',
+					}
+				},
+				// 7 — Done (show Done button only here)
+				{
+					popover: {
+						title: "You're all set!",
+						showButtons: ['next'],
+						description: `Shortcuts recap:<br><br>
 <kbd>T</kbd> cycle theme &nbsp; <kbd>M</kbd> menu<br>
-<kbd>F</kbd> jump to footer &nbsp; <kbd>R</kbd> radio<br>
-<kbd>K</kbd> search &nbsp; <kbd>S</kbd> reader settings<br><br>
-Press <kbd>?</kbd> anytime to see this tour again.`,
+<kbd>K</kbd> search &nbsp; <kbd>S</kbd> reader settings<br>
+<kbd>F</kbd> footer &nbsp; <kbd>?</kbd> replay tour`,
+					}
+				},
+			]
+		});
+		activeTour.drive();
+	}
+
+	function startTour() {
+		activeTour?.destroy();
+		overlayObserver?.disconnect();
+		overlayObserver = new MutationObserver(() => {
+			document.querySelector('.driver-overlay')?.remove();
+		});
+		overlayObserver.observe(document.body, { childList: true });
+
+		tourThemePresses = 0;
+
+		activeTour = driver({
+			showProgress: false,
+			overlayOpacity: 0,
+			allowClose: false,
+			keyboardControl: false,
+			showButtons: ['next'],
+			onDestroyed: () => {
+				activeTour = null;
+				tourThemePresses = 0;
+				overlayObserver?.disconnect();
+				overlayObserver = null;
+			},
+			steps: [
+				// Intro — shown before navigation
+				{
+					popover: {
+						title: 'Keyboard Shortcuts',
+						description: `We have a few shortcuts to make reading faster:<br><br>
+<kbd>T</kbd> cycle themes &nbsp; <kbd>M</kbd> menu<br>
+<kbd>K</kbd> search &nbsp; <kbd>S</kbd> reader settings<br>
+<kbd>F</kbd> jump to footer<br><br>
+To show you these, we're taking you to <strong>Surah Al-Fatiha</strong>. Click → to continue.`,
+						onNextClick: () => {
+							const desc = document.querySelector('.driver-popover-description');
+							if (desc) desc.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px"><span class="loading loading-spinner loading-xs"></span> Opening Surah Al-Fatiha…</span>';
+							goto('/1').then(() => {
+								activeTour?.destroy();
+								runTour();
+							});
+						},
 					}
 				},
 			]
@@ -137,12 +214,28 @@ Press <kbd>?</kbd> anytime to see this tour again.`,
 	onscroll={onScroll}
 	use:shortcut={{
 		trigger: [
-			{ key: 'k', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); searchOpen = !searchOpen; } } },
-			{ key: 'm', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); navDrawerOpen = !navDrawerOpen; } } },
+			{ key: 'k', callback: ({ originalEvent: e }) => { if (!isTyping() && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); searchOpen = !searchOpen; const idx = activeTour?.getActiveIndex(); if (idx === 3 && searchOpen) activeTour?.moveNext(); else if (idx === 4 && !searchOpen) activeTour?.moveNext(); } } },
+			{ key: 'm', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); navDrawerOpen = !navDrawerOpen; const idx = activeTour?.getActiveIndex(); if (idx === 1 && navDrawerOpen) activeTour?.moveNext(); else if (idx === 2 && !navDrawerOpen) activeTour?.moveNext(); } } },
 			{ key: 'n', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); goto('/'); } } },
-			{ key: 'r', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); goto('/radio'); } } },
-			{ key: 't', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); cycleTheme(); } } },
-			{ key: 'f', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); scrollToFooter(); } } },
+			{ key: 't', callback: ({ originalEvent: e }) => {
+				if (!isTyping()) {
+					e.preventDefault();
+					cycleTheme();
+					if (activeTour?.getActiveIndex() === 0) {
+						tourThemePresses++;
+						const desc = document.querySelector('.driver-popover-description');
+						if (tourThemePresses >= 10) {
+							tourThemePresses = 0;
+							activeTour?.moveNext();
+						} else if (desc) {
+							desc.innerHTML = `Press <kbd>T</kbd> to cycle through all 10 themes — ${tourThemePresses}/10 done.`;
+						}
+					}
+				}
+			}},
+			{ key: 'f', callback: ({ originalEvent: e }) => { if (!isTyping() && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); scrollToFooter(); if (activeTour?.getActiveIndex() === 6) activeTour?.moveNext(); } } },
+			{ key: 's', callback: ({ originalEvent: e }) => { if (!isTyping() && activeTour?.getActiveIndex() === 5) activeTour?.moveNext(); } },
+			{ key: '?', callback: ({ originalEvent: e }) => { if (!isTyping()) { e.preventDefault(); startTour(); } } },
 		]
 	}}
 />
@@ -314,4 +407,11 @@ Press <kbd>?</kbd> anytime to see this tour again.`,
 <MainNavDrawer open={navDrawerOpen} onClose={() => (navDrawerOpen = false)} />
 
 <SearchModal open={searchOpen} onClose={() => (searchOpen = false)} />
+
+<style>
+  /* Override driver.js pointer-events blocking — this <style> block is output
+     outside Tailwind @layer so it wins the cascade without needing !important */
+  :global(body.driver-active *) { pointer-events: auto; }
+  :global(.driver-popover) { z-index: 10001 !important; }
+</style>
 

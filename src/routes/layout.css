@@ -9,15 +9,3 @@
   scrollbar-width: thin;
 }
 
-/* Allow full page interaction during driver.js tour */
-body.driver-active * {
-  pointer-events: auto !important;
-}
-.driver-overlay,
-.driver-overlay * {
-  pointer-events: none !important;
-}
-/* Keep popover below app drawers/modals (z-[60]+) */
-.driver-popover {
-  z-index: 50 !important;
-}
