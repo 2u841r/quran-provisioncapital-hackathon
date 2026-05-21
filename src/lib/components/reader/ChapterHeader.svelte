@@ -14,20 +14,31 @@
 
 	const chapterId = $derived(Number(chapter.id));
 
-	const translationLabel = $derived(
-		readerState.selectedTranslations.length === 0
-			? 'None'
-			: `${readerState.selectedTranslations.length} selected`
+	const isArabicMode = $derived(
+		readerState.readingMode === 'reading' && readerState.readingSubMode === 'arabic'
+	);
+	const isTranslationMode = $derived(
+		readerState.readingMode === 'reading' && readerState.readingSubMode === 'translation'
 	);
 
 	function listen() {
 		audioState.playVerse(`${chapterId}:1`, chapter.nameSimple);
 	}
+
+	function setArabicMode() {
+		readerState.setReadingMode('reading');
+		readerState.setReadingSubMode('arabic');
+	}
+
+	function setTranslationMode() {
+		readerState.setReadingMode('reading');
+		readerState.setReadingSubMode('translation');
+	}
 </script>
 
 <header class="chapter-header py-6 md:py-8">
 	<!-- Top controls -->
-	<div class="flex items-center justify-between mb-6 px-1">
+	<div class="flex items-center justify-center gap-1.5 mb-6 px-1">
 		<button
 			class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-base-content bg-base-200 hover:bg-base-300 transition-colors"
 			onclick={listen}
@@ -38,13 +49,40 @@
 			<span>Listen</span>
 		</button>
 
+		<!-- Reading mode toggle — hidden on md+ (sidebar handles it there) -->
 		<button
-			class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-base-content bg-base-200 hover:bg-base-300 transition-colors max-w-[220px]"
+			class="md:hidden inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors {isArabicMode ? 'bg-primary text-primary-content' : 'bg-base-200 text-base-content hover:bg-base-300'}"
+			onclick={setArabicMode}
+			aria-pressed={isArabicMode}
+		>Arabic</button>
+
+		{#if isTranslationMode}
+			<!-- Active: shows Translation + chevron, click opens picker -->
+			<button
+				class="md:hidden inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium bg-primary text-primary-content transition-colors"
+				onclick={() => onOpenTranslations?.()}
+				aria-pressed={true}
+			>
+				<span>Translation</span>
+				<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 15 15" fill="currentColor"><path fill-rule="evenodd" d="M3.135 6.158a.5.5 0 0 1 .707-.023L7.5 9.565l3.658-3.43a.5.5 0 0 1 .684.73l-4 3.75a.5.5 0 0 1-.684 0l-4-3.75a.5.5 0 0 1-.023-.707" clip-rule="evenodd"/></svg>
+			</button>
+		{:else}
+			<!-- Inactive: click switches to translation mode -->
+			<button
+				class="md:hidden inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-base-200 text-base-content hover:bg-base-300 transition-colors"
+				onclick={setTranslationMode}
+				aria-pressed={false}
+			>Translation</button>
+		{/if}
+
+		<!-- Translations picker — shown on md+ where mode buttons are hidden -->
+		<button
+			class="hidden md:inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-base-content bg-base-200 hover:bg-base-300 transition-colors"
 			onclick={() => onOpenTranslations?.()}
 			aria-label="Choose translations"
 		>
-			<span class="truncate">Translations: {translationLabel}</span>
-			<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 15 15" fill="currentColor" class="shrink-0"><path fill-rule="evenodd" d="M3.135 6.158a.5.5 0 0 1 .707-.023L7.5 9.565l3.658-3.43a.5.5 0 0 1 .684.73l-4 3.75a.5.5 0 0 1-.684 0l-4-3.75a.5.5 0 0 1-.023-.707" clip-rule="evenodd"/></svg>
+			<span>Translations</span>
+			<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 15 15" fill="currentColor"><path fill-rule="evenodd" d="M3.135 6.158a.5.5 0 0 1 .707-.023L7.5 9.565l3.658-3.43a.5.5 0 0 1 .684.73l-4 3.75a.5.5 0 0 1-.684 0l-4-3.75a.5.5 0 0 1-.023-.707" clip-rule="evenodd"/></svg>
 		</button>
 	</div>
 
