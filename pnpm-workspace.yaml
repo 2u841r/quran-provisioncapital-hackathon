@@ -11,4 +11,3 @@ onlyBuiltDependencies:
   - esbuild
 packages:
   - '.'
-storeDir: /media/z/projects/.pnpm-store/v11
