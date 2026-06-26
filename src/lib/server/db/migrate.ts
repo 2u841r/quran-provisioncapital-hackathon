@@ -1,6 +1,4 @@
 import { readFileSync, readdirSync } from 'fs';
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
 import { sql } from 'drizzle-orm';
 
 if (!process.env.DATABASE_URL) {
@@ -19,7 +17,19 @@ if (!process.env.DATABASE_URL) {
 const dbUrl = process.env.DATABASE_URL!;
 if (!dbUrl) throw new Error('DATABASE_URL not set');
 
-const db = drizzle(neon(dbUrl));
+const isLocal = dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1');
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let db: any;
+if (isLocal) {
+	const { drizzle } = await import('drizzle-orm/postgres-js');
+	const { default: postgres } = await import('postgres');
+	db = drizzle(postgres(dbUrl));
+} else {
+	const { drizzle } = await import('drizzle-orm/neon-http');
+	const { neon } = await import('@neondatabase/serverless');
+	db = drizzle(neon(dbUrl));
+}
 
 // Apply all .sql migration files in order, skipping already-existing objects
 const files = readdirSync('drizzle')

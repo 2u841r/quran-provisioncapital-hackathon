@@ -19,6 +19,7 @@
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:run-migrate": "npx tsx src/lib/server/db/migrate.ts",
+		"db:local": "docker compose up -d --wait && npx tsx src/lib/server/db/migrate.ts",
 		"db:studio": "drizzle-kit studio",
 		"auth:schema": "better-auth generate --config src/lib/server/auth.ts --output src/lib/server/db/auth.schema.ts --yes"
 	},
@@ -60,6 +61,7 @@
 		"aws4fetch": "^1.0.20",
 		"daisyui": "^5.5.19",
 		"driver.js": "^1.4.0",
-		"humps": "^2.0.1"
+		"humps": "^2.0.1",
+		"postgres": "^3.4.9"
 	}
 }

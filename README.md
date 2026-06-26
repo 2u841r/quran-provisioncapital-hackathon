@@ -113,17 +113,46 @@ Used via a user-token proxy (`/api/proxy/qf-auth`) that forwards the logged-in u
 |-------|-----------|
 | Framework | SvelteKit 2 + Svelte 5 (runes) |
 | Styling | Tailwind CSS + DaisyUI 5 |
-| Database | Neon PostgreSQL + Drizzle ORM |
+| Database | PostgreSQL + Drizzle ORM (Docker for local, Neon for prod) |
 | Auth | better-auth + Quran.com OAuth |
 | Deployment | Cloudflare Workers |
 | Language | TypeScript |
 
-## Developing
+## Local Development
+
+**Prerequisites:** Node.js 20+, pnpm, Docker
+
+**1. Install dependencies**
 
 ```sh
 pnpm install
+```
+
+**2. Configure environment**
+
+```sh
+cp .env.example .env
+```
+
+Open `.env` and fill in the QF API credentials (`QF_CLIENT_ID`, `QF_CLIENT_SECRET`, `QF_USER_CLIENT_ID`, `QF_USER_CLIENT_SECRET`). The database URL is pre-set for Docker.
+
+**3. Start the database and run migrations**
+
+```sh
+pnpm db:local
+```
+
+This starts a local PostgreSQL container on port 5433 and applies all migrations automatically.
+
+**4. Run the dev server**
+
+```sh
 pnpm dev
 ```
+
+App is available at [http://localhost:5173](http://localhost:5173).
+
+> Note: Login via Quran.com OAuth requires the QF OAuth client to have `http://localhost:5173/auth/callback` registered as a redirect URI. Email/password login works without this.
 
 ## Building
 

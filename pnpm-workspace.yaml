@@ -1,3 +1,9 @@
+allowBuilds:
+  '@prisma/client': true
+  better-sqlite3: true
+  esbuild: true
+  sharp: true
+  workerd: true
 onlyBuiltDependencies:
   - '@tailwindcss/oxide'
   - workerd
@@ -5,3 +11,4 @@ onlyBuiltDependencies:
   - esbuild
 packages:
   - '.'
+storeDir: /media/z/projects/.pnpm-store/v11
