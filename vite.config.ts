@@ -5,6 +5,12 @@ import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
+	ssr: {
+		// postgres uses Node.js builtins — keep it external so CF Workers build
+		// never bundles it. Only used locally via dynamic import in db/index.ts.
+		noExternal: [],
+		external: ['postgres']
+	},
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
