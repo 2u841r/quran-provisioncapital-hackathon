@@ -5,17 +5,6 @@ import { db } from '$lib/server/db';
 import { user } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { APIError } from 'better-auth/api';
-import { uploadToR2, deleteFromR2 } from '$lib/server/r2';
-import { env } from '$env/dynamic/private';
-
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-const MAX_BYTES = 4 * 1024 * 1024; // 4 MB
-
-function r2KeyFromUrl(url: string): string | null {
-	const base = env.R2_PUBLIC_URL?.replace(/\/$/, '');
-	if (!base || !url.startsWith(base + '/')) return null;
-	return url.slice(base.length + 1);
-}
 
 export const load = async ({ locals }: RequestEvent) => {
 	if (!locals.user) redirect(302, '/login?next=/profile');
@@ -38,61 +27,6 @@ export const load = async ({ locals }: RequestEvent) => {
 };
 
 export const actions = {
-	uploadAvatar: async (event: RequestEvent) => {
-		if (!event.locals.user) redirect(302, '/login?next=/profile');
-		const formData = await event.request.formData();
-		const file = formData.get('avatar') as File | null;
-
-		if (!file || file.size === 0) return fail(400, { avatarError: 'No file selected.' });
-		if (!ALLOWED_TYPES.includes(file.type)) return fail(400, { avatarError: 'Only JPEG, PNG, WebP or GIF allowed.' });
-		if (file.size > MAX_BYTES) return fail(400, { avatarError: 'File must be under 4 MB.' });
-
-		const ext = file.type.split('/')[1].replace('jpeg', 'jpg');
-		const key = `avatars/${event.locals.user.id}/${Date.now()}.${ext}`;
-		const buffer = await file.arrayBuffer();
-
-		let imageUrl: string;
-		try {
-			imageUrl = await uploadToR2(key, buffer, file.type);
-		} catch (e) {
-			return fail(500, { avatarError: 'Upload failed. Try again.' });
-		}
-
-		// delete old avatar from R2 if it was ours
-		const current = await db
-			.select({ image: user.image })
-			.from(user)
-			.where(eq(user.id, event.locals.user.id))
-			.then((r) => r[0]?.image);
-		if (current) {
-			const oldKey = r2KeyFromUrl(current);
-			if (oldKey) deleteFromR2(oldKey).catch(() => {});
-		}
-
-		await db.update(user).set({ image: imageUrl }).where(eq(user.id, event.locals.user.id));
-
-		return { avatarSuccess: true, imageUrl };
-	},
-
-	removeAvatar: async (event: RequestEvent) => {
-		if (!event.locals.user) redirect(302, '/login?next=/profile');
-
-		const current = await db
-			.select({ image: user.image })
-			.from(user)
-			.where(eq(user.id, event.locals.user.id))
-			.then((r) => r[0]?.image);
-
-		if (current) {
-			const key = r2KeyFromUrl(current);
-			if (key) deleteFromR2(key).catch(() => {});
-		}
-
-		await db.update(user).set({ image: null }).where(eq(user.id, event.locals.user.id));
-
-		return { avatarSuccess: true, imageUrl: null };
-	},
-
 	updateProfile: async (event: RequestEvent) => {
 		if (!event.locals.user) redirect(302, '/login?next=/profile');
 		const formData = await event.request.formData();

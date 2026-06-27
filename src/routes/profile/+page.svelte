@@ -6,9 +6,6 @@
 	const u = $derived(data.user);
 
 	let deleteConfirm = $state(false);
-	let avatarInput = $state<HTMLInputElement | null>(null);
-
-	const displayImage = $derived(form?.imageUrl !== undefined ? form.imageUrl : u?.image);
 </script>
 
 <svelte:head>
@@ -33,70 +30,21 @@
 	<section class="space-y-4">
 		<h2 class="text-sm font-semibold text-base-content uppercase tracking-wide">Personalization</h2>
 
-		{#if form?.avatarError}
-			<p class="text-xs text-white bg-error rounded-lg px-3 py-2">{form.avatarError}</p>
-		{/if}
-
 		<div class="flex items-center gap-5">
-			<!-- Avatar -->
-			<div class="relative shrink-0">
-				{#if displayImage}
-					<img src={displayImage} alt="Profile" class="w-16 h-16 rounded-full object-cover" />
+			<!-- Avatar from QF OAuth -->
+			<div class="shrink-0">
+				{#if u?.image}
+					<img src={u.image} alt="Profile" class="w-16 h-16 rounded-full object-cover" />
 				{:else}
 					<div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-semibold text-primary select-none">
 						{(u?.firstName || u?.name || u?.email || 'U').charAt(0).toUpperCase()}
 					</div>
 				{/if}
-				<!-- Upload trigger overlay -->
-				<button
-					type="button"
-					class="absolute inset-0 rounded-full bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center"
-					onclick={() => avatarInput?.click()}
-					aria-label="Change photo"
-				>
-					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 10.07 4h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 18.07 7H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-						<circle cx="12" cy="13" r="3"/>
-					</svg>
-				</button>
 			</div>
 
-			<div class="flex flex-col gap-1.5">
+			<div class="flex flex-col gap-1">
 				<p class="text-sm font-medium text-base-content">{u?.firstName && u?.lastName ? `${u.firstName} ${u.lastName}` : u?.name ?? ''}</p>
 				<p class="text-xs text-base-content/50">{u?.email ?? ''}</p>
-
-				<!-- Upload form (hidden input + submit on change) -->
-				<form
-					method="post"
-					action="?/uploadAvatar"
-					enctype="multipart/form-data"
-					use:enhance
-					id="avatar-upload-form"
-				>
-					<input
-						bind:this={avatarInput}
-						type="file"
-						name="avatar"
-						accept="image/jpeg,image/png,image/webp,image/gif"
-						class="hidden"
-						onchange={(e) => { (e.target as HTMLElement).closest('form')?.requestSubmit(); }}
-					/>
-				</form>
-
-				<div class="flex items-center gap-2">
-					<button
-						type="button"
-						class="btn btn-xs btn-ghost px-2"
-						onclick={() => avatarInput?.click()}
-					>
-						{displayImage ? 'Change photo' : 'Upload photo'}
-					</button>
-					{#if displayImage}
-						<form method="post" action="?/removeAvatar" use:enhance>
-							<button type="submit" class="btn btn-xs btn-ghost text-error px-2">Remove</button>
-						</form>
-					{/if}
-				</div>
 			</div>
 		</div>
 	</section>
