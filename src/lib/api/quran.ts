@@ -42,15 +42,15 @@ function buildUrl(
 	return `${base}${path}?${search.toString()}`;
 }
 
-// Verse endpoints need QDC gateway (auth required for translation data).
-// gateway/ prefix is routed by our proxy to apis.quran.foundation/content/api/qdc/.
+// Verse endpoints need the v4 gateway (auth required for translation data).
+// gateway/ prefix is routed by our proxy to apis.quran.foundation/content/api/v4/.
 // All other resources (chapters, reciters, etc.) use the public API directly.
 function verseBase(): string {
 	return PROXY_API;
 }
 
 function versePath(path: string): string {
-	// Strip leading slash then prepend gateway/ so the proxy routes to QDC
+	// Strip leading slash then prepend gateway/ so the proxy routes to the v4 gateway
 	return `/gateway/${path.replace(/^\//, '')}`;
 }
 
@@ -67,7 +67,7 @@ async function apiFetch<T>(
 	return camelizeKeys(json) as T;
 }
 
-// Routes through our proxy → QDC gateway with auth (needed for translation data in verse responses)
+// Routes through our proxy → v4 gateway with auth (needed for translation data in verse responses)
 async function gatewayFetch<T>(
 	fetchFn: typeof fetch,
 	path: string,

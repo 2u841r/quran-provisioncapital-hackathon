@@ -40,7 +40,7 @@ function resolveTarget(path: string): string {
 		return `${gateway}/${path}`;
 	}
 	if (path.startsWith('gateway/')) {
-		return `${gateway}/content/api/qdc/${path.slice('gateway/'.length)}`;
+		return `${gateway}/content/api/v4/${path.slice('gateway/'.length)}`;
 	}
 	if (path.startsWith('auth/')) {
 		return `${gateway}/${path}`;
