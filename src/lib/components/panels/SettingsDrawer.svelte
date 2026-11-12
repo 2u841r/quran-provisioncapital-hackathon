@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { AvailableTranslation, Reciter, TafsirInfo } from '$lib/types/quran';
+	import type { AvailableTranslation, Reciter, TafsirInfo } from '#lib/types/quran.ts';
 	import SettingsBody from './settings/SettingsBody.svelte';
 	import ReciterSelectionBody from './settings/ReciterSelectionBody.svelte';
 	import TranslationSelectionBody from './settings/TranslationSelectionBody.svelte';

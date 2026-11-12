@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { Chapter } from '$lib/types/quran';
-	import { audioState } from '$lib/state/audio.svelte';
-	import { readerState } from '$lib/state/reader.svelte';
+	import type { Chapter } from '#lib/types/quran.ts';
+	import { audioState } from '#lib/state/audio.svelte.ts';
+	import { readerState } from '#lib/state/reader.svelte.ts';
 	import SurahInfoModal from './SurahInfoModal.svelte';
 
 	interface Props {

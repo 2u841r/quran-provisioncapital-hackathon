@@ -1,6 +1,5 @@
-import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import { qfApiFetchAll, qfApiPost } from '$lib/server/qf-oauth';
+import { qfApiFetchAll, qfApiPost } from '#lib/server/qf-oauth.ts';
 
 export interface QfNote {
 	id: string;
@@ -13,23 +12,23 @@ export interface QfNote {
 }
 
 export const GET = async ({ locals }: RequestEvent) => {
-	if (!locals.user) return json({ error: 'Unauthorized' }, { status: 401 });
-	if (!locals.qfAccessToken) return json({ error: 'QF account required' }, { status: 403 });
+	if (!locals.user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+	if (!locals.qfAccessToken) return Response.json({ error: 'QF account required' }, { status: 403 });
 
 	const notes = await qfApiFetchAll<QfNote>('notes', locals.qfAccessToken, {}, 'limit-cursor').catch(() => [] as QfNote[]);
-	return json(notes);
+	return Response.json(notes);
 };
 
 export const POST = async ({ locals, request }: RequestEvent) => {
-	if (!locals.user) return json({ error: 'Unauthorized' }, { status: 401 });
-	if (!locals.qfAccessToken) return json({ error: 'QF account required' }, { status: 403 });
+	if (!locals.user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+	if (!locals.qfAccessToken) return Response.json({ error: 'QF account required' }, { status: 403 });
 
 	const { body, ranges, verseKey } = await request.json() as {
 		body?: string;
 		ranges?: string[];
 		verseKey?: string;
 	};
-	if (!body) return json({ error: 'body required' }, { status: 400 });
+	if (!body) return Response.json({ error: 'body required' }, { status: 400 });
 
 	const payload: { body: string; ranges?: string[]; saveToQR: boolean } = {
 		body,
@@ -42,5 +41,5 @@ export const POST = async ({ locals, request }: RequestEvent) => {
 		locals.qfAccessToken,
 		payload
 	);
-	return json(res.data ?? res);
+	return Response.json(res.data ?? res);
 };

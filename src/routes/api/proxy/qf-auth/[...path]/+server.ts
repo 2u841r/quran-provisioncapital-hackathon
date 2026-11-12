@@ -1,5 +1,5 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import { QF_USER_API_URL, QF_USER_CLIENT_ID } from '$lib/server/qf-oauth';
+import { QF_USER_API_URL, QF_USER_CLIENT_ID } from '#lib/server/qf-oauth.ts';
 
 export const GET: RequestHandler = async ({ params, url, locals }) => {
 	const path = params.path ?? '';

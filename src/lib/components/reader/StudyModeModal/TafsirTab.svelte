@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { TafsirContent, TafsirInfo } from '$lib/types/quran';
+	import type { TafsirContent, TafsirInfo } from '#lib/types/quran.ts';
 	import LoadingState from './LoadingState.svelte';
 	import { displayLanguage } from './utils';
 

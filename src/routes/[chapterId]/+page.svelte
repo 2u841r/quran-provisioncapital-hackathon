@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { readerState } from '$lib/state/reader.svelte';
-	import QuranReader from '$lib/components/reader/QuranReader.svelte';
-	import ReaderContextBar from '$lib/components/reader/ReaderContextBar.svelte';
-	import SettingsDrawer from '$lib/components/panels/SettingsDrawer.svelte';
+	import { readerState } from '#lib/state/reader.svelte.ts';
+	import QuranReader from '#lib/components/reader/QuranReader.svelte';
+	import ReaderContextBar from '#lib/components/reader/ReaderContextBar.svelte';
+	import SettingsDrawer from '#lib/components/panels/SettingsDrawer.svelte';
 	import { shortcut } from '@svelte-put/shortcut';
 	import type { PageData } from './$types';
 
@@ -39,7 +39,7 @@
 	let settingsInitialView = $state<'body' | 'translation' | 'reciter'>('body');
 
 	// Scroll to top when chapter changes. The font $effect fires goto() with
-	// noScroll:true which overrides SvelteKit's default scroll reset; tracking
+	// reset:false which overrides SvelteKit's default scroll reset; tracking
 	// chapter.id here fires synchronously on the first render of a new chapter,
 	// before the font effect's secondary goto can suppress the scroll.
 	let _prevChapterId: number | null = null;
@@ -57,9 +57,9 @@
 		if (page.url.searchParams.get('openReciter') === '1') {
 			settingsInitialView = 'reciter';
 			settingsOpen = true;
-			const params = new URLSearchParams(page.url.searchParams);
+			const params = new URLSearchParams(page.url.search);
 			params.delete('openReciter');
-			goto(`?${params.toString()}`, { replaceState: true, noScroll: true });
+			goto(`?${params.toString()}`, { replace: true, reset: false });
 		}
 	});
 
@@ -76,23 +76,23 @@
 		const serverFetchedFont = urlFont ?? 'text_indopak';
 		const needsRefetch = serverFetchedFont !== readerState.quranFont;
 		if (urlFont !== readerState.quranFont) {
-			const params = new URLSearchParams(page.url.searchParams);
+			const params = new URLSearchParams(page.url.search);
 			params.set('font', readerState.quranFont);
 			params.set('lines', String(readerState.mushafLines));
 			if (!params.get('translations')) {
 				params.set('translations', readerState.selectedTranslations.join(','));
 			}
-			goto(`?${params.toString()}`, { invalidateAll: needsRefetch, replaceState: true, noScroll: true });
+			goto(`?${params.toString()}`, { refreshAll: needsRefetch, replace: true, reset: false });
 		}
 	});
 
 	function applySettings() {
-		const params = new URLSearchParams(page.url.searchParams);
+		const params = new URLSearchParams(page.url.search);
 		params.set('font', readerState.quranFont);
 		params.set('lines', String(readerState.mushafLines));
 		params.set('translations', readerState.selectedTranslations.join(','));
 		params.delete('page');
-		goto(`?${params.toString()}`, { invalidateAll: true });
+		goto(`?${params.toString()}`, { refreshAll: true });
 	}
 
 	function handleDrawerChange() {

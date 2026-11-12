@@ -1,7 +1,7 @@
-import { json, error } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
-import { gameScores } from '$lib/server/db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { gameScores } from '#lib/server/db/schema.ts';
 import { eq, desc } from 'drizzle-orm';
 
 export const GET: RequestHandler = async ({ params }) => {
@@ -21,5 +21,5 @@ export const GET: RequestHandler = async ({ params }) => {
 		.orderBy(desc(gameScores.score), desc(gameScores.createdAt))
 		.limit(10);
 
-	return json(rows);
+	return Response.json(rows);
 };

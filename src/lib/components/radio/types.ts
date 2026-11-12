@@ -1,4 +1,4 @@
-import type { Reciter } from '$lib/types/quran';
+import type { Reciter } from '#lib/types/quran.ts';
 
 export type AudioTrack = {
 	reciterId: number;

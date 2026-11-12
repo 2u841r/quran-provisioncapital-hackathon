@@ -1,4 +1,4 @@
-import { getChaptersData } from '$lib/api/quran';
+import { getChaptersData } from '#lib/api/quran.ts';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = () => {

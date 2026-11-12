@@ -1,4 +1,4 @@
-import { fetchReciters } from '$lib/api/quran';
+import { fetchReciters } from '#lib/api/quran.ts';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ fetch }) => {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { RelatedVerse } from '$lib/types/quran';
+	import type { RelatedVerse } from '#lib/types/quran.ts';
 	import EmptyState from './EmptyState.svelte';
 	import LoadingState from './LoadingState.svelte';
 

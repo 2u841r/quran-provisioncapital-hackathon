@@ -1,12 +1,11 @@
-import type { Handle } from '@sveltejs/kit';
-import { sequence } from '@sveltejs/kit/hooks';
-import { building } from '$app/environment';
-import { auth } from '$lib/server/auth';
+import { sequence, type Handle } from '@sveltejs/kit/hooks';
+import { building } from '$app/env';
+import { auth } from '#lib/server/auth.ts';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
-import { db } from '$lib/server/db';
-import { account as accountTable } from '$lib/server/db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { account as accountTable } from '#lib/server/db/schema.ts';
 import { eq, and } from 'drizzle-orm';
-import { refreshAccessToken } from '$lib/server/qf-oauth';
+import { refreshAccessToken } from '#lib/server/qf-oauth.ts';
 
 // Redirect apex domain quran.bid → www.quran.bid (301)
 const handleApex: Handle = async ({ event, resolve }) => {

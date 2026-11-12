@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { QuestionsResponse } from '$lib/types/quran';
+	import type { QuestionsResponse } from '#lib/types/quran.ts';
 	import EmptyState from './EmptyState.svelte';
 	import LoadingState from './LoadingState.svelte';
 	import { ANSWER_TYPE_LABELS } from './utils';

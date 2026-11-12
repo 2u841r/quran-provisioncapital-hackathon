@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { SvelteMap } from 'svelte/reactivity';
 	import { untrack } from 'svelte';
-	import { fetchMushafPage } from '$lib/api/quran';
-	import { readerState } from '$lib/state/reader.svelte';
-	import type { Chapter, Word } from '$lib/types/quran';
+	import { fetchMushafPage } from '#lib/api/quran.ts';
+	import { readerState } from '#lib/state/reader.svelte.ts';
+	import type { Chapter, Word } from '#lib/types/quran.ts';
 	import type { LineWord } from './ReadingView/types';
 	import Page from './ReadingView/Page.svelte';
 	import ChapterControls from './EndOfScrollingControls/ChapterControls.svelte';

@@ -1,9 +1,8 @@
-import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
-import { readingHistory } from '$lib/server/db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { readingHistory } from '#lib/server/db/schema.ts';
 import { eq, desc } from 'drizzle-orm';
-import { qfApiFetchAll, qfApiPost, MUSHAF_ID } from '$lib/server/qf-oauth';
+import { qfApiFetchAll, qfApiPost, MUSHAF_ID } from '#lib/server/qf-oauth.ts';
 
 interface QfActivityDay {
 	id: string;
@@ -16,7 +15,7 @@ interface QfActivityDay {
 }
 
 export const GET = async ({ locals }: RequestEvent) => {
-	if (!locals.user) return json({ error: 'Unauthorized' }, { status: 401 });
+	if (!locals.user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
 	if (locals.qfAccessToken) {
 		const days = await qfApiFetchAll<QfActivityDay>('activity-days', locals.qfAccessToken).catch(() => [] as QfActivityDay[]);
@@ -38,7 +37,7 @@ export const GET = async ({ locals }: RequestEvent) => {
 			}
 		}
 
-		return json(rows.slice(0, 50));
+		return Response.json(rows.slice(0, 50));
 	}
 
 	const rows = await db
@@ -48,14 +47,14 @@ export const GET = async ({ locals }: RequestEvent) => {
 		.orderBy(desc(readingHistory.readAt))
 		.limit(50);
 
-	return json(rows);
+	return Response.json(rows);
 };
 
 export const POST = async ({ locals, request }: RequestEvent) => {
-	if (!locals.user) return json({ error: 'Unauthorized' }, { status: 401 });
+	if (!locals.user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
 	const { verseKey } = await request.json() as { verseKey?: string };
-	if (!verseKey) return json({ error: 'verseKey required' }, { status: 400 });
+	if (!verseKey) return Response.json({ error: 'verseKey required' }, { status: 400 });
 
 	if (locals.qfAccessToken) {
 		const range = `${verseKey}-${verseKey}`;
@@ -65,7 +64,7 @@ export const POST = async ({ locals, request }: RequestEvent) => {
 			{ type: 'QURAN', ranges: [range], mushafId: MUSHAF_ID, seconds: 30 }
 		).catch(() => {});
 
-		return json({ verseKey, readAt: new Date().toISOString() });
+		return Response.json({ verseKey, readAt: new Date().toISOString() });
 	}
 
 	const id = crypto.randomUUID();
@@ -78,5 +77,5 @@ export const POST = async ({ locals, request }: RequestEvent) => {
 		})
 		.returning();
 
-	return json(row);
+	return Response.json(row);
 };

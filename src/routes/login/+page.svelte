@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
-	const next = $derived($page.url.searchParams.get('next') ?? '/');
-	const error = $derived($page.url.searchParams.get('error'));
+	const next = $derived(page.url.searchParams.get('next') ?? '/');
+	const error = $derived(page.url.searchParams.get('error'));
 
 	const ERROR_MESSAGES: Record<string, string> = {
 		qf_not_configured: 'Quran.com login is not configured.',
@@ -36,7 +36,25 @@
 		href="/auth/qf?next={next}"
 		class="w-4/5 flex items-center justify-center gap-2.5 h-12 rounded-full bg-primary text-primary-content text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all no-underline shadow-sm"
 	>
-		<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="18"
+			height="18"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+		>
+			<circle cx="12" cy="12" r="10"></circle>
+			<line x1="2" y1="12" x2="22" y2="12"></line>
+
+			<path
+				d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+			></path>
+		</svg>
+
 		Sign in with Quran.com
 	</a>
 
@@ -45,8 +63,20 @@
 		class="flex items-center gap-1.5 mt-6 text-sm text-base-content/70 hover:opacity-75 transition-opacity bg-transparent border-none cursor-pointer"
 		onclick={() => history.back()}
 	>
-		<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-			<path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="20"
+			height="20"
+			fill="none"
+			viewBox="0 0 24 24"
+			stroke="currentColor"
+			stroke-width="2"
+		>
+			<path
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				d="M15 19l-7-7 7-7"
+			></path>
 		</svg>
 		Back
 	</button>

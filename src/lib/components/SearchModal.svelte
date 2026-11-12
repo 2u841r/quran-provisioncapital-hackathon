@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { fetchSearch, getChaptersData } from '$lib/api/quran';
-	import type { SearchResult } from '$lib/types/quran';
-	import VoiceSearch from '$lib/components/VoiceSearch.svelte';
+	import { fetchSearch, getChaptersData } from '#lib/api/quran.ts';
+	import type { SearchResult } from '#lib/types/quran.ts';
+	import VoiceSearch from '#lib/components/VoiceSearch.svelte';
 
 	interface Props {
 		open: boolean;

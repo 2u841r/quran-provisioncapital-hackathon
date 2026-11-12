@@ -1,8 +1,8 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import { auth } from '$lib/server/auth';
-import { db } from '$lib/server/db';
-import { user } from '$lib/server/db/schema';
+import { auth } from '#lib/server/auth.ts';
+import { db } from '#lib/server/db/index.ts';
+import { user } from '#lib/server/db/schema.ts';
 import { eq } from 'drizzle-orm';
 import { APIError } from 'better-auth/api';
 

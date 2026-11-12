@@ -1,9 +1,9 @@
 import { redirect } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
-import { bookmark, readingHistory } from '$lib/server/db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { bookmark, readingHistory } from '#lib/server/db/schema.ts';
 import { eq, desc } from 'drizzle-orm';
-import { qfApiFetchAll, MUSHAF_ID } from '$lib/server/qf-oauth';
+import { qfApiFetchAll, MUSHAF_ID } from '#lib/server/qf-oauth.ts';
 
 interface QfNote {
 	id: string;

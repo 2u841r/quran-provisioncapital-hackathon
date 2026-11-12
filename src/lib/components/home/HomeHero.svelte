@@ -1,6 +1,6 @@
 <script lang="ts">
-	import backgroundSvg from '$lib/assets/background.svg?raw';
-	import type { Chapter } from '$lib/types/quran';
+	import backgroundSvg from '#lib/assets/background.svg?raw';
+	import type { Chapter } from '#lib/types/quran.ts';
 	import SearchInput from './SearchInput.svelte';
 	import HeroButtons from './HeroButtons/index.svelte';
 

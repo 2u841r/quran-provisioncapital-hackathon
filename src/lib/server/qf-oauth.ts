@@ -1,15 +1,11 @@
-import { env } from '$env/dynamic/private';
+import * as env from '$app/env/private';
 
 // Pre-live client for user OAuth (Authorization Code + PKCE)
 export const QF_USER_CLIENT_ID = env.QF_USER_CLIENT_ID ?? '';
 export const QF_USER_CLIENT_SECRET = env.QF_USER_CLIENT_SECRET ?? '';
-export const QF_USER_OAUTH_URL =
-	env.QF_USER_OAUTH_URL ?? 'https://oauth2.quran.foundation';
+export const QF_USER_OAUTH_URL = env.QF_USER_OAUTH_URL ?? 'https://oauth2.quran.foundation';
 export const QF_USER_API_URL = env.QF_USER_API_URL ?? 'https://apis.quran.foundation';
-
-export const QF_USER_SCOPES =
-	'openid offline_access bookmark reading_session goal activity_day streak note preference';
-
+export const QF_USER_SCOPES = 'openid offline_access bookmark reading_session goal activity_day streak note preference';
 export const MUSHAF_ID = 2; // HAFS (standard Arabic Quran)
 
 const FONT_TO_MUSHAF_ID: Record<string, number> = {
@@ -201,7 +197,7 @@ export function decodeJwt(token: string): Record<string, unknown> | null {
 		const parts = token.split('.');
 		if (parts.length < 2) return null;
 		const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-		const pad = '='.repeat((4 - (payload.length % 4)) % 4);
+		const pad = ('=').repeat((4 - payload.length % 4) % 4);
 		return JSON.parse(atob(payload + pad));
 	} catch {
 		return null;

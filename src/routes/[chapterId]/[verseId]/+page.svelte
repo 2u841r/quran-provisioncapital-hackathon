@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { readerState } from '$lib/state/reader.svelte';
-	import QuranReader from '$lib/components/reader/QuranReader.svelte';
-	import ReaderContextBar from '$lib/components/reader/ReaderContextBar.svelte';
-	import SettingsDrawer from '$lib/components/panels/SettingsDrawer.svelte';
+	import { readerState } from '#lib/state/reader.svelte.ts';
+	import QuranReader from '#lib/components/reader/QuranReader.svelte';
+	import ReaderContextBar from '#lib/components/reader/ReaderContextBar.svelte';
+	import SettingsDrawer from '#lib/components/panels/SettingsDrawer.svelte';
 	import type { PageData } from './$types';
 
 	interface Props {
@@ -34,22 +34,22 @@
 		if (typeof window === 'undefined') return;
 		const urlFont = page.url.searchParams.get('font');
 		if (urlFont !== readerState.quranFont) {
-			const params = new URLSearchParams(page.url.searchParams);
+			const params = new URLSearchParams(page.url.search);
 			params.set('font', readerState.quranFont);
 			params.set('lines', String(readerState.mushafLines));
 			if (!params.get('translations')) {
 				params.set('translations', readerState.selectedTranslations.join(','));
 			}
-			goto(`?${params.toString()}`, { invalidateAll: true, replaceState: true });
+			goto(`?${params.toString()}`, { refreshAll: true, replace: true });
 		}
 	});
 
 	function applySettings() {
-		const params = new URLSearchParams(page.url.searchParams);
+		const params = new URLSearchParams(page.url.search);
 		params.set('font', readerState.quranFont);
 		params.set('lines', String(readerState.mushafLines));
 		params.set('translations', readerState.selectedTranslations.join(','));
-		goto(`?${params.toString()}`, { invalidateAll: true });
+		goto(`?${params.toString()}`, { refreshAll: true });
 	}
 
 	function handleDrawerChange() {

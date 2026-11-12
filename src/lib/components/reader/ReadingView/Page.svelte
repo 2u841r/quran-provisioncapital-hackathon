@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Chapter } from '$lib/types/quran';
+	import type { Chapter } from '#lib/types/quran.ts';
 	import type { LineMap } from './types';
 	import Line from './Line.svelte';
 	import PageFooter from './PageFooter.svelte';

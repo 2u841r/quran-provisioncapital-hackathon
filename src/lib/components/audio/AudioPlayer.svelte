@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { audioState } from '$lib/state/audio.svelte';
-	import { readerState } from '$lib/state/reader.svelte';
-	import { navbarState } from '$lib/state/navbar.svelte';
-	import RepeatVerseModal from '$lib/components/reader/TranslationView/modals/RepeatVerseModal.svelte';
+	import { audioState } from '#lib/state/audio.svelte.ts';
+	import { readerState } from '#lib/state/reader.svelte.ts';
+	import { navbarState } from '#lib/state/navbar.svelte.ts';
+	import RepeatVerseModal from '#lib/components/reader/TranslationView/modals/RepeatVerseModal.svelte';
 
 	const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 

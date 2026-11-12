@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { VerseTabCounts } from '$lib/api/quran';
+	import type { VerseTabCounts } from '#lib/api/quran.ts';
 	import type { StudyTab } from '../StudyModeModal/types';
 
 	interface Props {

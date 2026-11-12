@@ -1,6 +1,6 @@
-import { json, error } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { generateWhichSurahQuestions, generatePrevNextQuestions } from '$lib/server/games';
+import { generateWhichSurahQuestions, generatePrevNextQuestions } from '#lib/server/games.ts';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const body = await request.json() as {
@@ -22,12 +22,12 @@ export const POST: RequestHandler = async ({ request }) => {
 	try {
 		if (game === 'which-surah') {
 			const questions = await generateWhichSurahQuestions(juz_start, juz_end);
-			return json({ questions });
+			return Response.json({ questions });
 		}
 		if (game === 'prev-next') {
 			if (mode !== 'prev' && mode !== 'next') error(400, 'mode must be prev or next');
 			const questions = await generatePrevNextQuestions(juz_start, juz_end, mode);
-			return json({ questions });
+			return Response.json({ questions });
 		}
 		error(400, 'Unknown game');
 	} catch (e) {

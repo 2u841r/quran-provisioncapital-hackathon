@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { fetchTafsirContent } from '$lib/api/quran';
-	import type { TafsirContent } from '$lib/types/quran';
+	import { fetchTafsirContent } from '#lib/api/quran.ts';
+	import type { TafsirContent } from '#lib/types/quran.ts';
 
 	interface Props {
 		verseKey: string;

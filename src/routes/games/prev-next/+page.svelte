@@ -1,6 +1,6 @@
 <script lang="ts">
-	import JuzSelector from '$lib/components/games/JuzSelector.svelte';
-	import { validateGuestName } from '$lib/games/data';
+	import JuzSelector from '#lib/components/games/JuzSelector.svelte';
+	import { validateGuestName } from '#lib/games/data.ts';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();

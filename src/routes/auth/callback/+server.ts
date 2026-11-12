@@ -1,11 +1,11 @@
 import { redirect } from '@sveltejs/kit';
-import { dev } from '$app/environment';
+import { dev } from '$app/env';
 import type { RequestEvent } from '@sveltejs/kit';
-import { exchangeCode, decodeJwt, signForBetterAuth } from '$lib/server/qf-oauth';
-import { db } from '$lib/server/db';
-import { user as userTable, account as accountTable, session as sessionTable } from '$lib/server/db/schema';
+import { exchangeCode, decodeJwt, signForBetterAuth } from '#lib/server/qf-oauth.ts';
+import { db } from '#lib/server/db/index.ts';
+import { user as userTable, account as accountTable, session as sessionTable } from '#lib/server/db/schema.ts';
 import { eq, and } from 'drizzle-orm';
-import { env } from '$env/dynamic/private';
+import { ORIGIN, BETTER_AUTH_SECRET } from '$app/env/private';
 
 export const GET = async ({ url, cookies }: RequestEvent) => {
 	const rawCookie = cookies.get('qf_oauth');
@@ -27,7 +27,7 @@ export const GET = async ({ url, cookies }: RequestEvent) => {
 
 	if (state !== oauthState.state) redirect(302, '/login?error=state_mismatch');
 
-	const origin = (env.ORIGIN ?? 'http://localhost:5173').replace(/\/$/, '');
+	const origin = (ORIGIN ?? 'http://localhost:5173').replace(/\/$/, '');
 	const redirectUri = `${origin}/auth/callback`;
 
 	let tokens: Awaited<ReturnType<typeof exchangeCode>>;
@@ -41,10 +41,10 @@ export const GET = async ({ url, cookies }: RequestEvent) => {
 	const claims = decodeJwt(tokens.id_token);
 	if (!claims?.sub) redirect(302, '/login?error=invalid_id_token');
 
-	const sub = String(claims!.sub);
-	const email = String(claims!.email ?? `${sub}@users.quran.foundation`);
-	const name = String(claims!.name ?? claims!.preferred_username ?? 'Quran.com User');
-	const image = claims!.picture ? String(claims!.picture) : null;
+	const sub = String((claims!).sub);
+	const email = String((claims!).email ?? `${sub}@users.quran.foundation`);
+	const name = String((claims!).name ?? (claims!).preferred_username ?? 'Quran.com User');
+	const image = (claims!).picture ? String((claims!).picture) : null;
 	const tokenExpiresAt = new Date(Date.now() + tokens.expires_in * 1000);
 
 	const [existingAccount] = await db
@@ -101,7 +101,7 @@ export const GET = async ({ url, cookies }: RequestEvent) => {
 		updatedAt: new Date(),
 	});
 
-	const signedToken = await signForBetterAuth(sessionToken, env.BETTER_AUTH_SECRET ?? '');
+	const signedToken = await signForBetterAuth(sessionToken, BETTER_AUTH_SECRET ?? '');
 
 	const secure = !dev;
 	const cookieName = secure ? '__Secure-better-auth.session_token' : 'better-auth.session_token';

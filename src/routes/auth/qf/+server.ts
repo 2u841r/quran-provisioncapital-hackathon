@@ -1,8 +1,16 @@
 import { redirect } from '@sveltejs/kit';
-import { dev } from '$app/environment';
+import { dev } from '$app/env';
 import type { RequestEvent } from '@sveltejs/kit';
-import { generatePkce, randomToken, buildAuthorizeUrl, QF_USER_CLIENT_ID } from '$lib/server/qf-oauth';
-import { env } from '$env/dynamic/private';
+
+import {
+	generatePkce,
+	randomToken,
+	buildAuthorizeUrl,
+	QF_USER_CLIENT_ID,
+	QF_USER_OAUTH_URL
+} from '#lib/server/qf-oauth.ts';
+
+import { ORIGIN } from '$app/env/private';
 
 export const GET = async ({ url, cookies }: RequestEvent) => {
 	if (!QF_USER_CLIENT_ID) redirect(302, '/login?error=qf_not_configured');
@@ -20,6 +28,12 @@ export const GET = async ({ url, cookies }: RequestEvent) => {
 		maxAge: 600,
 	});
 
-	const origin = (env.ORIGIN ?? 'http://localhost:5173').replace(/\/$/, '');
-	redirect(302, buildAuthorizeUrl({ state, nonce, challenge, redirectUri: `${origin}/auth/callback` }));
+	const origin = (ORIGIN ?? 'http://localhost:5173').replace(/\/$/, '');
+
+	redirect(302, buildAuthorizeUrl({
+		state,
+		nonce,
+		challenge,
+		redirectUri: `${origin}/auth/callback`
+	}), { external: [new URL(QF_USER_OAUTH_URL).origin] });
 };

@@ -9,8 +9,8 @@ import {
 	isValidChapterId,
 	isValidVerseNumber,
 	isValidVerseRange
-} from '$lib/api/quran';
-import type { QuranFont } from '$lib/state/reader.svelte';
+} from '#lib/api/quran.ts';
+import type { QuranFont } from '#lib/state/reader.svelte.ts';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, url, fetch }) => {

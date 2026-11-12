@@ -1,4 +1,4 @@
-import type { HadithItem } from '$lib/types/quran';
+import type { HadithItem } from '#lib/types/quran.ts';
 
 export const ANSWER_TYPE_LABELS: Record<string, string> = {
 	CLARIFICATION: 'Clarification',

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { audioState } from '$lib/state/audio.svelte';
-	import type { Reciter } from '$lib/types/quran';
+	import { audioState } from '#lib/state/audio.svelte.ts';
+	import type { Reciter } from '#lib/types/quran.ts';
 
 	interface Props {
 		reciters: Reciter[];

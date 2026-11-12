@@ -12,8 +12,8 @@
 		LayersResponse,
 		QiraatResponse,
 		RelatedVerse
-	} from '$lib/types/quran';
-	import { readerState } from '$lib/state/reader.svelte';
+	} from '#lib/types/quran.ts';
+	import { readerState } from '#lib/state/reader.svelte.ts';
 	import {
 		fetchTafsirContent,
 		fetchAvailableTafsirs,
@@ -23,7 +23,7 @@
 		fetchLayeredTranslations,
 		fetchQiraat,
 		fetchRelatedVerses
-	} from '$lib/api/quran';
+	} from '#lib/api/quran.ts';
 	import ReflectionsList from './ReflectionsList.svelte';
 	import AnswersTab from './StudyModeModal/AnswersTab.svelte';
 	import EmptyState from './StudyModeModal/EmptyState.svelte';
@@ -35,7 +35,7 @@
 	import TabBar from './StudyModeModal/TabBar.svelte';
 	import TafsirTab from './StudyModeModal/TafsirTab.svelte';
 	import { STUDY_TABS, type StudyTab } from './StudyModeModal/types';
-	import { fetchVerseTabCounts, type VerseTabCounts } from '$lib/api/quran';
+	import { fetchVerseTabCounts, type VerseTabCounts } from '#lib/api/quran.ts';
 
 	interface Props {
 		verseKey: string;

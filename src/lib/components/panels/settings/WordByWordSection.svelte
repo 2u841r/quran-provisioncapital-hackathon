@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { readerState } from '$lib/state/reader.svelte';
+	import { readerState } from '#lib/state/reader.svelte.ts';
 </script>
 
 <div id="wbw-section" class="space-y-4">

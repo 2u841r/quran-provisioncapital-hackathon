@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { fetchSearch } from '$lib/api/quran';
-	import type { GatewaySearchResult } from '$lib/types/quran';
-	import type { Chapter } from '$lib/types/quran';
-	import VoiceSearch from '$lib/components/VoiceSearch.svelte';
+	import { fetchSearch } from '#lib/api/quran.ts';
+	import type { GatewaySearchResult } from '#lib/types/quran.ts';
+	import type { Chapter } from '#lib/types/quran.ts';
+	import VoiceSearch from '#lib/components/VoiceSearch.svelte';
 
 	interface Props {
 		surahs: (Chapter & { id: number })[];
@@ -67,7 +67,7 @@
 		loading = true;
 		debounceTimer = setTimeout(async () => {
 			try {
-				const res = await fetchSearch(fetch, q) as import('$lib/types/quran').GatewaySearchResponse;
+				const res = await fetchSearch(fetch, q) as import('#lib/types/quran.ts').GatewaySearchResponse;
 				results = res.result?.navigation ?? [];
 			} catch {
 				results = [];

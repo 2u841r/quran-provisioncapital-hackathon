@@ -1,8 +1,8 @@
 import { redirect } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
-import { readingHistory } from '$lib/server/db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { readingHistory } from '#lib/server/db/schema.ts';
 import { eq, desc } from 'drizzle-orm';
-import { qfApiFetchAll, QF_USER_API_URL, QF_USER_CLIENT_ID } from '$lib/server/qf-oauth';
+import { qfApiFetchAll, QF_USER_API_URL, QF_USER_CLIENT_ID } from '#lib/server/qf-oauth.ts';
 import type { PageServerLoad } from './$types';
 
 interface QfActivityDay {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { AvailableTranslation, Reciter } from '$lib/types/quran';
+	import type { AvailableTranslation, Reciter } from '#lib/types/quran.ts';
 	import VersePreview from './VersePreview.svelte';
 	import QuranFontSection from './QuranFontSection.svelte';
 	import TranslationSection from './TranslationSection.svelte';

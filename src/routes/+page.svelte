@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import HomeHero from '$lib/components/home/HomeHero.svelte';
-	import ReadingSection from '$lib/components/home/ReadingSection.svelte';
-	import NavigationDrawer from '$lib/components/NavigationDrawer.svelte';
+	import HomeHero from '#lib/components/home/HomeHero.svelte';
+	import ReadingSection from '#lib/components/home/ReadingSection.svelte';
+	import NavigationDrawer from '#lib/components/NavigationDrawer.svelte';
 
 	interface Props {
 		data: PageData;

@@ -1,5 +1,5 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import { env } from '$env/dynamic/private';
+import * as env from '$app/env/private';
 
 const QF_API_BASE = 'https://api.quran.com/api/v4';
 

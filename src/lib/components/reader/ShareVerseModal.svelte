@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Verse } from '$lib/types/quran';
+	import type { Verse } from '#lib/types/quran.ts';
 
 	interface Props {
 		verse: Verse;

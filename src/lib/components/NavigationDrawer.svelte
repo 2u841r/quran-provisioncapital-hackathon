@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import type { Chapter } from '$lib/types/quran';
-	import { scrollCurrentIntoView } from '$lib/util/reader';
+	import type { Chapter } from '#lib/types/quran.ts';
+	import { scrollCurrentIntoView } from '#lib/util/reader.ts';
 
 	interface Props {
 		open: boolean;

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ReflectionItem, ReflectionsResponse } from '$lib/types/quran';
+	import type { ReflectionItem, ReflectionsResponse } from '#lib/types/quran.ts';
 
 	type Accent = 'primary' | 'secondary';
 

@@ -1,9 +1,8 @@
-import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
-import { bookmark } from '$lib/server/db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { bookmark } from '#lib/server/db/schema.ts';
 import { eq, and } from 'drizzle-orm';
-import { qfApiFetchAll, qfApiPost, qfApiDelete, MUSHAF_ID } from '$lib/server/qf-oauth';
+import { qfApiFetchAll, qfApiPost, qfApiDelete, MUSHAF_ID } from '#lib/server/qf-oauth.ts';
 
 interface QfBookmark {
 	id: string;
@@ -19,7 +18,7 @@ function verseKeyToQf(verseKey: string) {
 }
 
 export const GET = async ({ locals }: RequestEvent) => {
-	if (!locals.user) return json({ error: 'Unauthorized' }, { status: 401 });
+	if (!locals.user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
 	if (locals.qfAccessToken) {
 		const qfRows = await qfApiFetchAll<QfBookmark>('bookmarks', locals.qfAccessToken, {
@@ -36,7 +35,7 @@ export const GET = async ({ locals }: RequestEvent) => {
 				createdAt: b.createdAt ? new Date(b.createdAt) : new Date()
 			}));
 
-		return json(rows);
+		return Response.json(rows);
 	}
 
 	const rows = await db
@@ -45,15 +44,15 @@ export const GET = async ({ locals }: RequestEvent) => {
 		.where(eq(bookmark.userId, locals.user.id))
 		.orderBy(bookmark.createdAt);
 
-	return json(rows);
+	return Response.json(rows);
 };
 
 export const POST = async ({ locals, request }: RequestEvent) => {
-	if (!locals.user) return json({ error: 'Unauthorized' }, { status: 401 });
+	if (!locals.user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
 	const body = await request.json() as { verseKey?: string; collectionName?: string };
 	const { verseKey, collectionName = 'Favorites' } = body;
-	if (!verseKey) return json({ error: 'verseKey required' }, { status: 400 });
+	if (!verseKey) return Response.json({ error: 'verseKey required' }, { status: 400 });
 
 	if (locals.qfAccessToken) {
 		const res = await qfApiPost<{ success: boolean; data: QfBookmark }>(
@@ -63,8 +62,8 @@ export const POST = async ({ locals, request }: RequestEvent) => {
 		).catch(() => null);
 
 		const qfRow = res?.data ?? null;
-		if (!qfRow) return json({ exists: true });
-		return json({
+		if (!qfRow) return Response.json({ exists: true });
+		return Response.json({
 			id: qfRow.id,
 			userId: locals.user.id,
 			verseKey,
@@ -80,15 +79,15 @@ export const POST = async ({ locals, request }: RequestEvent) => {
 		.onConflictDoNothing()
 		.returning();
 
-	return json(row ?? { exists: true });
+	return Response.json(row ?? { exists: true });
 };
 
 export const DELETE = async ({ locals, request }: RequestEvent) => {
-	if (!locals.user) return json({ error: 'Unauthorized' }, { status: 401 });
+	if (!locals.user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
 	const body = await request.json() as { verseKey?: string; collectionName?: string };
 	const { verseKey, collectionName = 'Favorites' } = body;
-	if (!verseKey) return json({ error: 'verseKey required' }, { status: 400 });
+	if (!verseKey) return Response.json({ error: 'verseKey required' }, { status: 400 });
 
 	if (locals.qfAccessToken) {
 		// Fetch all bookmarks and find matching one by key+verseNumber
@@ -101,7 +100,7 @@ export const DELETE = async ({ locals, request }: RequestEvent) => {
 		if (match?.id) {
 			await qfApiDelete(`bookmarks/${match.id}`, locals.qfAccessToken).catch(() => {});
 		}
-		return json({ ok: true });
+		return Response.json({ ok: true });
 	}
 
 	await db
@@ -114,5 +113,5 @@ export const DELETE = async ({ locals, request }: RequestEvent) => {
 			)
 		);
 
-	return json({ ok: true });
+	return Response.json({ ok: true });
 };

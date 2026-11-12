@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { navbarState } from '$lib/state/navbar.svelte';
+	import { navbarState } from '#lib/state/navbar.svelte.ts';
 </script>
 
 {#if navbarState.bannerVisible}

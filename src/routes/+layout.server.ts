@@ -1,5 +1,5 @@
 import type { ServerLoad } from '@sveltejs/kit';
-import { fetchReciters } from '$lib/api/quran';
+import { fetchReciters } from '#lib/api/quran.ts';
 
 export const load: ServerLoad = async ({ locals, fetch }) => {
 	const reciters = await fetchReciters(fetch);

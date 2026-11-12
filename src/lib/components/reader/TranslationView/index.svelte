@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { audioState } from '$lib/state/audio.svelte';
-	import { readerState, fontFamilyMap } from '$lib/state/reader.svelte';
-	import type { Verse } from '$lib/types/quran';
-	import { fetchVerseTabCounts, type VerseTabCounts } from '$lib/api/quran';
+	import { audioState } from '#lib/state/audio.svelte.ts';
+	import { readerState, fontFamilyMap } from '#lib/state/reader.svelte.ts';
+	import type { Verse } from '#lib/types/quran.ts';
+	import { fetchVerseTabCounts, type VerseTabCounts } from '#lib/api/quran.ts';
 	import type { StudyTab } from '../StudyModeModal.svelte';
 	import ActionButtons from './ActionButtons.svelte';
 	import BottomActions from './BottomActions.svelte';

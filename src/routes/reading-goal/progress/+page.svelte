@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { onMount } from 'svelte';
-	import GoalForm from '$lib/components/GoalForm.svelte';
+	import GoalForm from '#lib/components/GoalForm.svelte';
 
-	let { data, form } = $props<{ data: any; form: any }>();
+	let { data, form }: { data: any; form: any } = $props();
 
 	type GoalType = 'time' | 'pages' | 'range';
 	type Period = 'daily' | 'continuous';

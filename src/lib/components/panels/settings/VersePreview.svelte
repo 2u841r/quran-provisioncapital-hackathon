@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { readerState } from '$lib/state/reader.svelte';
+	import { readerState } from '#lib/state/reader.svelte.ts';
 
 	const previewByFont: Record<string, string> = {
 		text_indopak: 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِیْمِ',

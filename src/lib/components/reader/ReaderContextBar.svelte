@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { readerState } from '$lib/state/reader.svelte';
-	import { navbarState } from '$lib/state/navbar.svelte';
-	import { getChaptersData } from '$lib/api/quran';
-	import NavigationDrawer from '$lib/components/NavigationDrawer.svelte';
+	import { readerState } from '#lib/state/reader.svelte.ts';
+	import { navbarState } from '#lib/state/navbar.svelte.ts';
+	import { getChaptersData } from '#lib/api/quran.ts';
+	import NavigationDrawer from '#lib/components/NavigationDrawer.svelte';
 	import { untrack } from 'svelte';
-	import { detectActiveLocation } from '$lib/util/reader';
-	import type { Chapter, Verse } from '$lib/types/quran';
+	import { detectActiveLocation } from '#lib/util/reader.ts';
+	import type { Chapter, Verse } from '#lib/types/quran.ts';
 
 	interface Props {
 		chapter: Chapter;

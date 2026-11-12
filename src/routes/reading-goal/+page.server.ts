@@ -1,9 +1,9 @@
 import { redirect, fail } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
-import { readingGoal, readingHistory } from '$lib/server/db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { readingGoal, readingHistory } from '#lib/server/db/schema.ts';
 import { eq, and, gte } from 'drizzle-orm';
-import { qfApiFetch, qfApiFetchAll, qfGetMushafId, QF_USER_API_URL, QF_USER_CLIENT_ID } from '$lib/server/qf-oauth';
+import { qfApiFetch, qfApiFetchAll, qfGetMushafId, QF_USER_API_URL, QF_USER_CLIENT_ID } from '#lib/server/qf-oauth.ts';
 
 
 interface QfActivityDay {

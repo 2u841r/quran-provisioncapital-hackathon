@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { audioState } from '$lib/state/audio.svelte';
-	import { getRandomStation, sampleTrack } from '$lib/components/radio/curatedStations';
+	import { audioState } from '#lib/state/audio.svelte.ts';
+	import { getRandomStation, sampleTrack } from '#lib/components/radio/curatedStations.ts';
 
 	interface Props {
 		onNavigate: () => void;

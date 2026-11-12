@@ -1,12 +1,12 @@
 <script lang="ts">
-	import pinRaw from '$lib/assets/icons/pin.svg?raw';
-	import advancedCopyRaw from '$lib/assets/icons/advanced_copy.svg?raw';
-	import bxBookRaw from '$lib/assets/icons/bx-book.svg?raw';
-	import repeatRaw from '$lib/assets/icons/repeat-new.svg?raw';
-	import translationRaw from '$lib/assets/icons/translation.svg?raw';
-	import translationFeedbackRaw from '$lib/assets/icons/translation-feedback.svg?raw';
-	import codeEmbedRaw from '$lib/assets/icons/code-embed.svg?raw';
-	import settingsRaw from '$lib/assets/icons/settings-stroke.svg?raw';
+	import pinRaw from '#lib/assets/icons/pin.svg?raw';
+	import advancedCopyRaw from '#lib/assets/icons/advanced_copy.svg?raw';
+	import bxBookRaw from '#lib/assets/icons/bx-book.svg?raw';
+	import repeatRaw from '#lib/assets/icons/repeat-new.svg?raw';
+	import translationRaw from '#lib/assets/icons/translation.svg?raw';
+	import translationFeedbackRaw from '#lib/assets/icons/translation-feedback.svg?raw';
+	import codeEmbedRaw from '#lib/assets/icons/code-embed.svg?raw';
+	import settingsRaw from '#lib/assets/icons/settings-stroke.svg?raw';
 
 	function svgIcon(raw: string): string {
 		return raw

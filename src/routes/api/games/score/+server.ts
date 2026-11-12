@@ -1,8 +1,8 @@
-import { json, error } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
-import { gameScores } from '$lib/server/db/schema';
-import { validateGuestName } from '$lib/games/data';
+import { db } from '#lib/server/db/index.ts';
+import { gameScores } from '#lib/server/db/schema.ts';
+import { validateGuestName } from '#lib/games/data.ts';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const body = await request.json() as {
@@ -38,5 +38,5 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		juzEnd: juz_end
 	});
 
-	return json({ ok: true });
+	return Response.json({ ok: true });
 };

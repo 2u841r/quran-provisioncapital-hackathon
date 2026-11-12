@@ -1,9 +1,9 @@
-import { json, error } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
-import { readingGoal } from '$lib/server/db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { readingGoal } from '#lib/server/db/schema.ts';
 import { eq } from 'drizzle-orm';
-import { qfApiFetch, qfApiPost, qfApiDelete, MUSHAF_ID } from '$lib/server/qf-oauth';
+import { qfApiFetch, qfApiPost, qfApiDelete, MUSHAF_ID } from '#lib/server/qf-oauth.ts';
 
 const QF_GOAL_TYPE_MAP = { pages: 'QURAN_PAGES', time: 'QURAN_TIME', range: 'QURAN_RANGE' } as const;
 
@@ -14,7 +14,7 @@ export const GET = async ({ locals }: RequestEvent) => {
 		const res = await qfApiFetch<{ success: boolean; data: unknown }>(
 			'goals', locals.qfAccessToken, { type: 'QURAN' }
 		).catch(() => null);
-		return json(res?.data ?? null);
+		return Response.json(res?.data ?? null);
 	}
 
 	const [goal] = await db
@@ -22,7 +22,7 @@ export const GET = async ({ locals }: RequestEvent) => {
 		.from(readingGoal)
 		.where(eq(readingGoal.userId, locals.user.id))
 		.limit(1);
-	return json(goal ?? null);
+	return Response.json(goal ?? null);
 };
 
 export const POST = async ({ locals, request }: RequestEvent) => {
@@ -54,7 +54,7 @@ export const POST = async ({ locals, request }: RequestEvent) => {
 		const res = await qfApiPost<{ success: boolean; data: unknown }>(
 			'goal', locals.qfAccessToken, qfBody, { type: 'QURAN' }
 		);
-		return json(res.data ?? res, { status: 201 });
+		return Response.json(res.data ?? res, { status: 201 });
 	}
 
 	if (!['daily', 'continuous'].includes(period)) return error(400, 'Invalid period');
@@ -77,7 +77,7 @@ export const POST = async ({ locals, request }: RequestEvent) => {
 		.onConflictDoUpdate({ target: readingGoal.userId, set: values })
 		.returning();
 
-	return json(goal, { status: 201 });
+	return Response.json(goal, { status: 201 });
 };
 
 export const DELETE = async ({ locals }: RequestEvent) => {

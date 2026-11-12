@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack } from 'svelte';
-  import { audioState } from '$lib/state/audio.svelte';
+  import { audioState } from '#lib/state/audio.svelte.ts';
 
   interface Props {
     verse: { verseNumber: number; verseKey: string; chapterId?: number | string };

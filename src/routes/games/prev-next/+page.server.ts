@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
-import { db } from '$lib/server/db';
-import { gameScores } from '$lib/server/db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { gameScores } from '#lib/server/db/schema.ts';
 import { eq, desc } from 'drizzle-orm';
 
 export const load: PageServerLoad = async ({ locals }) => {

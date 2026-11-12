@@ -1,5 +1,5 @@
 import { getContentToken, fetchVerseText } from './qf-content';
-import { getSurahsInRange, SURAH_NAMES, SURAH_VERSE_COUNTS, JUZ_SURAHS } from '$lib/games/data';
+import { getSurahsInRange, SURAH_NAMES, SURAH_VERSE_COUNTS, JUZ_SURAHS } from '#lib/games/data.ts';
 
 function shuffle<T>(arr: T[]): T[] {
 	const a = [...arr];

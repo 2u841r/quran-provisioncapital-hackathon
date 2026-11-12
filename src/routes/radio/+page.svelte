@@ -1,9 +1,9 @@
 <script lang="ts">
-	import CuratedStationList from '$lib/components/radio/CuratedStationList.svelte';
-	import ReciterStationList from '$lib/components/radio/ReciterStationList.svelte';
-	import { curatedStations, sampleTrack } from '$lib/components/radio/curatedStations';
-	import type { ActiveStation, RadioReciter } from '$lib/components/radio/types';
-	import { audioState } from '$lib/state/audio.svelte';
+	import CuratedStationList from '#lib/components/radio/CuratedStationList.svelte';
+	import ReciterStationList from '#lib/components/radio/ReciterStationList.svelte';
+	import { curatedStations, sampleTrack } from '#lib/components/radio/curatedStations.ts';
+	import type { ActiveStation, RadioReciter } from '#lib/components/radio/types.ts';
+	import { audioState } from '#lib/state/audio.svelte.ts';
 	import type { PageData } from './$types';
 
 	interface Props {

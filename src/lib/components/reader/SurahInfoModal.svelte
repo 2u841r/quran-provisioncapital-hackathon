@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Chapter, ChapterInfo } from '$lib/types/quran';
-	import { fetchChapterInfo } from '$lib/api/quran';
+	import type { Chapter, ChapterInfo } from '#lib/types/quran.ts';
+	import { fetchChapterInfo } from '#lib/api/quran.ts';
 
 	interface Props {
 		chapter: Chapter;

@@ -14,7 +14,7 @@ interface ChapterAudioFile {
 	verseTimings: VerseTiming[];
 }
 
-import { getChaptersData } from '$lib/api/quran';
+import { getChaptersData } from '#lib/api/quran.ts';
 const chaptersData = getChaptersData();
 
 const QDC_BASE = 'https://api.qurancdn.com/api/qdc';

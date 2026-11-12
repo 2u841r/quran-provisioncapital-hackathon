@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 
-	let { data, form } = $props<{ data: any; form: any }>();
+	let { data, form }: { data: any; form: any } = $props();
 
 	const u = $derived(data.user);
 

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { untrack } from 'svelte';
-	import { fetchAdvancedSearch } from '$lib/api/quran';
-	import type { GatewaySearchResult, GatewaySearchResponse } from '$lib/types/quran';
+	import { fetchAdvancedSearch } from '#lib/api/quran.ts';
+	import type { GatewaySearchResult, GatewaySearchResponse } from '#lib/types/quran.ts';
 
 	const MARK_OPEN = `<mark style="background:none;font-weight:700;color:var(--color-primary);font-style:normal;">`;
 
@@ -14,9 +14,9 @@
 			.replace(/<(?!mark|\/mark)[^>]+>/g, '');
 	}
 
-	const query = $derived($page.url.searchParams.get('query') ?? '');
-	const currentPage = $derived(Number($page.url.searchParams.get('page') ?? 1));
-	let inputValue = $state(untrack(() => $page.url.searchParams.get('query') ?? ''));
+	const query = $derived(page.url.searchParams.get('query') ?? '');
+	const currentPage = $derived(Number(page.url.searchParams.get('page') ?? 1));
+	let inputValue = $state(untrack(() => page.url.searchParams.get('query') ?? ''));
 
 	let data = $state<GatewaySearchResponse | null>(null);
 	let loading = $state(false);
@@ -84,8 +84,8 @@
 				stroke-linejoin="round"
 				class="opacity-50"
 			>
-				<circle cx="11" cy="11" r="8" />
-				<path d="m21 21-4.3-4.3" />
+				<circle cx="11" cy="11" r="8"></circle>
+				<path d="m21 21-4.3-4.3"></path>
 			</svg>
 			<input
 				type="search"
@@ -123,7 +123,7 @@
 										? `/juz/${String(r.key).replace('j', '')}`
 										: `/${r.key}`}
 							<a
-								{href}
+								href={href}
 								class="flex items-center gap-3 rounded-lg border border-base-200 bg-base-100 px-4 py-2.5 no-underline hover:bg-base-200"
 							>
 								<span

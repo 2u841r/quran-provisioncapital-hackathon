@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Chapter } from '$lib/types/quran';
-	import juzMappings from '$lib/data/juz-to-chapter-verse-mappings.json';
+	import type { Chapter } from '#lib/types/quran.ts';
+	import juzMappings from '#lib/data/juz-to-chapter-verse-mappings.json';
 
 	interface Props {
 		surahs: (Chapter & { id: number })[];

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { audioState } from '$lib/state/audio.svelte';
+	import { audioState } from '#lib/state/audio.svelte.ts';
 	import StationCard from './StationCard.svelte';
 	import type { ActiveStation, RadioReciter } from './types';
 

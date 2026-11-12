@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { readerState } from '$lib/state/reader.svelte';
-  import type { Word } from '$lib/types/quran';
+  import { readerState } from '#lib/state/reader.svelte.ts';
+  import type { Word } from '#lib/types/quran.ts';
 
   interface Props {
     verse: {

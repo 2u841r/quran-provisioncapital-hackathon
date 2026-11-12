@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
-import { auth } from '$lib/server/auth';
+import { auth } from '#lib/server/auth.ts';
 
 export const POST: RequestHandler = async (event) => {
 	await auth.api.signOut({ headers: event.request.headers });

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { readerState } from '$lib/state/reader.svelte';
-	import type { AvailableTranslation, Reciter } from '$lib/types/quran';
+	import { readerState } from '#lib/state/reader.svelte.ts';
+	import type { AvailableTranslation, Reciter } from '#lib/types/quran.ts';
 	import SettingTabs, { type SettingsTab } from './SettingTabs.svelte';
 
 	interface Props {

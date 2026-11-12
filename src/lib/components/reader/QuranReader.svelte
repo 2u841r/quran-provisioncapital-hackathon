@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import { readerState } from '$lib/state/reader.svelte';
-	import { fetchChapterVerses } from '$lib/api/quran';
-	import type { Chapter, Verse, Pagination } from '$lib/types/quran';
+	import { readerState } from '#lib/state/reader.svelte.ts';
+	import { fetchChapterVerses } from '#lib/api/quran.ts';
+	import type { Chapter, Verse, Pagination } from '#lib/types/quran.ts';
 	import VerseCard from './TranslationView/index.svelte';
 	import MushafPage from './MushafPage.svelte';
 	import ChapterHeader from './ChapterHeader.svelte';
 	import StudyModeModal, { type StudyTab } from './StudyModeModal.svelte';
-	import type { VerseTabCounts } from '$lib/api/quran';
+	import type { VerseTabCounts } from '#lib/api/quran.ts';
 	import ChapterControls from './EndOfScrollingControls/ChapterControls.svelte';
 
 	interface Props {

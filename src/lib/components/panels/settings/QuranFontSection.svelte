@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { readerState, type QuranFont } from '$lib/state/reader.svelte';
-	import type { Reciter } from '$lib/types/quran';
+	import { readerState, type QuranFont } from '#lib/state/reader.svelte.ts';
+	import type { Reciter } from '#lib/types/quran.ts';
 	import ReciterSection from './ReciterSection.svelte';
 
 	interface Props {

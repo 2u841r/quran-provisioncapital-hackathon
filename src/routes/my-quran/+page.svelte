@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { SvelteMap } from 'svelte/reactivity';
 
-	let { data } = $props<{ data: any }>();
+	let { data }: { data: any } = $props();
 
 	type Tab = 'saved' | 'recent' | 'notes';
 	let activeTab = $state<Tab>('saved');
@@ -12,7 +12,7 @@
 	onMount(async () => {
 		try {
 			const res = await fetch('/api/proxy/content/chapters?language=en');
-			const json = await res.json();
+			const json = (await res.json()) as { chapters?: { id: number; name_simple: string }[] };
 			const map: Record<string, string> = {};
 			for (const ch of json.chapters ?? []) {
 				map[String(ch.id)] = ch.name_simple;

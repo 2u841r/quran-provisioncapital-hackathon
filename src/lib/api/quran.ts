@@ -19,9 +19,9 @@ import type {
 	LayersResponse,
 	QiraatResponse,
 	RelatedVersesResponse
-} from '$lib/types/quran';
-import type { QuranFont } from '$lib/state/reader.svelte';
-import chaptersJson from '$lib/data/chapters.json';
+} from '#lib/types/quran.ts';
+import type { QuranFont } from '#lib/state/reader.svelte.ts';
+import chaptersJson from '#lib/data/chapters.json';
 
 const PUBLIC_API = 'https://api.quran.com/api/v4';
 const PROXY_API = '/api/proxy/content';
@@ -408,7 +408,7 @@ export async function fetchAnswersByAyah(
 	const url = buildUrl(QF_AUTH_PROXY, `/questions/by-verse/${verseKey}`, { language, page, pageSize });
 	const res = await fetchFn(url);
 	if (!res.ok) throw new Error(`API error ${res.status}`);
-	return camelizeKeys(await res.json()) as QuestionsResponse;
+	return camelizeKeys((await res.json()) as object) as QuestionsResponse;
 }
 
 // Batched answers count — mirrors batchCount but uses qf-auth proxy.
@@ -423,7 +423,7 @@ async function batchCountAnswers(fetchFn: typeof fetch, verseKey: string): Promi
 				const url = buildUrl(QF_AUTH_PROXY, `/questions/count-within-range`, { from, to, language: 'en' });
 				const res = await fetchFn(url);
 				if (!res.ok) return {};
-				return camelizeKeys(await res.json()) as Record<string, { total?: number }>;
+				return camelizeKeys((await res.json()) as object) as Record<string, { total?: number }>;
 			} catch { return {}; }
 		})());
 	}
@@ -440,7 +440,7 @@ export async function fetchAnswersCount(
 		const url = buildUrl(QF_AUTH_PROXY, `/questions/by-verse/${verseKey}`, { language, page: 1, pageSize: 1 });
 		const res = await fetchFn(url);
 		if (!res.ok) return 0;
-		const json = camelizeKeys(await res.json()) as { totalCount?: number; questions?: unknown[] };
+		const json = camelizeKeys((await res.json()) as object) as { totalCount?: number; questions?: unknown[] };
 		return Number(json.totalCount ?? json.questions?.length ?? 0);
 	} catch { return 0; }
 }
@@ -594,7 +594,7 @@ export async function fetchVerseTabCounts(
 			try {
 				const res = await fetchFn(buildUrl(PROXY_API, `/gateway/related_verses/by_key/${verseKey}`, { language: 'en', page: 1 }));
 				if (!res.ok) return 0;
-				const json = camelizeKeys(await res.json()) as { pagination?: { totalRecords?: number }; relatedVerses?: unknown[] };
+				const json = camelizeKeys((await res.json()) as object) as { pagination?: { totalRecords?: number }; relatedVerses?: unknown[] };
 				return Number(json.pagination?.totalRecords ?? json.relatedVerses?.length ?? 0);
 			} catch { return 0; }
 		};
