@@ -178,7 +178,7 @@
 					<path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5m-1.414-9.414a2 2 0 1 1 2.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
 				</svg>
 				<p class="text-sm">Connect with Quran.com to view notes</p>
-				<a href="/auth/qf?next=/my-quran" class="btn btn-sm btn-primary">Connect</a>
+				<a href="/auth/qf?next=/my-quran" data-sveltekit-reload class="btn btn-sm btn-primary">Connect</a>
 			</div>
 		{:else if notes.length === 0}
 			<div class="flex flex-col items-center justify-center py-16 gap-3 text-base-content/40">

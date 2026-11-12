@@ -34,6 +34,7 @@
 
 	<a
 		href="/auth/qf?next={next}"
+		data-sveltekit-reload
 		class="w-4/5 flex items-center justify-center gap-2.5 h-12 rounded-full bg-primary text-primary-content text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all no-underline shadow-sm"
 	>
 		<svg
